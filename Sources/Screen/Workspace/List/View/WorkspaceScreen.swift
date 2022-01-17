@@ -15,7 +15,7 @@ struct WorkspaceScreen: View {
     var body: some View {
         GeometryReader { _ in
             ZStack {
-                ColorProvider.backgroundColor
+                ColorProvider.background
                     .edgesIgnoringSafeArea(.all)
                 VStack {
                     ZStack {
@@ -48,7 +48,7 @@ struct WorkspaceScreen: View {
                         VStack {
                             Text("Workspace")
                                 .font(.custom("Comfortaa", size: 20).weight(.bold))
-                                .foregroundColor(ColorProvider.textColor)
+                                .foregroundColor(ColorProvider.text)
                         }
                     }
                     ScrollView {
@@ -66,7 +66,7 @@ struct WorkspaceScreen: View {
 
     @ViewBuilder private var topTile: some View {
         ZStack {
-            ColorProvider.tileColor
+            ColorProvider.tile
             VStack(alignment: .leading, spacing: 16) {
                 Image(systemName: "pencil.and.outline")
                 Text("Extended reality")
@@ -82,7 +82,7 @@ struct WorkspaceScreen: View {
                         .overlay {
                             RoundedRectangle(cornerRadius: 20)
                                 .stroke()
-                                .fill(ColorProvider.redOutlineColor)
+                                .fill(ColorProvider.redOutline)
                         }
                     Text("52 documents")
                         .font(.custom("Comfortaa", size: 14).weight(.bold))
@@ -91,11 +91,11 @@ struct WorkspaceScreen: View {
                         .overlay {
                             RoundedRectangle(cornerRadius: 20)
                                 .stroke()
-                                .fill(ColorProvider.redOutlineColor)
+                                .fill(ColorProvider.redOutline)
                         }
                 }
             }
-            .foregroundColor(ColorProvider.textColor)
+            .foregroundColor(ColorProvider.text)
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -115,7 +115,7 @@ struct WorkspaceScreen: View {
         ], spacing: 24) {
             ForEach(items) { item in
                 ZStack {
-                    ColorProvider.tileColor
+                    ColorProvider.tile
                     HStack {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
@@ -135,7 +135,7 @@ struct WorkspaceScreen: View {
                                         .padding(.vertical, 5)
                                         .background {
                                             RoundedRectangle(cornerRadius: 20)
-                                                .fill(ColorProvider.redOutlineColor)
+                                                .fill(ColorProvider.redOutline)
                                         }
                                 }
                                 HStack {
@@ -147,7 +147,7 @@ struct WorkspaceScreen: View {
                                         .padding(.vertical, 5)
                                         .background {
                                             RoundedRectangle(cornerRadius: 20)
-                                                .fill(ColorProvider.redOutlineColor)
+                                                .fill(ColorProvider.redOutline)
                                         }
                                 }
                             }
@@ -169,7 +169,7 @@ struct WorkspaceScreen: View {
                 }
             }
         }
-        .foregroundColor(ColorProvider.textColor)
+        .foregroundColor(ColorProvider.text)
 
     }
 }

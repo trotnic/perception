@@ -32,7 +32,7 @@ struct ListTile: View {
                             .overlay {
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke()
-                                    .fill(ColorProvider.redOutlineColor)
+                                    .fill(ColorProvider.redOutline)
                             }
                     }
                     HStack {
@@ -45,7 +45,7 @@ struct ListTile: View {
                             .overlay {
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke()
-                                    .fill(ColorProvider.redOutlineColor)
+                                    .fill(ColorProvider.redOutline)
                             }
                     }
                 }
@@ -56,7 +56,7 @@ struct ListTile: View {
         .padding(16)
         .foregroundColor(.white)
         .background {
-            ColorProvider.tileColor
+            ColorProvider.tile
         }
         .mask {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -78,7 +78,7 @@ struct ListTile_Previews: PreviewProvider {
 
     static var previews: some View {
         ZStack {
-            ColorProvider.backgroundColor
+            ColorProvider.background
                 .ignoresSafeArea()
             ListTile(viewItem: viewItem)
                 .padding(.horizontal, 20)

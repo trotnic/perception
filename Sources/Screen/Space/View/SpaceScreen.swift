@@ -26,7 +26,7 @@ extension SpaceScreen: View {
     var body: some View {
         GeometryReader { _ in
             ZStack {
-                ColorProvider.backgroundColor
+                ColorProvider.background
                     .edgesIgnoringSafeArea(.all)
                 ScrollView {
                     listItems
@@ -43,7 +43,7 @@ extension SpaceScreen: View {
         ], spacing: 24) {
             ForEach(items) { item in
                 ZStack {
-                    ColorProvider.tileColor
+                    ColorProvider.tile
                     HStack {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
@@ -63,7 +63,7 @@ extension SpaceScreen: View {
                                         .padding(.vertical, 5)
                                         .background {
                                             RoundedRectangle(cornerRadius: 20)
-                                                .fill(ColorProvider.redOutlineColor)
+                                                .fill(ColorProvider.redOutline)
                                         }
                                 }
                                 HStack {
@@ -75,7 +75,7 @@ extension SpaceScreen: View {
                                         .padding(.vertical, 5)
                                         .background {
                                             RoundedRectangle(cornerRadius: 20)
-                                                .fill(ColorProvider.redOutlineColor)
+                                                .fill(ColorProvider.redOutline)
                                         }
                                 }
                             }
@@ -97,7 +97,7 @@ extension SpaceScreen: View {
                 }
             }
         }
-        .foregroundColor(ColorProvider.textColor)
+        .foregroundColor(ColorProvider.text)
 
     }
 }
