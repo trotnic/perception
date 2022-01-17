@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19574" systemVersion="21A559" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDDocument" representedClassName="CDDocument" syncable="YES">
+        <attribute name="identifier" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="shelf" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDShelf" inverseName="documents" inverseEntity="CDShelf"/>
+    </entity>
+    <entity name="CDShelf" representedClassName="CDShelf" syncable="YES">
+        <attribute name="identifier" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="documents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDDocument" inverseName="shelf" inverseEntity="CDDocument"/>
+        <relationship name="workspace" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDWorkspace" inverseName="shelfs" inverseEntity="CDWorkspace"/>
+    </entity>
+    <entity name="CDWorkspace" representedClassName="CDWorkspace" syncable="YES">
+        <attribute name="identifier" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="shelfs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDShelf" inverseName="workspace" inverseEntity="CDShelf"/>
+    </entity>
+    <elements>
+        <element name="CDDocument" positionX="-36" positionY="9" width="128" height="74"/>
+        <element name="CDShelf" positionX="-54" positionY="-9" width="128" height="89"/>
+        <element name="CDWorkspace" positionX="-63" positionY="-18" width="128" height="74"/>
+    </elements>
+</model>

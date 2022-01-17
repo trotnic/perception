@@ -1,0 +1,8 @@
+[user]
+	name = Uladzislau Volchyk
+	email = uladzislau.volchyk@gmail.com
+	username = trotnic
+[core]
+    editor = micro
+[web]
+    browser = safari
