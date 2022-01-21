@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 import Fakery
 
-protocol Repository {
+public protocol Repository {
 
     func readWorkspaces() -> Result<[SUWorkspace], Error>
     func createWorkspace(name: String) -> Result<UUID, Error>
@@ -51,7 +51,7 @@ extension LocalRepository: Repository {
             let result = try viewContext.fetch(request).compactMap { workspace in
                 workspace.identifier.flatMap { identifier in
                     workspace.name.flatMap { name in
-                        SUWorkspace(id: identifier, title: name)
+                        SUWorkspace(id: identifier, title: name, iconText: "🔥", membersCount: 12, dateCreated: Date())
                     }
                 }
             }
@@ -81,7 +81,8 @@ extension LocalRepository: Repository {
             let result = try viewContext.fetch(request).compactMap { shelf in
                 shelf.identifier.flatMap { identifier in
                     shelf.name.flatMap { name in
-                        SUShelf(id: identifier, title: name)
+                        SUShelf(id: identifier, workspaceId: workspaceId,
+                                title: name, dateCreated: .init())
                     }
                 }
             }

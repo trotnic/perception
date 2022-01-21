@@ -8,7 +8,9 @@
 
 import Foundation
 
-struct SUShelf: Identifiable {
-    let id: UUID
-    let title: String
+public struct SUShelf: Identifiable {
+    public let id: UUID
+    public let workspaceId: UUID
+    public let title: String
+    public let dateCreated: Date
 }

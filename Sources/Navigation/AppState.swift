@@ -8,18 +8,18 @@
 
 import Foundation
 
-final class AppState: ObservableObject {
+public final class AppState: ObservableObject {
 
-    @Published var currentSelection: Screen = .space
+    @Published public private(set) var currentSelection: Screen = .space
 
-    enum Screen {
+    public enum Screen {
         case space
         case workspace(UUID)
         case shelf(UUID)
         case document(UUID)
     }
 
-    func change(route: Screen) {
+    public func change(route: Screen) {
         switch route {
         case .space:
             break

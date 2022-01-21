@@ -8,10 +8,10 @@
 
 import Foundation
 
-struct ListTileViewItem: Identifiable {
-    let id = UUID()
-    let iconText: String
-    let title: String
-    let membersTitle: String
-    let lastEditTitle: String
+public struct ListTileViewItem: Identifiable {
+    public var id = UUID()
+    public let iconText: String
+    public let title: String
+//    public let membersTitle: String
+//    public let lastEditTitle: String
 }

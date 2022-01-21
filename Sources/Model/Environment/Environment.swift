@@ -9,11 +9,11 @@
 import Foundation
 import Combine
 
-final class Environment: ObservableObject {
-    static let dev = Environment()
+public final class Environment: ObservableObject {
+    public static let dev = Environment()
 
-    let repository: Repository = LocalRepository()
-    let state = AppState()
+    public let repository: Repository = LocalRepository()
+    public let state = AppState()
 
     private(set) lazy var workspaceManager = WorkspaceManager(repository: repository)
     private(set) lazy var spaceManager = SpaceManager(repository: repository)

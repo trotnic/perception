@@ -8,7 +8,10 @@
 
 import Foundation
 
-struct SUWorkspace: Identifiable {
-    let id: UUID
-    let title: String
+public struct SUWorkspace: Identifiable {
+    public let id: UUID
+    public let title: String
+    public let iconText: String
+    public let membersCount: Int
+    public let dateCreated: Date
 }

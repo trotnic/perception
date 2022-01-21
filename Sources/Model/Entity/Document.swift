@@ -8,7 +8,9 @@
 
 import Foundation
 
-struct SUDocument: Identifiable {
-    let id: UUID
-    let title: String
+public struct SUDocument: Identifiable {
+    public let id: UUID
+    public let shelfId: UUID
+    public let title: String
+    public let lastEditTime: Date
 }

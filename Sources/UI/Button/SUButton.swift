@@ -9,33 +9,37 @@
 import SwiftUI
 
 struct SUButton: View {
-    @GestureState var isDetectingLongPress = false
+
+    @State private var isDetectingLongPress = false
+
     let icon: String
     let action: () -> Void
 
-    var tapGesture: some Gesture {
-        LongPressGesture(minimumDuration: .infinity)
-            .updating($isDetectingLongPress) { currentState, gestureState, transaction in
-                gestureState = currentState
-            }
-            .onEnded { _ in
-                action()
-            }
-    }
-
+    // https://stackoverflow.com/a/65096819/13450895
     var body: some View {
         Image(systemName: icon)
             .foregroundColor(isDetectingLongPress ? ColorProvider.secondary1 : ColorProvider.text)
             .font(.system(size: 16.0).weight(.regular))
+            .frame(width: 36.0, height: 36.0)
             .background {
                 Circle()
                     .stroke(lineWidth: 2.0)
                     .fill(ColorProvider.secondary2)
-                    .frame(width: isDetectingLongPress ? 28.0 : 36.0,
-                           height: isDetectingLongPress ? 28.0 : 36.0)
+                    .frame(width: isDetectingLongPress ? 32.0 : 36.0,
+                           height: isDetectingLongPress ? 32.0 : 36.0)
             }
-            .animation(.easeInOut(duration: 0.25), value: isDetectingLongPress)
-            .gesture(tapGesture)
+            .onLongPressGesture(
+                minimumDuration: .infinity,
+                perform: {},
+                onPressingChanged: { isPressing in
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        isDetectingLongPress = isPressing
+                    }
+                    if !isPressing {
+                        action()
+                    }
+                })
+            .simultaneousGesture(TapGesture(count: 1).onEnded(action))
     }
 }
 

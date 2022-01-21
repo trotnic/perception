@@ -14,6 +14,7 @@ struct SUNavigationBar: View {
 
     var body: some View {
         ZStack {
+            
             Color.clear
                 .background(.ultraThinMaterial)
                 .blur(radius: 1)
@@ -21,6 +22,19 @@ struct SUNavigationBar: View {
                 .font(.system(size: 26).weight(.bold))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 20)
+
+            VStack {
+                SUButton(icon: "chevron.left") {}
+            }
+            .padding(.leading, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack {
+                SUButton(icon: "ellipsis") {}
+            }
+            .padding(.trailing, 16)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+
         }
         .frame(height: 70)
         .frame(maxHeight: .infinity, alignment: .top)

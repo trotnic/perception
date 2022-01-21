@@ -8,7 +8,8 @@ let project = Project(
     name: "Perception",
     organizationName: "Star Unicorn",
     packages: [
-        .remote(url: "https://github.com/vadymmarkov/Fakery.git", requirement: .upToNextMajor(from: .init(5, 1, 0)))
+        .remote(url: "https://github.com/vadymmarkov/Fakery.git", requirement: .upToNextMajor(from: .init(5, 1, 0))),
+        .remote(url: "https://github.com/frzi/SwiftUIRouter.git", requirement: .upToNextMajor(from: .init(1, 3, 1)))
     ],
     targets: [
         Target(
@@ -25,7 +26,8 @@ let project = Project(
                 "Resources/**",
             ],
             dependencies: [
-                .package(product: "Fakery")
+                .package(product: "Fakery"),
+                .package(product: "SwiftUIRouter")
             ],
             coreDataModels: [
                 CoreDataModel(.relativeToCurrentFile("Sources/Model/Persistance/CoreData/Perception.xcdatamodeld"), currentVersion: "Perception")

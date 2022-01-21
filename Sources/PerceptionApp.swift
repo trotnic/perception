@@ -1,5 +1,5 @@
 import SwiftUI
-
+import SwiftUIRouter
 
 @main
 struct PerceptionApp: App {
@@ -7,9 +7,9 @@ struct PerceptionApp: App {
 
 	var body: some Scene {
 		WindowGroup {
-//            RootScreen()
-//                .environmentObject(environment.state)
-            WorkspaceScreen()
+            Router {
+                RootScreen()
+            }
 		}
 	}
 }
