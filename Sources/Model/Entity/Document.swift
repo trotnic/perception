@@ -8,9 +8,22 @@
 
 import Foundation
 
-public struct SUDocument: Identifiable {
+public struct SUDocumentMeta: Identifiable {
     public let id: UUID
     public let shelfId: UUID
+    public let workspaceId: UUID
+}
+
+public extension SUDocumentMeta {
+    static let empty = SUDocumentMeta(id: UUID(), shelfId: UUID(), workspaceId: UUID())
+}
+
+@dynamicMemberLookup
+public struct SUDocument {
+    public let meta: SUDocumentMeta
     public let title: String
-    public let lastEditTime: Date
+
+    subscript(dynamicMember member: KeyPath<SUDocumentMeta, UUID>) -> UUID {
+        meta[keyPath: member]
+    }
 }

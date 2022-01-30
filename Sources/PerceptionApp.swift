@@ -7,7 +7,7 @@ struct PerceptionApp: App {
 
 	var body: some Scene {
 		WindowGroup {
-            Router {
+            Router(navigator: environment.navigator) {
                 RootScreen()
             }
 		}

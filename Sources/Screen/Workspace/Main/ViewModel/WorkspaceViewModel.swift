@@ -12,9 +12,9 @@ import Combine
 let commonShelfUUID = UUID()
 
 let shelfs: [SUShelf] = [
-    .init(id: commonShelfUUID, workspaceId: commonWorkspaceUUID, title: "Lolkek", dateCreated: .now),
-    .init(id: .init(), workspaceId: commonWorkspaceUUID, title: "Cheburek", dateCreated: .now),
-    .init(id: .init(), workspaceId: commonWorkspaceUUID, title: "Ma shelf", dateCreated: .now),
+//    .init(id: commonShelfUUID, workspaceId: commonWorkspaceUUID, title: "Lolkek"),
+//    .init(id: .init(), workspaceId: commonWorkspaceUUID, title: "Cheburek"),
+//    .init(id: .init(), workspaceId: commonWorkspaceUUID, title: "Ma shelf"),
 ]
 
 public final class WorkspaceViewModel: ObservableObject {
@@ -34,7 +34,7 @@ public final class WorkspaceViewModel: ObservableObject {
         environment.state
     }
 
-    public init(environment: Environment = .dev) {
+    public init(meta: SUWorkspaceMeta, environment: Environment = .dev) {
         self.environment = environment
     }
 }
@@ -44,26 +44,31 @@ public final class WorkspaceViewModel: ObservableObject {
 public extension WorkspaceViewModel {
 
     func loadWorkspaceIfNeeded() {
-        guard case .workspace(let id) = state.currentSelection else {
-            return
-        }
-        workspaceItem = workspaces.first(where: { $0.id == id })
-        viewItems = shelfs.filter { $0.workspaceId == id }.map { item in
-            let viewItem = ListTileViewItem(
-                id: item.id,
-                iconText: "",
-                title: item.title
-//                membersTitle: "",
-//                lastEditTitle: item.dateCreated.debugDescription
-            )
-            return viewItem
-        }
-        workspaceTitle = workspaceItem.title
-        membersCount = workspaceItem.membersCount
+//        guard let id = state.currentSelection else {
+//            return
+//        }
+//        workspaceItem = workspaces.first(where: { $0.meta.id == id })
+//        viewItems = shelfs.filter { $0.meta.workspaceId == id }.map { item in
+//            let viewItem = ListTileViewItem(
+//                id: item.meta.id,
+//                iconText: "",
+//                title: item.title
+//            )
+//            return viewItem
+//        }
+//        workspaceTitle = workspaceItem.title
     }
 
     func selectItem(with id: UUID) {
-        state.change(route: .shelf(id))
+//        state.change(route: .workspace(.read(id)))
+    }
+
+    func createAction() {
+//        state.change(route: .workspace(.create))
+    }
+
+    func backAction() {
+        state.change(route: .back)
     }
 }
 

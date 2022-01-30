@@ -1,18 +1,17 @@
 //
-//  ShelfScreen.swift
+//  WorkspaceScreen.swift
 //  Perception
 //
-//  Created by Uladzislau Volchyk on 21.01.22.
+//  Created by Uladzislau Volchyk on 13.01.22.
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
 import SwiftUI
 import SwiftUIRouter
 
-struct ShelfScreen: View {
+struct WorkspaceScreen: View {
 
-    @EnvironmentObject private var navigator: Navigator
-    @StateObject private var viewModel = ShelfViewModel()
+    @StateObject var viewModel: WorkspaceViewModel
 
     var body: some View {
         GeometryReader { _ in
@@ -23,13 +22,15 @@ struct ShelfScreen: View {
                     ZStack {
                         VStack {
                             SUButton(icon: "chevron.left") {
-                                navigator.goBack()
+                                viewModel.backAction()
                             }
                         }
                         .padding(.leading, 16)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         VStack {
-                            SUButton(icon: "ellipsis") {}
+                            SUButton(icon: "plus") {
+                                viewModel.createAction()
+                            }
                         }
                         .padding(.trailing, 16)
                         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -57,13 +58,13 @@ struct ShelfScreen: View {
             ColorProvider.tile
             VStack(alignment: .leading, spacing: 16) {
                 Image(systemName: "pencil.and.outline")
-                Text(viewModel.shelfTitle)
+                Text(viewModel.workspaceTitle)
                     .font(.custom("Comfortaa", size: 18.0).weight(.bold))
                 RoundedRectangle(cornerRadius: 1)
                     .fill(.white.opacity(0.2))
                     .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
                 HStack(spacing: 12) {
-                    Text("\(viewModel.documentsCount) documents")
+                    Text("\(viewModel.membersCount) members")
                         .font(.custom("Comfortaa", size: 14).weight(.bold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
@@ -72,6 +73,16 @@ struct ShelfScreen: View {
                                 .stroke()
                                 .fill(ColorProvider.redOutline)
                         }
+                        
+//                    Text("52 documents")
+//                        .font(.custom("Comfortaa", size: 14).weight(.bold))
+//                        .padding(.horizontal, 10)
+//                        .padding(.vertical, 5)
+//                        .overlay {
+//                            RoundedRectangle(cornerRadius: 20)
+//                                .stroke()
+//                                .fill(ColorProvider.redOutline)
+//                        }
                 }
             }
             .foregroundColor(ColorProvider.text)
@@ -86,7 +97,7 @@ struct ShelfScreen: View {
                 .stroke()
                 .fill(.white.opacity(0.2))
         }
-        .onAppear(perform: viewModel.loadShelfIfNeeded)
+        .onAppear(perform: viewModel.loadWorkspaceIfNeeded)
     }
 
     @ViewBuilder private var listItems: some View {
@@ -96,7 +107,6 @@ struct ShelfScreen: View {
             ForEach(viewModel.viewItems) { item in
                 ListTile(viewItem: item) {
                     viewModel.selectItem(with: item.id)
-                    navigator.navigate("/document")
                 }
             }
         }
@@ -104,8 +114,19 @@ struct ShelfScreen: View {
     }
 }
 
-struct ShelfScreen_Previews: PreviewProvider {
+extension View {
+    func debug() -> some View {
+        dump(self)
+        return self
+    }
+}
+
+struct WorkspaceScreen_Previews: PreviewProvider {
+
+    static let viewModel = WorkspaceViewModel(meta: .empty)
+
     static var previews: some View {
-        ShelfScreen()
+        WorkspaceScreen(viewModel: viewModel)
+            .previewDevice("iPhone 13 mini")
     }
 }

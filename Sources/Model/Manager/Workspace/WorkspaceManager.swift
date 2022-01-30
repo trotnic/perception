@@ -8,12 +8,12 @@
 
 import Foundation
 
-final class WorkspaceManager {
+public final class WorkspaceManager {
 
     private let repository: Repository
     private var currentWorkspace: SUWorkspace?
 
-    init(repository: Repository) {
+    public init(repository: Repository) {
         self.repository = repository
     }
 }

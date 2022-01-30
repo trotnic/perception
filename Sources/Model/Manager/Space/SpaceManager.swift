@@ -8,13 +8,18 @@
 
 import Foundation
 
-final class SpaceManager {
+public final class SpaceManager {
 
     private let repository: Repository
 
-    init(repository: Repository) {
+    public init(repository: Repository) {
         self.repository = repository
     }
+}
+
+// MARK: - Public interface
+
+public extension SpaceManager {
 
     func getWorkspaces() -> [SUWorkspace] {
         let result = repository.readWorkspaces()
@@ -36,4 +41,11 @@ final class SpaceManager {
             fatalError(error.localizedDescription)
         }
     }
+}
+
+// MARK: - Private interface
+
+private extension SpaceManager {
+
+    
 }

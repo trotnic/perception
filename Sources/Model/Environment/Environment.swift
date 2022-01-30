@@ -8,13 +8,15 @@
 
 import Foundation
 import Combine
+import SwiftUIRouter
 
 public final class Environment: ObservableObject {
     public static let dev = Environment()
 
     public let repository: Repository = LocalRepository()
-    public let state = AppState()
+    public private(set) lazy var state = AppState(navigator: navigator)
+    public let navigator = Navigator()
 
-    private(set) lazy var workspaceManager = WorkspaceManager(repository: repository)
-    private(set) lazy var spaceManager = SpaceManager(repository: repository)
+    public private(set) lazy var workspaceManager = WorkspaceManager(repository: repository)
+    public private(set) lazy var spaceManager = SpaceManager(repository: repository)
 }

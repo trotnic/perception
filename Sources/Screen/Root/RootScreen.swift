@@ -11,26 +11,59 @@ import SwiftUIRouter
 
 struct RootScreen: View {
 
-    @EnvironmentObject private var state: AppState
-
     var body: some View {
         SwitchRoutes {
-            Route("space/*") {
-                SpaceScreen()
+            Route("space") {
+                SpaceScreen(viewModel: SpaceViewModel())
             }
             .navigationTransition()
-            Route("workspace/*") {
-                WorkspaceScreen()
+            Route("space/create") {
+                SpaceCreateScreen()
             }
             .navigationTransition()
-            Route("shelf/*") {
-                ShelfScreen()
+            Route("space/workspace/:wId", validator: {
+                .init(id: parse(route: $0, id: "wId"))
+            }) { (meta: SUWorkspaceMeta) in
+                WorkspaceScreen(viewModel: WorkspaceViewModel(meta: meta))
+            }
+            .navigationTransition()
+            Route("space/workspace/:wId/create", validator: {
+                .init(id: parse(route: $0, id: "wId"))
+            }) { (meta: SUWorkspaceMeta) in
+                Text("Shelf create")
+            }
+            .navigationTransition()
+            Route("space/workspace/:wId/shelf/:sId", validator: {
+                .init(id: parse(route: $0, id: "wId"),
+                      workspaceId: parse(route: $0, id: "sId"))
+            }) { (meta: SUShelfMeta) in
+                ShelfScreen(viewModel: ShelfViewModel(meta: meta))
+            }
+            .navigationTransition()
+            Route("space/workspace/:wId/shelf/:sId/create", validator: {
+                .init(id: parse(route: $0, id: "wId"),
+                      workspaceId: parse(route: $0, id: "sId"))
+            }) { (meta: SUShelfMeta) in
+                Text("Document create")
+            }
+            .navigationTransition()
+            Route("space/workspace/:wId/shelf/:sId/document/:dId", validator: {
+                .init(id: parse(route: $0, id: "wId"),
+                      shelfId: parse(route: $0, id: "sId"),
+                      workspaceId: parse(route: $0, id: "dId"))
+            }) { (meta: SUDocumentMeta) in
+                DocumentScreen(viewModel: DocumentViewModel(meta: meta))
             }
             .navigationTransition()
             Route {
                 Navigate(to: "/space")
             }
         }
+    }
+
+    @inline(__always)
+    private func parse(route: RouteInformation, id: String) -> UUID {
+        UUID(uuidString: route.parameters[id]!)!
     }
 }
 
@@ -47,7 +80,7 @@ struct NavigationTransition: ViewModifier {
         content
             .animation(.easeInOut, value: navigator.path)
             .transition(
-                navigator.lastAction?.direction == .deeper || navigator.lastAction?.direction == .sideways
+                navigator.lastAction?.direction == .deeper
                     ? AnyTransition.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
                     : AnyTransition.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
             )

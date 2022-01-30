@@ -28,18 +28,29 @@ struct SUButton: View {
                     .frame(width: isDetectingLongPress ? 32.0 : 36.0,
                            height: isDetectingLongPress ? 32.0 : 36.0)
             }
-            .onLongPressGesture(
-                minimumDuration: .infinity,
-                perform: {},
-                onPressingChanged: { isPressing in
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        isDetectingLongPress = isPressing
-                    }
-                    if !isPressing {
-                        action()
-                    }
-                })
-            .simultaneousGesture(TapGesture(count: 1).onEnded(action))
+            .onTapGesture {
+                action()
+            }
+//            .simultaneousGesture(
+//                LongPressGesture(minimumDuration: .infinity)
+//                    .onChanged({ isPressing in
+//                        withAnimation(.easeInOut(duration: 0.25)) {
+//                            isDetectingLongPress = isPressing
+//                        }
+//                    })
+//                    .onEnded({ _ in
+//                        action()
+//                    })
+//            )
+//            .onLongPressGesture(
+//                minimumDuration: .infinity,
+//                perform: {
+//                    action()
+//                },
+//                onPressingChanged: { isPressing in
+//
+//                })
+//            .simultaneousGesture()
     }
 }
 

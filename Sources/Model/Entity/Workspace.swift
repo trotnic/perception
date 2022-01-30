@@ -8,10 +8,15 @@
 
 import Foundation
 
-public struct SUWorkspace: Identifiable {
+public struct SUWorkspaceMeta: Identifiable {
     public let id: UUID
+}
+
+public extension SUWorkspaceMeta {
+    static let empty = SUWorkspaceMeta(id: UUID())
+}
+
+public struct SUWorkspace {
+    public let meta: SUWorkspaceMeta
     public let title: String
-    public let iconText: String
-    public let membersCount: Int
-    public let dateCreated: Date
 }

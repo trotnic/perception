@@ -18,7 +18,7 @@ public protocol Repository {
     func readShelfs(workspaceId: UUID) -> Result<[SUShelf], Error>
 }
 
-final class LocalRepository {
+public final class LocalRepository {
 
     static let shared = LocalRepository()
 
@@ -32,7 +32,7 @@ final class LocalRepository {
         container.newBackgroundContext()
     }
 
-    init() {
+    public init() {
         container = NSPersistentContainer(name: "Perception")
         container.loadPersistentStores { storeDescription, error in
             if let error = error {
@@ -45,13 +45,13 @@ final class LocalRepository {
 
 extension LocalRepository: Repository {
 
-    func readWorkspaces() -> Result<[SUWorkspace], Error> {
+    public func readWorkspaces() -> Result<[SUWorkspace], Error> {
         let request = CDWorkspace.fetchRequest()
         do {
             let result = try viewContext.fetch(request).compactMap { workspace in
                 workspace.identifier.flatMap { identifier in
                     workspace.name.flatMap { name in
-                        SUWorkspace(id: identifier, title: name, iconText: "🔥", membersCount: 12, dateCreated: Date())
+                        SUWorkspace(meta: .init(id: identifier), title: name)
                     }
                 }
             }
@@ -61,7 +61,7 @@ extension LocalRepository: Repository {
         }
     }
 
-    func createWorkspace(name: String) -> Result<UUID, Error> {
+    public func createWorkspace(name: String) -> Result<UUID, Error> {
         do {
             let object = CDWorkspace(context: container.viewContext)
             let identifier = UUID()
@@ -74,15 +74,14 @@ extension LocalRepository: Repository {
         }
     }
 
-    func readShelfs(workspaceId: UUID) -> Result<[SUShelf], Error> {
+    public func readShelfs(workspaceId: UUID) -> Result<[SUShelf], Error> {
         let request = CDShelf.fetchRequest()
         request.predicate = NSPredicate(format: "identifier == \(workspaceId)")
         do {
             let result = try viewContext.fetch(request).compactMap { shelf in
                 shelf.identifier.flatMap { identifier in
                     shelf.name.flatMap { name in
-                        SUShelf(id: identifier, workspaceId: workspaceId,
-                                title: name, dateCreated: .init())
+                        SUShelf(meta: .init(id: identifier, workspaceId: workspaceId), title: name)
                     }
                 }
             }

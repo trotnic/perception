@@ -10,9 +10,7 @@ import SwiftUI
 import SwiftUIRouter
 
 struct SpaceScreen {
-
-    @EnvironmentObject private var navigator: Navigator
-    @StateObject private var viewModel = SpaceViewModel()
+    @StateObject var viewModel: SpaceViewModel
 }
 
 extension SpaceScreen: View {
@@ -25,7 +23,9 @@ extension SpaceScreen: View {
                 VStack {
                     ZStack {
                         VStack {
-                            SUButton(icon: "ellipsis") {}
+                            SUButton(icon: "plus") {
+                                viewModel.createAction()
+                            }
                         }
                         .padding(.trailing, 16)
                         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -44,6 +44,22 @@ extension SpaceScreen: View {
                     }
                 }
             }
+//            .overlay {
+//                VStack {
+//                    SUToolbar(
+//                        unexpandedItems: {
+//                            SUButton(icon: "gear") { print("Settings!") }
+//                            Spacer()
+//                        },
+//                        expandedItems: [
+//                            ("Create workspace", { viewModel.createAction() })
+//                        ]
+//                    )
+//                }
+//                .frame(maxHeight: .infinity, alignment: .bottom)
+//                .ignoresSafeArea()
+//                .offset(y: -10)
+//            }
         }
         .onAppear(perform: viewModel.load)
     }
@@ -55,7 +71,6 @@ extension SpaceScreen: View {
             ForEach(viewModel.viewItems) { item in
                 ListTile(viewItem: item) {
                     viewModel.selectItem(with: item.id)
-                    navigator.navigate("/workspace")
                 }
             }
         }
@@ -64,8 +79,11 @@ extension SpaceScreen: View {
 }
 
 struct HomeScreen_Previews: PreviewProvider {
+
+    static let viewModel = SpaceViewModel()
+
     static var previews: some View {
-        SpaceScreen()
+        SpaceScreen(viewModel: viewModel)
             .previewDevice("iPhone 13 mini")
     }
 }

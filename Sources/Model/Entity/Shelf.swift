@@ -8,9 +8,21 @@
 
 import Foundation
 
-public struct SUShelf: Identifiable {
+public struct SUShelfMeta: Identifiable {
     public let id: UUID
     public let workspaceId: UUID
+}
+
+public extension SUShelfMeta {
+    static let empty = SUShelfMeta(id: UUID(), workspaceId: UUID())
+}
+
+@dynamicMemberLookup
+public struct SUShelf {
+    public let meta: SUShelfMeta
     public let title: String
-    public let dateCreated: Date
+
+    subscript(dynamicMember member: KeyPath<SUShelfMeta, UUID>) -> UUID {
+        meta[keyPath: member]
+    }
 }
