@@ -19,11 +19,16 @@ public extension SUDocumentMeta {
 }
 
 @dynamicMemberLookup
-public struct SUDocument {
+public struct SUShallowDocument {
     public let meta: SUDocumentMeta
     public let title: String
 
     subscript(dynamicMember member: KeyPath<SUDocumentMeta, UUID>) -> UUID {
         meta[keyPath: member]
     }
+}
+
+public struct SUDocument {
+    public let meta: SUDocumentMeta
+    public let title: String
 }

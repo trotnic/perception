@@ -10,9 +10,9 @@ import Foundation
 
 public final class SpaceManager {
 
-    private let repository: Repository
+    private let repository: FireRepository
 
-    public init(repository: Repository) {
+    public init(repository: FireRepository) {
         self.repository = repository
     }
 }
@@ -21,25 +21,27 @@ public final class SpaceManager {
 
 public extension SpaceManager {
 
-    func getWorkspaces() -> [SUWorkspace] {
-        let result = repository.readWorkspaces()
-        switch result {
-        case .success(let workspaces):
-            return workspaces
-        case .failure(let error):
-            print(error)
-            return []
-        }
+    func loadWorkspaces(for userId: String) async throws -> [SUWorkspace] {
+        try await repository.workspaces(for: userId)
+//        let result = repository.readWorkspaces()
+//        switch result {
+//        case .success(let workspaces):
+//            return workspaces
+//        case .failure(let error):
+//            print(error)
+//            return []
+//        }
     }
 
-    func createWorkspace(name: String) -> UUID {
-        let result = repository.createWorkspace(name: name)
-        switch result {
-        case .success(let identifier):
-            return identifier
-        case .failure(let error):
-            fatalError(error.localizedDescription)
-        }
+    func createWorkspace(name: String, userId: String) async throws -> String {
+//        let result = repository.createWorkspace(name: name)
+//        switch result {
+//        case .success(let identifier):
+//            return identifier
+//        case .failure(let error):
+//            fatalError(error.localizedDescription)
+//        }
+        try await repository.createWorkspace(with: name, userId: userId)
     }
 }
 

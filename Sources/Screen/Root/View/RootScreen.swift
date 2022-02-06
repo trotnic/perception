@@ -11,38 +11,42 @@ import SwiftUIRouter
 
 struct RootScreen: View {
 
+    @StateObject var viewModel: RootViewModel
+
     var body: some View {
         SwitchRoutes {
+            Route("authentication") {
+                AuthorizationScreen(viewModel: AuthorizationViewModel())
+            }
+            .navigationTransition()
             Route("space") {
                 SpaceScreen(viewModel: SpaceViewModel())
             }
             .navigationTransition()
             Route("space/create") {
-                SpaceCreateScreen()
+                SpaceCreateScreen(viewModel: SpaceCreateViewModel())
             }
             .navigationTransition()
             Route("space/workspace/:wId", validator: {
-                .init(id: parse(route: $0, id: "wId"))
+                .init(id: $0.parameters["wId"]!)
             }) { (meta: SUWorkspaceMeta) in
                 WorkspaceScreen(viewModel: WorkspaceViewModel(meta: meta))
             }
             .navigationTransition()
             Route("space/workspace/:wId/create", validator: {
-                .init(id: parse(route: $0, id: "wId"))
+                .init(id: $0.parameters["wId"]!)
             }) { (meta: SUWorkspaceMeta) in
-                Text("Shelf create")
+                WorkspaceCreateScreen(viewModel: WorkspaceCreateViewModel(meta: meta))
             }
             .navigationTransition()
             Route("space/workspace/:wId/shelf/:sId", validator: {
-                .init(id: parse(route: $0, id: "wId"),
-                      workspaceId: parse(route: $0, id: "sId"))
+                .init(id: $0.parameters["wId"]!, workspaceId: $0.parameters["sId"]!)
             }) { (meta: SUShelfMeta) in
                 ShelfScreen(viewModel: ShelfViewModel(meta: meta))
             }
             .navigationTransition()
             Route("space/workspace/:wId/shelf/:sId/create", validator: {
-                .init(id: parse(route: $0, id: "wId"),
-                      workspaceId: parse(route: $0, id: "sId"))
+                .init(id: $0.parameters["wId"]!, workspaceId: $0.parameters["sId"]!)
             }) { (meta: SUShelfMeta) in
                 Text("Document create")
             }
@@ -55,9 +59,6 @@ struct RootScreen: View {
                 DocumentScreen(viewModel: DocumentViewModel(meta: meta))
             }
             .navigationTransition()
-            Route {
-                Navigate(to: "/space")
-            }
         }
     }
 
@@ -68,8 +69,11 @@ struct RootScreen: View {
 }
 
 struct RootScreen_Previews: PreviewProvider {
+
+    static let viewModel = RootViewModel()
+
     static var previews: some View {
-        RootScreen()
+        RootScreen(viewModel: viewModel)
     }
 }
 
@@ -80,7 +84,7 @@ struct NavigationTransition: ViewModifier {
         content
             .animation(.easeInOut, value: navigator.path)
             .transition(
-                navigator.lastAction?.direction == .deeper
+                navigator.lastAction?.direction == .deeper || navigator.lastAction?.direction == .sideways
                     ? AnyTransition.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
                     : AnyTransition.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
             )

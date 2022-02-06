@@ -7,16 +7,41 @@
 //
 
 import Foundation
+import Firebase
 
 public struct SUWorkspaceMeta: Identifiable {
-    public let id: UUID
+    public let id: String
 }
 
 public extension SUWorkspaceMeta {
-    static let empty = SUWorkspaceMeta(id: UUID())
+    static let empty = SUWorkspaceMeta(id: UUID().uuidString)
+}
+
+public struct SUShallowWorkspace {
+    public let meta: SUWorkspaceMeta
+    public let title: String
 }
 
 public struct SUWorkspace {
     public let meta: SUWorkspaceMeta
     public let title: String
+    public let shelfs: [SUShallowShelf]
+
+//    enum CodingKeys: String, CodingKey {
+//        case id
+//        case title
+//        case shelfs
+//    }
+//
+//    public init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        meta = SUWorkspaceMeta(id: try container.decode(String.self, forKey: .id))
+//        title = try container.decode(String.self, forKey: .title)
+//        shelfs = []
+//
+//    }
+//
+//    public func encode(to encoder: Encoder) throws {
+//
+//    }
 }

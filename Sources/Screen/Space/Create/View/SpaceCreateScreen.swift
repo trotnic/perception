@@ -7,11 +7,10 @@
 //
 
 import SwiftUI
-import SwiftUIRouter
 
 struct SpaceCreateScreen: View {
 
-    @StateObject private var viewModel = SpaceCreateViewModel()
+    @StateObject var viewModel: SpaceCreateViewModel
 
     var body: some View {
         GeometryReader { proxy in
@@ -79,11 +78,13 @@ struct SpaceCreateScreen: View {
 }
 
 struct SpaceCreateScreen_Previews: PreviewProvider {
+    static let viewModel = SpaceCreateViewModel()
+
     static var previews: some View {
         ZStack {
             ColorProvider.background
                 .ignoresSafeArea()
-            SpaceCreateScreen()
+            SpaceCreateScreen(viewModel: viewModel)
         }
         .previewDevice("iPhone 13 mini")
     }

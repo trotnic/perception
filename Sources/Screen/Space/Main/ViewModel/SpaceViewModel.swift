@@ -9,16 +9,6 @@
 import Foundation
 import Combine
 
-let commonWorkspaceUUID = UUID()
-
-let workspaces: [SUWorkspace] = [
-//    .init(id: commonWorkspaceUUID, title: "The Amazing Cow-Man"),
-//    .init(id: .init(), title: "Cool books"),
-//    .init(id: .init(), title: "Extended reality"),
-//    .init(id: .init(), title: "Biology project"),
-//    .init(id: .init(), title: "Workspace #1")
-]
-
 public final class SpaceViewModel: ObservableObject {
 
     @Published public var title: String = "Space"
@@ -28,11 +18,17 @@ public final class SpaceViewModel: ObservableObject {
 
     private var disposeBag = Set<AnyCancellable>()
     private let environment: Environment
+
     private var spaceManager: SpaceManager {
         environment.spaceManager
     }
+
     private var state: AppState {
         environment.state
+    }
+
+    private var userSession: UserSession {
+        environment.userSession
     }
 
     public init(environment: Environment = .dev) {
@@ -52,6 +48,8 @@ public final class SpaceViewModel: ObservableObject {
                 self.viewItems = $0
             }
             .store(in: &disposeBag)
+        
+
     }
 }
 
@@ -60,10 +58,17 @@ public final class SpaceViewModel: ObservableObject {
 public extension SpaceViewModel {
 
     func load() {
-        _items.value = spaceManager.getWorkspaces()
+        Task {
+            try await _load()
+        }
     }
 
-    func selectItem(with id: UUID) {
+    @MainActor
+    func _load() async throws {
+        _items.value = try await spaceManager.loadWorkspaces(for: userSession.userId!)
+    }
+
+    func selectItem(with id: String) {
         state.change(route: .read(.workspace(SUWorkspaceMeta(id: id))))
     }
 

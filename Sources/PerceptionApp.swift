@@ -8,7 +8,7 @@ struct PerceptionApp: App {
 	var body: some Scene {
 		WindowGroup {
             Router(navigator: environment.navigator) {
-                RootScreen()
+                RootScreen(viewModel: RootViewModel())
             }
 		}
 	}

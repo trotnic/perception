@@ -1,16 +1,16 @@
 //
-//  WorkspaceCreateScreen.swift
+//  ShelfCreateScreen.swift
 //  Perception
 //
-//  Created by Uladzislau Volchyk on 23.01.22.
+//  Created by Uladzislau Volchyk on 6.02.22.
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
 import SwiftUI
 
-struct WorkspaceCreateScreen: View {
+struct ShelfCreateScreen: View {
 
-    @StateObject var viewModel: WorkspaceCreateViewModel
+    @StateObject private var viewModel: ShelfCreateViewModel
 
     var body: some View {
         GeometryReader { proxy in
@@ -45,11 +45,11 @@ struct WorkspaceCreateScreen: View {
 
     @ViewBuilder private var topTile: some View {
         VStack(alignment: .leading, spacing: 16) {
-            TextField("", text: $viewModel.itemName)
-                .placeholder(when: viewModel.itemName.isEmpty) {
-                    Text("Name workspace")
-                        .foregroundColor(ColorProvider.secondary1)
-                }
+//            TextField("", text: $viewModel.workspaceName)
+//                .placeholder(when: viewModel.workspaceName.isEmpty) {
+//                    Text("Name workspace")
+//                        .foregroundColor(ColorProvider.secondary1)
+//                }
                 
             RoundedRectangle(cornerRadius: 1)
                 .fill(.white.opacity(0.2))
@@ -73,8 +73,8 @@ struct WorkspaceCreateScreen: View {
 
 }
 
-//struct WorkspaceCreateScreen_Previews: PreviewProvider {
+//struct ShelfCreateScreen_Previews: PreviewProvider {
 //    static var previews: some View {
-//        WorkspaceCreateScreen()
+//        ShelfCreateScreen()
 //    }
 //}

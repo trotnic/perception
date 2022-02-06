@@ -9,7 +9,7 @@
 import Foundation
 
 public struct ListTileViewItem: Identifiable {
-    public var id = UUID()
+    public var id: String = UUID().uuidString
     public let iconText: String
     public let title: String
 //    public let membersTitle: String

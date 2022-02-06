@@ -10,10 +10,27 @@ import Foundation
 
 public final class WorkspaceManager {
 
-    private let repository: Repository
-    private var currentWorkspace: SUWorkspace?
+    private let repository: FireRepository
 
-    public init(repository: Repository) {
+    public init(repository: FireRepository) {
         self.repository = repository
+    }
+}
+
+public extension WorkspaceManager {
+
+    func loadWorkspace(id: String) async throws -> SUWorkspace {
+        try await repository.workspace(with: id)
+    }
+
+    func loadShelfs(id: UUID) -> [SUShelf] {
+        let result = repository.readShelfs(workspaceId: id)
+        switch result {
+        case .success(let shelfs):
+            return shelfs
+        case .failure(let error):
+            print(error)
+            return []
+        }
     }
 }

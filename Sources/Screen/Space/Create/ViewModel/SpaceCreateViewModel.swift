@@ -14,7 +14,9 @@ public final class SpaceCreateViewModel: ObservableObject {
     @Published var workspaceName: String = ""
     private let environment: Environment
     private var state: AppState { environment.state }
+
     private var spaceManager: SpaceManager { environment.spaceManager }
+    private var userSession: UserSession { environment.userSession }
 
     public init(environment: Environment = .dev) {
         self.environment = environment
@@ -26,8 +28,12 @@ public final class SpaceCreateViewModel: ObservableObject {
 public extension SpaceCreateViewModel {
 
     func createWorkspace() {
-        let workspaceId = spaceManager.createWorkspace(name: workspaceName)
-        state.change(route: .read(.workspace(SUWorkspaceMeta(id: workspaceId))))
+        Task {
+            let workspaceId = try await spaceManager.createWorkspace(name: workspaceName, userId: userSession.userId!)
+            await MainActor.run {
+                state.change(route: .read(.workspace(SUWorkspaceMeta(id: workspaceId))))
+            }
+        }
     }
 
     func backAction() {

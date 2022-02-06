@@ -94,7 +94,7 @@ struct ShelfScreen: View {
         ], spacing: 24) {
             ForEach(viewModel.viewItems) { item in
                 ListTile(viewItem: item) {
-                    viewModel.selectItem(with: item.id)
+//                    viewModel.selectItem(with: item.id)
                 }
             }
         }

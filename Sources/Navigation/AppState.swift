@@ -11,8 +11,8 @@ import SwiftUIRouter
 
 public final class AppState: ObservableObject {
 
-    private var currentScreen: Screen = .space
-    private var screenStack: [Screen] = [.space]
+    private var currentScreen: Screen = .none
+    private var screenStack: [Screen] = []
 
     private let navigator: Navigator
 
@@ -20,8 +20,23 @@ public final class AppState: ObservableObject {
         self.navigator = navigator
     }
 
-    public enum Screen {
+    public enum Screen: Equatable {
+        public static func == (lhs: AppState.Screen, rhs: AppState.Screen) -> Bool {
+            switch (lhs, rhs) {
+            case (.back, back),
+                (.space, .space),
+                (.create, .create),
+                (.read, .read),
+                (.authentication, .authentication):
+                return true
+            default:
+                return false
+            }
+        }
+
+        case none
         case back
+        case authentication
         case space
         case create
         case read(Content)
@@ -40,18 +55,21 @@ public final class AppState: ObservableObject {
 
     public func change(route: Screen) {
         switch route {
+        case .none:
+            break
         case .back:
             navigator.goBack()
             screenStack.removeLast()
             currentScreen = screenStack.last!
-            #warning("should check this later")
+        case .authentication:
+            break
         case .space:
             navigator.navigate("/space")
             screenStack.append(.space)
             currentScreen = .space
         case .create:
             switch currentScreen {
-            case .back, .create:
+            case .back, .create, .authentication, .none:
                 break
             case .space:
                 navigator.navigate("/space/create")
@@ -79,5 +97,6 @@ public final class AppState: ObservableObject {
             currentScreen = .read(content)
             screenStack.append(.read(content))
         }
+        SULogger.navigation.log("Changed route")
     }
 }

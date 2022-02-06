@@ -97,7 +97,7 @@ struct WorkspaceScreen: View {
                 .stroke()
                 .fill(.white.opacity(0.2))
         }
-        .onAppear(perform: viewModel.loadWorkspaceIfNeeded)
+        .onAppear(perform: viewModel.load)
     }
 
     @ViewBuilder private var listItems: some View {
