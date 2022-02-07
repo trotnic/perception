@@ -9,13 +9,12 @@
 import Foundation
 
 public struct SUDocumentMeta: Identifiable {
-    public let id: UUID
-    public let shelfId: UUID
-    public let workspaceId: UUID
+    public let id: String
+    public let workspaceId: String
 }
 
 public extension SUDocumentMeta {
-    static let empty = SUDocumentMeta(id: UUID(), shelfId: UUID(), workspaceId: UUID())
+    static let empty = SUDocumentMeta(id: UUID().uuidString, workspaceId: UUID().uuidString)
 }
 
 @dynamicMemberLookup

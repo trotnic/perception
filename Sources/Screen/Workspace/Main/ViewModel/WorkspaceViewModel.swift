@@ -44,32 +44,15 @@ public extension WorkspaceViewModel {
             let workspace = try await workspaceManager.loadWorkspace(id: workspaceMeta.id)
             await MainActor.run {
                 workspaceTitle = workspace.title
+                viewItems = workspace.documents.map {
+                    .init(iconText: "", title: $0.title)
+                }
             }
         }
-//        viewItems = workspaceManager
-//            .loadShelfs(id: workspaceMeta.id)
-//            .map { shelf in
-//                ListTileViewItem(id: shelf.id.uuidString, iconText: "🔥", title: shelf.title)
-//            }
-//        let workspace = workspaceManager.loadWorkspace(id: workspaceMeta.id)
-//        workspaceTitle = workspace.title
-//        guard let id = state.currentSelection else {
-//            return
-//        }
-//        workspaceItem = workspaces.first(where: { $0.meta.id == id })
-//        viewItems = shelfs.filter { $0.meta.workspaceId == id }.map { item in
-//            let viewItem = ListTileViewItem(
-//                id: item.meta.id,
-//                iconText: "",
-//                title: item.title
-//            )
-//            return viewItem
-//        }
-//        workspaceTitle = workspaceItem.title
     }
 
     func selectItem(with id: String) {
-//        state.change(route: .workspace(.read(id)))
+        state.change(route: .read(.document(SUDocumentMeta(id: id, workspaceId: workspaceMeta.id))))
     }
 
     func createAction() {

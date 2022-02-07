@@ -49,7 +49,6 @@ public final class AppState: ObservableObject {
 
     public enum Content {
         case workspace(SUWorkspaceMeta)
-        case shelf(SUShelfMeta)
         case document(SUDocumentMeta)
     }
 
@@ -77,8 +76,6 @@ public final class AppState: ObservableObject {
                 switch content {
                 case .workspace(let workspaceMeta):
                     navigator.navigate("/space/workspace/\(workspaceMeta.id)/create")
-                case .shelf(let shelfMeta):
-                    navigator.navigate("/space/workspace/\(shelfMeta.workspaceId)/shelf/\(shelfMeta.id)/create")
                 case .document:
                     break
                 }
@@ -89,10 +86,8 @@ public final class AppState: ObservableObject {
             switch content {
             case let .workspace(meta):
                 navigator.navigate("/space/workspace/\(meta.id)")
-            case let .shelf(meta):
-                navigator.navigate("/space/workspace/\(meta.workspaceId)/shelf/\(meta.id)")
             case let .document(meta):
-                navigator.navigate("/space/workspace/\(meta.workspaceId)/shelf/\(meta.shelfId)/document/\(meta.id)")
+                navigator.navigate("/space/workspace/\(meta.workspaceId)/document/\(meta.id)")
             }
             currentScreen = .read(content)
             screenStack.append(.read(content))

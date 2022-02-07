@@ -15,3 +15,10 @@ public final class DocumentViewModel: ObservableObject {
         
     }
 }
+
+public extension DocumentViewModel {
+
+    func backAction() {
+        
+    }
+}

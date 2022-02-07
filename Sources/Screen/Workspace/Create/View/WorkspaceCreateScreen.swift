@@ -24,7 +24,7 @@ struct WorkspaceCreateScreen: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         VStack {
-                            Text("Create workspace")
+                            Text("Create document")
                                 .font(.custom("Comfortaa", size: 20.0).weight(.bold))
                                 .foregroundColor(ColorProvider.text)
                         }
@@ -47,7 +47,7 @@ struct WorkspaceCreateScreen: View {
         VStack(alignment: .leading, spacing: 16) {
             TextField("", text: $viewModel.itemName)
                 .placeholder(when: viewModel.itemName.isEmpty) {
-                    Text("Name workspace")
+                    Text("Name document")
                         .foregroundColor(ColorProvider.secondary1)
                 }
                 

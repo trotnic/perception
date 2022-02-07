@@ -23,14 +23,7 @@ public extension WorkspaceManager {
         try await repository.workspace(with: id)
     }
 
-    func loadShelfs(id: UUID) -> [SUShelf] {
-        let result = repository.readShelfs(workspaceId: id)
-        switch result {
-        case .success(let shelfs):
-            return shelfs
-        case .failure(let error):
-            print(error)
-            return []
-        }
+    func createDocument(title: String, workspaceId: String, userId: String) async throws -> String {
+        try await repository.createDocument(with: title, in: workspaceId, for: userId)
     }
 }

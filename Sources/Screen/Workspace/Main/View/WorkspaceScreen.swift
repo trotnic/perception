@@ -21,16 +21,12 @@ struct WorkspaceScreen: View {
                 VStack {
                     ZStack {
                         VStack {
-                            SUButton(icon: "chevron.left") {
-                                viewModel.backAction()
-                            }
+                            SUButton(icon: "chevron.left", action: viewModel.backAction)
                         }
                         .padding(.leading, 16)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         VStack {
-                            SUButton(icon: "plus") {
-                                viewModel.createAction()
-                            }
+                            SUButton(icon: "plus", action: viewModel.createAction)
                         }
                         .padding(.trailing, 16)
                         .frame(maxWidth: .infinity, alignment: .trailing)

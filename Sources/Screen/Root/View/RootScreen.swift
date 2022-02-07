@@ -39,24 +39,15 @@ struct RootScreen: View {
                 WorkspaceCreateScreen(viewModel: WorkspaceCreateViewModel(meta: meta))
             }
             .navigationTransition()
-            Route("space/workspace/:wId/shelf/:sId", validator: {
-                .init(id: $0.parameters["wId"]!, workspaceId: $0.parameters["sId"]!)
-            }) { (meta: SUShelfMeta) in
-                ShelfScreen(viewModel: ShelfViewModel(meta: meta))
-            }
-            .navigationTransition()
-            Route("space/workspace/:wId/shelf/:sId/create", validator: {
-                .init(id: $0.parameters["wId"]!, workspaceId: $0.parameters["sId"]!)
-            }) { (meta: SUShelfMeta) in
-                Text("Document create")
-            }
-            .navigationTransition()
-            Route("space/workspace/:wId/shelf/:sId/document/:dId", validator: {
-                .init(id: parse(route: $0, id: "wId"),
-                      shelfId: parse(route: $0, id: "sId"),
-                      workspaceId: parse(route: $0, id: "dId"))
+            Route("space/workspace/:wId/document/:dId", validator: {
+                .init(id: $0.parameters["dId"]!,
+                      workspaceId: $0.parameters["wId"]!)
             }) { (meta: SUDocumentMeta) in
-                DocumentScreen(viewModel: DocumentViewModel(meta: meta))
+                VStack {
+                    Text(meta.id)
+                    Text(meta.workspaceId)
+                }
+//                DocumentScreen(viewModel: DocumentViewModel(meta: meta))
             }
             .navigationTransition()
         }

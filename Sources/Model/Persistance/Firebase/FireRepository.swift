@@ -39,7 +39,6 @@ public final class FireRepository {
 
     private let store = Firestore.firestore()
     private let group = DispatchGroup()
-    
 }
 
 public extension FireRepository {
@@ -49,19 +48,24 @@ public extension FireRepository {
                 .collection("users")
                 .document(userId)
                 .getDocument().data()?["workspaces"] as? Array<DocumentReference>
-        else { throw NSError() }
+        else {
+            #warning("provide error")
+            throw NSError()
+        }
 
-        let result: [SUWorkspace?] = try await data.asyncMap { document in
-            let doc = try await document.getDocument()
-            let workspace: SUWorkspace? = doc.data().flatMap { data in
-                let id = data["id"] as! String
-                let title = data["title"] as! String
-                let workspace = SUWorkspace(meta: .init(id: id), title: title, shelfs: [])
-                return workspace
+        let result: [SUWorkspace] = try await data.asyncMap { document in
+            let data = try await document.getDocument().data()!
+            let workspaceId = data["id"] as! String
+            let title = data["title"] as! String
+            let documents: [SUShallowDocument] = try await (data["documents"] as! Array<DocumentReference>).asyncMap { docRef in
+                let doc = try await docRef.getDocument()
+                let title = doc.data()?["title"] as! String
+                return SUShallowDocument(meta: SUDocumentMeta(id: doc.documentID, workspaceId: workspaceId), title: title)
             }
+            let workspace = SUWorkspace(meta: .init(id: workspaceId), title: title, documents: documents)
             return workspace
         }
-        return result.compactMap { $0 }
+        return result
     }
 
     func workspace(with id: String) async throws -> SUWorkspace {
@@ -69,10 +73,17 @@ public extension FireRepository {
                 .collection("workspaces")
                 .document(id)
                 .getDocument().data()
-        else { throw NSError() }
-        let id = data["id"] as! String
+        else {
+            #warning("provide error")
+            throw NSError()
+        }
         let title = data["title"] as! String
-        return SUWorkspace(meta: SUWorkspaceMeta(id: id), title: title, shelfs: [])
+        let documents: [SUShallowDocument] = try await (data["documents"] as! Array<DocumentReference>).asyncMap { docRef in
+            let doc = try await docRef.getDocument()
+            let title = doc.data()?["title"] as! String
+            return SUShallowDocument(meta: SUDocumentMeta(id: doc.documentID, workspaceId: id), title: title)
+        }
+        return SUWorkspace(meta: SUWorkspaceMeta(id: id), title: title, documents: documents)
     }
 
     func createWorkspace(with title: String, userId: String) async throws -> String {
@@ -83,7 +94,6 @@ public extension FireRepository {
             "id" : ref.documentID,
             "owner" : store.collection("users").document(userId),
             "title" : title,
-            "shelfs" : [],
             "members" : []
         ])
         let user = store
@@ -91,6 +101,7 @@ public extension FireRepository {
             .document(userId)
         guard let workspaces = try await user.getDocument().data()?["workspaces"] as? Array<DocumentReference>
         else {
+            #warning("provide error")
             throw NSError()
         }
         try await user.updateData([
@@ -98,8 +109,29 @@ public extension FireRepository {
         ])
         return ref.documentID
     }
-    
-    func readShelfs(workspaceId: UUID) -> Result<[SUShelf], Error> {
-        .success([])
+
+    func createDocument(with title: String, in workspaceId: String, for userId: String) async throws -> String {
+        let ref = store
+            .collection("documents")
+            .document()
+        try await ref.setData([
+            "id" : ref.documentID,
+            "title" : title,
+            "workspaceId" : workspaceId,
+            "linked" : [],
+            "parts" : []
+        ])
+        let workspaceRef = store
+            .collection("workspaces")
+            .document(workspaceId)
+        guard let documents = try await workspaceRef.getDocument().data()?["documents"] as? Array<DocumentReference>
+        else {
+            #warning("provide error")
+            throw NSError()
+        }
+        try await workspaceRef.updateData([
+            "documents" : documents + [ref]
+        ])
+        return ref.documentID
     }
 }

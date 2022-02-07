@@ -25,19 +25,17 @@ public struct SUShallowWorkspace {
 public struct SUWorkspace {
     public let meta: SUWorkspaceMeta
     public let title: String
-    public let shelfs: [SUShallowShelf]
+    public let documents: [SUShallowDocument]
 
 //    enum CodingKeys: String, CodingKey {
 //        case id
 //        case title
-//        case shelfs
 //    }
 //
 //    public init(from decoder: Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
 //        meta = SUWorkspaceMeta(id: try container.decode(String.self, forKey: .id))
 //        title = try container.decode(String.self, forKey: .title)
-//        shelfs = []
 //
 //    }
 //

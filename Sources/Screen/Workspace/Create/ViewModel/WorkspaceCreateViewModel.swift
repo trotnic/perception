@@ -23,6 +23,10 @@ public final class WorkspaceCreateViewModel: ObservableObject {
         environment.userSession
     }
 
+    private var workspaceManager: WorkspaceManager {
+        environment.workspaceManager
+    }
+
     public init(meta: SUWorkspaceMeta, environment: Environment = .dev) {
         self.environment = environment
         workspaceMeta = meta
@@ -36,6 +40,9 @@ public extension WorkspaceCreateViewModel {
     }
 
     func createAction() {
-        state.change(route: .create)
+        Task {
+            let documentId = try await workspaceManager.createDocument(title: itemName, workspaceId: workspaceMeta.id, userId: userSession.userId!)
+            state.change(route: .read(.document(SUDocumentMeta(id: documentId, workspaceId: workspaceMeta.id))))
+        }
     }
 }
