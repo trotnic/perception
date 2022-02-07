@@ -8,11 +8,55 @@
 
 import SwiftUI
 
-struct SUToolbar<Unexpanded: View>: View {
+struct SUToolbar: View {
+
+    @State private var selectedTwins: [Item.Twin] = []
+//    enum Alignment {
+//        case left
+//        case right
+//        case middle
+//    }
+
+    enum Row {
+        case actionNext
+        case action
+    }
+
+    struct Item: Identifiable {
+        struct Twin: Identifiable {
+            let id = UUID()
+            let icon: String
+            let title: String
+            let type: Row
+            let action: () -> Void
+        }
+
+        let id = UUID()
+        let icon: String
+        let twins: [Twin]
+    }
+
     @Namespace private var namespace
     @State private var isExpanded = false
-    @ViewBuilder var unexpandedItems: Unexpanded
-    var expandedItems: [(String, () -> Void)]
+
+    private let defaultTwins: [Item.Twin]
+    private let leftItems: [Item]
+    private let rightItems: [Item]
+    private let middleItem: Item?
+
+    init(defaultTwins: [Item.Twin] = [],
+         leftItems: [Item] = [],
+         rightItems: [Item] = [],
+         middleItem: Item? = nil)
+    {
+        assert(leftItems.count < 3)
+        assert(rightItems.count < 3)
+
+        self.defaultTwins = defaultTwins
+        self.leftItems = leftItems
+        self.rightItems = rightItems
+        self.middleItem = middleItem
+    }
 
     var body: some View {
         if isExpanded {
@@ -21,12 +65,12 @@ struct SUToolbar<Unexpanded: View>: View {
                     .fill(ColorProvider.secondary2)
                     .frame(width: 48, height: 4)
                 VStack {
-                    ForEach(expandedItems, id: \.self.0) { item in
+                    ForEach(selectedTwins) { twin in
                         HStack {
                             HStack(spacing: 12.0) {
-                                Image(systemName: "plus.circle")
+                                Image(systemName: twin.icon)
                                     .font(.system(size: 24.0).weight(.regular))
-                                Text(item.0)
+                                Text(twin.title)
                                     .font(.system(size: 16.0).weight(.bold))
                             }
                             Spacer()
@@ -36,7 +80,7 @@ struct SUToolbar<Unexpanded: View>: View {
                         .foregroundColor(ColorProvider.text)
                         .padding(.horizontal, 8.0)
                         .padding(.vertical, 16.0)
-                        .onTapGesture(perform: item.1)
+                        .onTapGesture(perform: twin.action)
                     }
                 }
                 .zIndex(1)
@@ -66,10 +110,43 @@ struct SUToolbar<Unexpanded: View>: View {
         } else {
             ZStack {
                 HStack {
-                    unexpandedItems
+                    HStack(spacing: 12.0) {
+                        ForEach(leftItems) { item in
+                            SUButton(icon: item.icon) {
+                                selectedTwins = item.twins
+                                withAnimation {
+                                    isExpanded = true
+                                }
+                            }
+                        }
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    HStack {
+                        if let item = middleItem {
+                            SUButton(icon: item.icon) {
+                                selectedTwins = item.twins
+                                withAnimation {
+                                    isExpanded = true
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    HStack(spacing: 12.0) {
+                        Spacer()
+                        ForEach(rightItems) { item in
+                            SUButton(icon: item.icon) {
+                                selectedTwins = item.twins
+                                withAnimation {
+                                    isExpanded = true
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .transition(.slide)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .padding(16.0)
             .background {
@@ -87,7 +164,7 @@ struct SUToolbar<Unexpanded: View>: View {
                     .matchedGeometryEffect(id: "overlay", in: namespace, isSource: !isExpanded)
             }
             .shadow(color: .black.opacity(0.18), radius: 6.0, x: 0.0, y: 4.0)
-            .frame(maxWidth: 351.0)
+            .frame(maxWidth: 351.0, maxHeight: 80.0)
             .onTapGesture {
                 withAnimation {
                     isExpanded = true
@@ -104,15 +181,28 @@ struct SUToolbar_Previews: PreviewProvider {
                 .ignoresSafeArea()
             VStack {
                 Spacer()
-                SUToolbar(
-                    unexpandedItems: {
-                        SUButton(icon: "gear") {}
-                        Spacer()
-                    },
-                    expandedItems: [
-                        ("Create workspace", {})
-                    ]
-                )
+                SUToolbar(defaultTwins: [
+                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                ], leftItems: [
+                    SUToolbar.Item(icon: "gear", twins: [
+                        SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                    ]),
+                    SUToolbar.Item(icon: "gear", twins: [
+                        SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                    ])
+                ], rightItems: [
+                    SUToolbar.Item(icon: "gear", twins: [
+                        SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                    ]),
+                    SUToolbar.Item(icon: "gear", twins: [
+                        SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                    ])
+                ], middleItem: SUToolbar.Item(icon: "gear", twins: [
+                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
+                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
+                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
+                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                ]))
             }
         }
         .previewDevice("iPhone 11 Pro")

@@ -60,6 +60,7 @@ struct SUButton_Previews: PreviewProvider {
             ColorProvider.background
                 .ignoresSafeArea()
             SUButton(icon: "ellipsis") {}
+            .frame(width: 36.0, height: 36.0)
         }
     }
 }
