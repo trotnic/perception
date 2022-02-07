@@ -17,16 +17,22 @@ public final class Environment: ObservableObject {
 
     init() {
         FirebaseApp.configure()
-        repository = FireRepository()
+        let repository = FireRepository()
+        self.repository = repository
         userSession = UserSession()
+        let navigator = Navigator()
+        self.navigator = navigator
+        state = AppState(navigator: navigator)
+        workspaceManager = WorkspaceManager(repository: repository)
+        spaceManager = SpaceManager(repository: repository)
     }
 
-    public let repository: FireRepository
-    public private(set) lazy var state = AppState(navigator: navigator)
-    public let navigator = Navigator()
+    public let repository: FireRepository!
+    public let state: AppState!
+    public let navigator: Navigator!
 
-    public let userSession: UserSession
+    public let userSession: UserSession!
 
-    public private(set) lazy var workspaceManager = WorkspaceManager(repository: repository)
-    public private(set) lazy var spaceManager = SpaceManager(repository: repository)
+    public let workspaceManager: WorkspaceManager!
+    public let spaceManager: SpaceManager!
 }

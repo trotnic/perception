@@ -73,8 +73,13 @@ struct SUToolbar: View {
                                     .font(.system(size: 16.0).weight(.bold))
                             }
                             Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 24.0).weight(.regular))
+                            switch twin.type {
+                            case .action:
+                                EmptyView()
+                            case .actionNext:
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 24.0).weight(.regular))
+                            }
                         }
                         .foregroundColor(ColorProvider.text)
                         .padding(.horizontal, 8.0)
@@ -166,6 +171,7 @@ struct SUToolbar: View {
             .shadow(color: .black.opacity(0.18), radius: 6.0, x: 0.0, y: 4.0)
             .frame(maxWidth: 351.0, maxHeight: 80.0)
             .onTapGesture {
+                guard !defaultTwins.isEmpty else { return }
                 withAnimation {
                     isExpanded = true
                 }

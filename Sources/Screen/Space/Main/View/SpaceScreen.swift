@@ -11,6 +11,7 @@ import SwiftUIRouter
 
 struct SpaceScreen {
     @StateObject var viewModel: SpaceViewModel
+    @State private var isToolbarExpanded: Bool = false
 }
 
 extension SpaceScreen: View {
@@ -44,22 +45,20 @@ extension SpaceScreen: View {
                     }
                 }
             }
-//            .overlay {
-//                VStack {
-//                    SUToolbar(
-//                        unexpandedItems: {
-//                            SUButton(icon: "gear") { print("Settings!") }
-//                            Spacer()
-//                        },
-//                        expandedItems: [
-//                            ("Create workspace", { viewModel.createAction() })
-//                        ]
-//                    )
-//                }
-//                .frame(maxHeight: .infinity, alignment: .bottom)
-//                .ignoresSafeArea()
-//                .offset(y: -10)
-//            }
+            .overlay {
+                VStack {
+                    SUToolbar(isExpanded: $isToolbarExpanded, leftItems: [
+                        .init(icon: "gear", twins: [
+                            .init(icon: "doc", title: "Create document", type: .action) {
+                                print("LOLKEK")
+                            }
+                        ])
+                    ])
+                }
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .ignoresSafeArea()
+                .offset(y: -10)
+            }
         }
         .onAppear(perform: viewModel.load)
     }
