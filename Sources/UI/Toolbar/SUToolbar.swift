@@ -10,13 +10,6 @@ import SwiftUI
 
 struct SUToolbar: View {
 
-    @State private var selectedTwins: [Item.Twin] = []
-//    enum Alignment {
-//        case left
-//        case right
-//        case middle
-//    }
-
     enum Row {
         case actionNext
         case action
@@ -37,14 +30,17 @@ struct SUToolbar: View {
     }
 
     @Namespace private var namespace
-    @State private var isExpanded = false
+
+    @State private var selectedTwins: [Item.Twin] = []
+    @Binding var isExpanded: Bool
 
     private let defaultTwins: [Item.Twin]
     private let leftItems: [Item]
     private let rightItems: [Item]
     private let middleItem: Item?
 
-    init(defaultTwins: [Item.Twin] = [],
+    init(isExpanded: Binding<Bool>,
+         defaultTwins: [Item.Twin] = [],
          leftItems: [Item] = [],
          rightItems: [Item] = [],
          middleItem: Item? = nil)
@@ -52,10 +48,13 @@ struct SUToolbar: View {
         assert(leftItems.count < 3)
         assert(rightItems.count < 3)
 
+        self._isExpanded = isExpanded
         self.defaultTwins = defaultTwins
         self.leftItems = leftItems
         self.rightItems = rightItems
         self.middleItem = middleItem
+
+        selectedTwins = defaultTwins
     }
 
     var body: some View {
@@ -105,6 +104,7 @@ struct SUToolbar: View {
             .onTapGesture {
                 withAnimation {
                     isExpanded = false
+                    selectedTwins = defaultTwins
                 }
             }
         } else {
@@ -181,7 +181,8 @@ struct SUToolbar_Previews: PreviewProvider {
                 .ignoresSafeArea()
             VStack {
                 Spacer()
-                SUToolbar(defaultTwins: [
+                SUToolbar(isExpanded: .constant(false),
+                    defaultTwins: [
                     SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
                 ], leftItems: [
                     SUToolbar.Item(icon: "gear", twins: [
