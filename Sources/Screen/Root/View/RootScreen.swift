@@ -16,11 +16,11 @@ struct RootScreen: View {
     var body: some View {
         SwitchRoutes {
             Route("authentication") {
-                AuthorizationScreen(viewModel: AuthorizationViewModel())
+                AuthenticationScreen(viewModel: AuthenticationViewModel())
             }
             .navigationTransition()
             Route("space") {
-                SpaceScreen(viewModel: SpaceViewModel())
+                SpaceScreen(spaceViewModel: SpaceViewModel(), settingsViewModel: ToolbarSettingsViewModel())
             }
             .navigationTransition()
             Route("space/create") {
@@ -50,6 +50,13 @@ struct RootScreen: View {
 //                DocumentScreen(viewModel: DocumentViewModel(meta: meta))
             }
             .navigationTransition()
+            Route("account") {
+                AccountScreen(viewModel: AccountViewModel())
+            }
+            .navigationTransition()
+            Route {
+                Navigate(to: "/authentication")
+            }
         }
     }
 

@@ -10,7 +10,9 @@ import SwiftUI
 import SwiftUIRouter
 
 struct SpaceScreen {
-    @StateObject var viewModel: SpaceViewModel
+    @StateObject var spaceViewModel: SpaceViewModel
+    @StateObject var settingsViewModel: ToolbarSettingsViewModel
+
     @State private var isToolbarExpanded: Bool = false
 }
 
@@ -25,13 +27,13 @@ extension SpaceScreen: View {
                     ZStack {
                         VStack {
                             SUButton(icon: "plus") {
-                                viewModel.createAction()
+                                spaceViewModel.createAction()
                             }
                         }
                         .padding(.trailing, 16)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         VStack {
-                            Text(viewModel.title)
+                            Text(spaceViewModel.title)
                                 .font(.custom("Comfortaa", size: 20).weight(.bold))
                                 .foregroundColor(ColorProvider.text)
                         }
@@ -49,8 +51,8 @@ extension SpaceScreen: View {
                 VStack {
                     SUToolbar(isExpanded: $isToolbarExpanded, leftItems: [
                         .init(icon: "gear", twins: [
-                            .init(icon: "doc", title: "Create document", type: .action) {
-                                print("LOLKEK")
+                            .init(icon: "person", title: "Account", type: .actionNext) {
+                                settingsViewModel.accountAction()
                             }
                         ])
                     ])
@@ -60,16 +62,16 @@ extension SpaceScreen: View {
                 .offset(y: -10)
             }
         }
-        .onAppear(perform: viewModel.load)
+        .onAppear(perform: spaceViewModel.load)
     }
 
     @ViewBuilder private var listItems: some View {
         LazyVGrid(columns: [
             .init(.flexible(minimum: .zero, maximum: .infinity))
         ], spacing: 24) {
-            ForEach(viewModel.viewItems) { item in
+            ForEach(spaceViewModel.viewItems) { item in
                 ListTile(viewItem: item) {
-                    viewModel.selectItem(with: item.id)
+                    spaceViewModel.selectItem(with: item.id)
                 }
             }
         }
@@ -77,12 +79,13 @@ extension SpaceScreen: View {
     }
 }
 
-struct HomeScreen_Previews: PreviewProvider {
-
-    static let viewModel = SpaceViewModel()
-
-    static var previews: some View {
-        SpaceScreen(viewModel: viewModel)
-            .previewDevice("iPhone 13 mini")
-    }
-}
+//struct HomeScreen_Previews: PreviewProvider {
+//
+//    static let viewModel = SpaceViewModel(environment: .preview)
+//    static let set
+//
+//    static var previews: some View {
+//        SpaceScreen(spaceViewModel: viewModel)
+//            .previewDevice("iPhone 13 mini")
+//    }
+//}

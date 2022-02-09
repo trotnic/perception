@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class AuthorizationViewModel: ObservableObject {
+public final class AuthenticationViewModel: ObservableObject {
 
     private let environment: Environment
 
@@ -26,15 +26,13 @@ public final class AuthorizationViewModel: ObservableObject {
 
 }
 
-public extension AuthorizationViewModel {
+public extension AuthenticationViewModel {
 
     func process(email: String, password: String) {
-        userSession.authorize(email: email, password: password) { [state] result in
-            switch result {
-            case .success:
+        Task {
+            try await userSession.authorize(email: email, password: password)
+            await MainActor.run {
                 state.change(route: .space)
-            case .failure(let error):
-                print(error)
             }
         }
     }

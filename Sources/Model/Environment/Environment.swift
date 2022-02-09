@@ -14,6 +14,16 @@ import SwiftUIRouter
 
 public final class Environment: ObservableObject {
     public static let dev = Environment()
+    public static let preview = Environment(param: 42)
+
+    init(param: Int) {
+        repository = nil
+        state = nil
+        navigator = nil
+        userSession = nil
+        workspaceManager = nil
+        spaceManager = nil
+    }
 
     init() {
         FirebaseApp.configure()

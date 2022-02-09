@@ -1,5 +1,5 @@
 //
-//  AuthorizationScreen.swift
+//  AuthenticationScreen.swift
 //  Perception
 //
 //  Created by Uladzislau Volchyk on 1.02.22.
@@ -8,12 +8,15 @@
 
 import SwiftUI
 
-struct AuthorizationScreen: View {
+struct AuthenticationScreen {
 
-    @StateObject var viewModel: AuthorizationViewModel
+    @StateObject var viewModel: AuthenticationViewModel
 
     @State private var email: String = ""
     @State private var password: String = ""
+}
+
+extension AuthenticationScreen: View {
 
     var body: some View {
         GeometryReader { proxy in
@@ -70,10 +73,10 @@ struct AuthorizationScreen: View {
 }
 
 struct AuthorizationScreen_Previews: PreviewProvider {
-    static let viewModel = AuthorizationViewModel()
+    static let viewModel = AuthenticationViewModel(environment: .preview)
 
     static var previews: some View {
-        AuthorizationScreen(viewModel: viewModel)
+        AuthenticationScreen(viewModel: viewModel)
     }
 }
 

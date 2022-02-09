@@ -37,6 +37,7 @@ public final class AppState: ObservableObject {
         case none
         case back
         case authentication
+        case account
         case space
         case create
         case read(Content)
@@ -61,15 +62,21 @@ public final class AppState: ObservableObject {
             screenStack.removeLast()
             currentScreen = screenStack.last!
         case .authentication:
-            break
+            navigator.navigate("/authentication")
+            screenStack.removeAll()
+            currentScreen = .authentication
+        case .account:
+            navigator.navigate("/account")
+            screenStack.append(.account)
+            currentScreen = .account
         case .space:
             navigator.navigate("/space")
             screenStack.append(.space)
             currentScreen = .space
         case .create:
             switch currentScreen {
-            case .back, .create, .authentication, .none:
-                break
+            case .back, .create, .authentication, .account, .none:
+                fatalError("This should never happen")
             case .space:
                 navigator.navigate("/space/create")
             case .read(let content):
