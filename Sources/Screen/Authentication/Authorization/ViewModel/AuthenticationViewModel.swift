@@ -10,6 +10,9 @@ import Foundation
 
 public final class AuthenticationViewModel: ObservableObject {
 
+    @Published public var email: String = ""
+    @Published public var password: String = ""
+
     private let environment: Environment
 
     private var userSession: UserSession {
@@ -28,13 +31,29 @@ public final class AuthenticationViewModel: ObservableObject {
 
 public extension AuthenticationViewModel {
 
-    func process(email: String, password: String) {
+    func signIn() {
         Task {
-            try await userSession.authorize(email: email, password: password)
-            await MainActor.run {
-                state.change(route: .space)
+            do {
+                try await userSession.signIn(email: email, password: password)
+                await MainActor.run {
+                    state.change(route: .space)
+                }
+            } catch {
+                fatalError(error.localizedDescription)
             }
         }
     }
 
+    func signUp() {
+        Task {
+            do {
+                try await userSession.signUp(email: email, password: password)
+                await MainActor.run {
+                    state.change(route: .space)
+                }
+            } catch {
+                fatalError(error.localizedDescription)
+            }
+        }
+    }
 }

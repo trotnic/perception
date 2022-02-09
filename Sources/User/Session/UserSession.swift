@@ -26,7 +26,7 @@ public extension UserSession {
         auth.currentUser?.uid
     }
 
-    func authorize(email: String, password: String) async throws {
+    func signIn(email: String, password: String) async throws {
         try await auth.signIn(withEmail: email, password: password)
     }
 
@@ -34,7 +34,7 @@ public extension UserSession {
         try auth.signOut()
     }
 
-    func register(email: String, password: String) async throws {
+    func signUp(email: String, password: String) async throws {
         try await auth.createUser(withEmail: email, password: password)
     }
 }
