@@ -78,15 +78,15 @@ struct SpaceCreateScreen: View {
 
 }
 
-struct SpaceCreateScreen_Previews: PreviewProvider {
-    static let viewModel = SpaceCreateViewModel()
-
-    static var previews: some View {
-        ZStack {
-            ColorProvider.background
-                .ignoresSafeArea()
-            SpaceCreateScreen(viewModel: viewModel)
-        }
-        .previewDevice("iPhone 13 mini")
-    }
-}
+//struct SpaceCreateScreen_Previews: PreviewProvider {
+//    static let viewModel = SpaceCreateViewModel()
+//
+//    static var previews: some View {
+//        ZStack {
+//            ColorProvider.background
+//                .ignoresSafeArea()
+//            SpaceCreateScreen(viewModel: viewModel)
+//        }
+//        .previewDevice("iPhone 13 mini")
+//    }
+//}

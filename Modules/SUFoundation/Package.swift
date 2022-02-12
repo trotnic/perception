@@ -11,13 +11,17 @@ let package = Package(
     products: [
         .library(
             name: "SUFoundation",
-            targets: ["SUFoundation"]
+            targets: [
+                "SUFoundation",
+            ]
         ),
     ],
     dependencies: [
-        .package(name: "Firebase",
-                 url: "https://github.com/firebase/firebase-ios-sdk.git",
-                 from: Version(8, 10, 0)),
+        .package(
+            name: "Firebase",
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            from: Version(8, 10, 0)
+        ),
     ],
     targets: [
         .target(
@@ -30,6 +34,9 @@ let package = Package(
         ),
         .testTarget(
             name: "SUFoundationTests",
-            dependencies: ["SUFoundation"]),
+            dependencies: [
+                "SUFoundation"
+            ]
+        ),
     ]
 )

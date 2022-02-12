@@ -1,6 +1,6 @@
 //
 //  SpaceManager.swift
-//  Perception
+//  SUFoundation
 //
 //  Created by Uladzislau Volchyk on 9.01.22.
 //  Copyright © 2022 Star Unicorn. All rights reserved.
@@ -10,9 +10,9 @@ import Foundation
 
 public final class SpaceManager {
 
-    private let repository: FireRepository
+    private let repository: Repository
 
-    public init(repository: FireRepository) {
+    public init(repository: Repository) {
         self.repository = repository
     }
 }

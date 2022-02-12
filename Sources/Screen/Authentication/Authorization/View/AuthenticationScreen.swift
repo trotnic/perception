@@ -90,12 +90,12 @@ extension AuthenticationScreen: View {
     }
 }
 
-struct AuthorizationScreen_Previews: PreviewProvider {
-    static let viewModel = AuthenticationViewModel(environment: .preview)
-
-    static var previews: some View {
-        AuthenticationScreen(viewModel: viewModel)
-    }
-}
-
-
+//struct AuthorizationScreen_Previews: PreviewProvider {
+//    static let viewModel = AuthenticationViewModel(environment: .preview)
+//
+//    static var previews: some View {
+//        AuthenticationScreen(viewModel: viewModel)
+//    }
+//}
+//
+//

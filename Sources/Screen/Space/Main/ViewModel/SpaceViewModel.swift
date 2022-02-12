@@ -18,22 +18,17 @@ public final class SpaceViewModel: ObservableObject {
     private var _items = CurrentValueSubject<[SUWorkspace], Never>([])
 
     private var disposeBag = Set<AnyCancellable>()
-    private let environment: Environment
 
-    private var spaceManager: SpaceManager {
-        environment.spaceManager
-    }
+    private let appState: AppState
+    private let spaceManager: SpaceManager
+    private let userManager: UserManager
 
-    private var state: AppState {
-        environment.state
-    }
-
-    private var userSession: UserSession {
-        environment.userSession
-    }
-
-    public init(environment: Environment = .dev) {
-        self.environment = environment
+    public init(appState: AppState,
+                spaceManager: SpaceManager,
+                userManager: UserManager) {
+        self.appState = appState
+        self.spaceManager = spaceManager
+        self.userManager = userManager
         _items
             .map { items in
                 items.map { item in
@@ -49,8 +44,6 @@ public final class SpaceViewModel: ObservableObject {
                 self.viewItems = $0
             }
             .store(in: &disposeBag)
-        
-
     }
 }
 
@@ -66,15 +59,15 @@ public extension SpaceViewModel {
 
     @MainActor
     func _load() async throws {
-        _items.value = try await spaceManager.loadWorkspaces(for: userSession.userId!)
+        _items.value = try await spaceManager.loadWorkspaces(for: userManager.userId)
     }
 
     func selectItem(with id: String) {
-        state.change(route: .read(.workspace(SUWorkspaceMeta(id: id))))
+        appState.change(route: .read(.workspace(SUWorkspaceMeta(id: id))))
     }
 
     func createAction() {
-        state.change(route: .create)
+        appState.change(route: .create)
     }
 }
 

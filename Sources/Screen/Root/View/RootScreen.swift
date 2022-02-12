@@ -10,34 +10,70 @@ import SwiftUI
 import SwiftUIRouter
 import SUFoundation
 
-struct RootScreen: View {
+struct RootScreen {
 
-    @StateObject var viewModel: RootViewModel
+    let environment: SUEnvironment
+}
+
+extension RootScreen: View {
 
     var body: some View {
         SwitchRoutes {
             Route("authentication") {
-                AuthenticationScreen(viewModel: AuthenticationViewModel())
+                AuthenticationScreen(
+                    viewModel: AuthenticationViewModel(
+                        appState: environment.appState,
+                        userManager: environment.userManager
+                    )
+                )
             }
             .navigationTransition()
             Route("space") {
-                SpaceScreen(spaceViewModel: SpaceViewModel(), settingsViewModel: ToolbarSettingsViewModel())
+                SpaceScreen(
+                    spaceViewModel: SpaceViewModel(
+                        appState: environment.appState,
+                        spaceManager: environment.spaceManager,
+                        userManager: environment.userManager
+                    ),
+                    settingsViewModel: ToolbarSettingsViewModel(
+                        appState: environment.appState
+                    )
+                )
             }
             .navigationTransition()
             Route("space/create") {
-                SpaceCreateScreen(viewModel: SpaceCreateViewModel())
+                SpaceCreateScreen(
+                    viewModel: SpaceCreateViewModel(
+                        appState: environment.appState,
+                        spaceManager: environment.spaceManager,
+                        userManager: environment.userManager
+                    )
+                )
             }
             .navigationTransition()
             Route("space/workspace/:wId", validator: {
                 .init(id: $0.parameters["wId"]!)
             }) { (meta: SUWorkspaceMeta) in
-                WorkspaceScreen(viewModel: WorkspaceViewModel(meta: meta))
+                WorkspaceScreen(
+                    viewModel: WorkspaceViewModel(
+                        appState: environment.appState,
+                        workspaceManager: environment.workspaceManager,
+                        workspaceMeta: meta
+                    )
+                )
             }
             .navigationTransition()
             Route("space/workspace/:wId/create", validator: {
                 .init(id: $0.parameters["wId"]!)
             }) { (meta: SUWorkspaceMeta) in
-                WorkspaceCreateScreen(viewModel: WorkspaceCreateViewModel(meta: meta))
+                WorkspaceCreateScreen(
+                    viewModel: WorkspaceCreateViewModel(
+                        appState: environment.appState,
+                        workspaceManager: environment.workspaceManager,
+                        userManager: environment.userManager,
+                        workspaceMeta: meta
+                    )
+                )
             }
             .navigationTransition()
             Route("space/workspace/:wId/document/:dId", validator: {
@@ -52,27 +88,18 @@ struct RootScreen: View {
             }
             .navigationTransition()
             Route("account") {
-                AccountScreen(viewModel: AccountViewModel())
+                AccountScreen(
+                    viewModel: AccountViewModel(
+                        appState: environment.appState,
+                        userManager: environment.userManager
+                    )
+                )
             }
             .navigationTransition()
             Route {
                 Navigate(to: "/authentication")
             }
         }
-    }
-
-    @inline(__always)
-    private func parse(route: RouteInformation, id: String) -> UUID {
-        UUID(uuidString: route.parameters[id]!)!
-    }
-}
-
-struct RootScreen_Previews: PreviewProvider {
-
-    static let viewModel = RootViewModel()
-
-    static var previews: some View {
-        RootScreen(viewModel: viewModel)
     }
 }
 

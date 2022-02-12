@@ -1,6 +1,6 @@
 //
 //  Workspace.swift
-//  Perception
+//  SUFoundation
 //
 //  Created by Uladzislau Volchyk on 9.01.22.
 //  Copyright © 2022 Star Unicorn. All rights reserved.

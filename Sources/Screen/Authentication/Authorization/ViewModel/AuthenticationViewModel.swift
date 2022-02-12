@@ -7,26 +7,20 @@
 //
 
 import Foundation
+import SUFoundation
 
 public final class AuthenticationViewModel: ObservableObject {
 
     @Published public var email: String = ""
     @Published public var password: String = ""
 
-    private let environment: Environment
+    private let appState: AppState
+    private let userManager: UserManager
 
-    private var userSession: UserSession {
-        environment.userSession
+    public init(appState: AppState, userManager: UserManager) {
+        self.appState = appState
+        self.userManager = userManager
     }
-
-    private var state: AppState {
-        environment.state
-    }
-
-    public init(environment: Environment = .dev) {
-        self.environment = environment
-    }
-
 }
 
 public extension AuthenticationViewModel {
@@ -34,9 +28,9 @@ public extension AuthenticationViewModel {
     func signIn() {
         Task {
             do {
-                try await userSession.signIn(email: email, password: password)
+                try await userManager.signIn(email: email, password: password)
                 await MainActor.run {
-                    state.change(route: .space)
+                    appState.change(route: .space)
                 }
             } catch {
                 fatalError(error.localizedDescription)
@@ -47,9 +41,9 @@ public extension AuthenticationViewModel {
     func signUp() {
         Task {
             do {
-                try await userSession.signUp(email: email, password: password)
+                try await userManager.signUp(email: email, password: password)
                 await MainActor.run {
-                    state.change(route: .space)
+                    appState.change(route: .space)
                 }
             } catch {
                 fatalError(error.localizedDescription)

@@ -151,11 +151,11 @@ extension AccountScreen: View {
     }
 }
 
-struct AccountScreen_Previews: PreviewProvider {
-
-    static let viewModel = AccountViewModel(environment: .preview)
-
-    static var previews: some View {
-        AccountScreen(viewModel: viewModel)
-    }
-}
+//struct AccountScreen_Previews: PreviewProvider {
+//    
+//    static let viewModel = AccountViewModel(environment: .preview)
+//
+//    static var previews: some View {
+//        AccountScreen(viewModel: viewModel)
+//    }
+//}

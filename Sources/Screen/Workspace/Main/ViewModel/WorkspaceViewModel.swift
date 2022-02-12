@@ -17,22 +17,16 @@ public final class WorkspaceViewModel: ObservableObject {
     @Published public private(set) var membersCount: Int = 0
     @Published public private(set) var viewItems: [ListTileViewItem] = []
 
+    private let appState: AppState
+    private let workspaceManager: WorkspaceManager
     private let workspaceMeta: SUWorkspaceMeta
 
-    private var workspaceItem: SUWorkspace!
-
-    private let environment: Environment
-    private var workspaceManager: WorkspaceManager {
-        environment.workspaceManager
-    }
-
-    private var state: AppState {
-        environment.state
-    }
-
-    public init(meta: SUWorkspaceMeta, environment: Environment = .dev) {
-        self.environment = environment
-        workspaceMeta = meta
+    public init(appState: AppState,
+                workspaceManager: WorkspaceManager,
+                workspaceMeta: SUWorkspaceMeta) {
+        self.appState = appState
+        self.workspaceManager = workspaceManager
+        self.workspaceMeta = workspaceMeta
     }
 }
 
@@ -53,15 +47,15 @@ public extension WorkspaceViewModel {
     }
 
     func selectItem(with id: String) {
-        state.change(route: .read(.document(SUDocumentMeta(id: id, workspaceId: workspaceMeta.id))))
+        appState.change(route: .read(.document(SUDocumentMeta(id: id, workspaceId: workspaceMeta.id))))
     }
 
     func createAction() {
-        state.change(route: .create)
+        appState.change(route: .create)
     }
 
     func backAction() {
-        state.change(route: .back)
+        appState.change(route: .back)
     }
 }
 

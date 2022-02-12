@@ -56,11 +56,11 @@ struct DocumentScreen: View {
     }
 }
 
-struct DocumentScreen_Previews: PreviewProvider {
-    static let viewModel = DocumentViewModel(meta: .empty)
-
-    static var previews: some View {
-        DocumentScreen(viewModel: viewModel)
-            .previewDevice("iPhone 13 mini")
-    }
-}
+//struct DocumentScreen_Previews: PreviewProvider {
+//    static let viewModel = DocumentViewModel(meta: .empty)
+//
+//    static var previews: some View {
+//        DocumentScreen(viewModel: viewModel)
+//            .previewDevice("iPhone 13 mini")
+//    }
+//}

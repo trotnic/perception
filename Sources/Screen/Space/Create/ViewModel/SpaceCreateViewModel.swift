@@ -13,14 +13,15 @@ import SUFoundation
 public final class SpaceCreateViewModel: ObservableObject {
 
     @Published var workspaceName: String = ""
-    private let environment: Environment
-    private var state: AppState { environment.state }
 
-    private var spaceManager: SpaceManager { environment.spaceManager }
-    private var userSession: UserSession { environment.userSession }
+    private let appState: AppState
+    private let spaceManager: SpaceManager
+    private let userManager: UserManager
 
-    public init(environment: Environment = .dev) {
-        self.environment = environment
+    public init(appState: AppState, spaceManager: SpaceManager, userManager: UserManager) {
+        self.appState = appState
+        self.spaceManager = spaceManager
+        self.userManager = userManager
     }
 }
 
@@ -30,15 +31,15 @@ public extension SpaceCreateViewModel {
 
     func createWorkspace() {
         Task {
-            let workspaceId = try await spaceManager.createWorkspace(name: workspaceName, userId: userSession.userId!)
+            let workspaceId = try await spaceManager.createWorkspace(name: workspaceName, userId: userManager.userId)
             await MainActor.run {
-                state.change(route: .read(.workspace(SUWorkspaceMeta(id: workspaceId))))
+                appState.change(route: .read(.workspace(SUWorkspaceMeta(id: workspaceId))))
             }
         }
     }
 
     func backAction() {
-        state.change(route: .back)
+        appState.change(route: .back)
     }
 }
 

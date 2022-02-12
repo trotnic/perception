@@ -1,6 +1,6 @@
 //
 //  FireRepository.swift
-//  Perception
+//  SUFoundation
 //
 //  Created by Uladzislau Volchyk on 30.01.22.
 //  Copyright © 2022 Star Unicorn. All rights reserved.
@@ -12,46 +12,30 @@ import FirebaseStorage
 import FirebaseCore
 import FirebaseFirestore
 
-extension Sequence {
-    func asyncForEach(
-        _ operation: (Element) async throws -> Void
-    ) async rethrows {
-        for element in self {
-            try await operation(element)
-        }
-    }
-
-    func asyncMap<T>(
-        _ transform: (Element) async throws -> T
-    ) async rethrows -> [T] {
-        var values = [T]()
-        
-        for element in self {
-            try await values.append(transform(element))
-        }
-        
-        return values
-    }
-}
-
 public final class FireRepository {
 
-    private let store = Firestore.firestore()
-    private let group = DispatchGroup()
+    enum FetchError: Error {
+        case cantLoadList
+        case cantLoadEntity
+        case cantCreate
+    }
 
-    public init() {}
+    private let firestore: Firestore
+
+    public init(firestore: Firestore) {
+        self.firestore = firestore
+    }
 }
 
-public extension FireRepository {
+extension FireRepository: Repository {
     
-    func workspaces(for userId: String) async throws -> [SUWorkspace] {
-        guard let data = try await store
+    public func workspaces(for userId: String) async throws -> [SUWorkspace] {
+        guard let data = try await firestore
                 .collection("users")
                 .document(userId)
                 .getDocument().data()?["workspaces"] as? Array<DocumentReference>
         else {
-            #warning("provide error")
-            throw NSError()
+            throw FetchError.cantLoadList
         }
 
         let result: [SUWorkspace] = try await data.asyncMap { document in
@@ -69,14 +53,13 @@ public extension FireRepository {
         return result
     }
 
-    func workspace(with id: String) async throws -> SUWorkspace {
-        guard let data = try await store
+    public func workspace(with id: String) async throws -> SUWorkspace {
+        guard let data = try await firestore
                 .collection("workspaces")
                 .document(id)
                 .getDocument().data()
         else {
-            #warning("provide error")
-            throw NSError()
+            throw FetchError.cantLoadEntity
         }
         let title = data["title"] as! String
         let documents: [SUShallowDocument] = try await (data["documents"] as! Array<DocumentReference>).asyncMap { docRef in
@@ -87,23 +70,23 @@ public extension FireRepository {
         return SUWorkspace(meta: SUWorkspaceMeta(id: id), title: title, documents: documents)
     }
 
-    func createWorkspace(with title: String, userId: String) async throws -> String {
-        let ref = store
+    public func createWorkspace(with title: String,
+                                userId: String) async throws -> String {
+        let ref = firestore
             .collection("workspaces")
             .document()
         try await ref.setData([
             "id" : ref.documentID,
-            "owner" : store.collection("users").document(userId),
+            "owner" : firestore.collection("users").document(userId),
             "title" : title,
             "members" : []
         ])
-        let user = store
+        let user = firestore
             .collection("users")
             .document(userId)
         guard let workspaces = try await user.getDocument().data()?["workspaces"] as? Array<DocumentReference>
         else {
-            #warning("provide error")
-            throw NSError()
+            throw FetchError.cantCreate
         }
         try await user.updateData([
             "workspaces" : workspaces + [ref]
@@ -111,8 +94,10 @@ public extension FireRepository {
         return ref.documentID
     }
 
-    func createDocument(with title: String, in workspaceId: String, for userId: String) async throws -> String {
-        let ref = store
+    public func createDocument(with title: String,
+                               in workspaceId: String,
+                               for userId: String) async throws -> String {
+        let ref = firestore
             .collection("documents")
             .document()
         try await ref.setData([
@@ -122,13 +107,12 @@ public extension FireRepository {
             "linked" : [],
             "parts" : []
         ])
-        let workspaceRef = store
+        let workspaceRef = firestore
             .collection("workspaces")
             .document(workspaceId)
         guard let documents = try await workspaceRef.getDocument().data()?["documents"] as? Array<DocumentReference>
         else {
-            #warning("provide error")
-            throw NSError()
+            throw FetchError.cantCreate
         }
         try await workspaceRef.updateData([
             "documents" : documents + [ref]

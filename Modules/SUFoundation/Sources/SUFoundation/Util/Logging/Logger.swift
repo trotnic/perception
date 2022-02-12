@@ -9,5 +9,5 @@
 import os
 
 public struct SULogger {
-    static let navigation = Logger(subsystem: "com.staruco", category: "navigation")
+    public static let navigation = Logger(subsystem: "com.staruco", category: "navigation")
 }
