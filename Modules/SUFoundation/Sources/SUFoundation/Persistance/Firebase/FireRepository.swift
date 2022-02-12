@@ -11,7 +11,6 @@ import Combine
 import FirebaseStorage
 import FirebaseCore
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 
 extension Sequence {
     func asyncForEach(
@@ -39,6 +38,8 @@ public final class FireRepository {
 
     private let store = Firestore.firestore()
     private let group = DispatchGroup()
+
+    public init() {}
 }
 
 public extension FireRepository {

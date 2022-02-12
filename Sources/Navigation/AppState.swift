@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUIRouter
+import SUFoundation
 
 public final class AppState: ObservableObject {
 
@@ -20,20 +21,7 @@ public final class AppState: ObservableObject {
         self.navigator = navigator
     }
 
-    public enum Screen: Equatable {
-        public static func == (lhs: AppState.Screen, rhs: AppState.Screen) -> Bool {
-            switch (lhs, rhs) {
-            case (.back, back),
-                (.space, .space),
-                (.create, .create),
-                (.read, .read),
-                (.authentication, .authentication):
-                return true
-            default:
-                return false
-            }
-        }
-
+    public enum Screen {
         case none
         case back
         case authentication

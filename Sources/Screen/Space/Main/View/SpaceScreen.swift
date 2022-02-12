@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftUIRouter
+import SUDesign
 
 struct SpaceScreen {
     @StateObject var spaceViewModel: SpaceViewModel
@@ -26,7 +27,7 @@ extension SpaceScreen: View {
                 VStack {
                     ZStack {
                         VStack {
-                            SUButton(icon: "plus") {
+                            SUButtonCircular(icon: "plus") {
                                 spaceViewModel.createAction()
                             }
                         }

@@ -11,6 +11,7 @@ import Firebase
 import FirebaseAuth
 import Combine
 import SwiftUIRouter
+import SUFoundation
 
 public final class Environment: ObservableObject {
     public static let dev = Environment()

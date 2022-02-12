@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SUDesign
 
 struct SUNavigationBar: View {
 
@@ -24,13 +25,13 @@ struct SUNavigationBar: View {
                 .padding(.leading, 20)
 
             VStack {
-                SUButton(icon: "chevron.left") {}
+                SUButtonCircular(icon: "chevron.left") {}
             }
             .padding(.leading, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
 
             VStack {
-                SUButton(icon: "ellipsis") {}
+                SUButtonCircular(icon: "ellipsis") {}
             }
             .padding(.trailing, 16)
             .frame(maxWidth: .infinity, alignment: .trailing)

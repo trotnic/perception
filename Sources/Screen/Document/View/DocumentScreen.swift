@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SUDesign
 
 struct DocumentScreen: View {
 
@@ -19,12 +20,12 @@ struct DocumentScreen: View {
             VStack {
                 ZStack {
                     VStack {
-                        SUButton(icon: "chevron.left", action: viewModel.backAction)
+                        SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     VStack {
-                        SUButton(icon: "ellipsis") {}
+                        SUButtonCircular(icon: "ellipsis") {}
                     }
                     .padding(.trailing, 16)
                     .frame(maxWidth: .infinity, alignment: .trailing)

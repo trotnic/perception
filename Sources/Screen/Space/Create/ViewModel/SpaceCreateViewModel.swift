@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SUFoundation
 
 public final class SpaceCreateViewModel: ObservableObject {
 

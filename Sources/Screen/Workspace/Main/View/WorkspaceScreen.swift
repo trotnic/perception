@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftUIRouter
+import SUDesign
 
 struct WorkspaceScreen: View {
 
@@ -21,12 +22,12 @@ struct WorkspaceScreen: View {
                 VStack {
                     ZStack {
                         VStack {
-                            SUButton(icon: "chevron.left", action: viewModel.backAction)
+                            SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
                         }
                         .padding(.leading, 16)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         VStack {
-                            SUButton(icon: "plus", action: viewModel.createAction)
+                            SUButtonCircular(icon: "plus", action: viewModel.createAction)
                         }
                         .padding(.trailing, 16)
                         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -117,12 +118,12 @@ extension View {
     }
 }
 
-struct WorkspaceScreen_Previews: PreviewProvider {
-
-    static let viewModel = WorkspaceViewModel(meta: .empty)
-
-    static var previews: some View {
-        WorkspaceScreen(viewModel: viewModel)
-            .previewDevice("iPhone 13 mini")
-    }
-}
+//struct WorkspaceScreen_Previews: PreviewProvider {
+//
+//    static let viewModel = WorkspaceViewModel(meta: .empty)
+//
+//    static var previews: some View {
+//        WorkspaceScreen(viewModel: viewModel)
+//            .previewDevice("iPhone 13 mini")
+//    }
+//}

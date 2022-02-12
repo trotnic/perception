@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SUFoundation
 
 
 public final class DocumentViewModel: ObservableObject {

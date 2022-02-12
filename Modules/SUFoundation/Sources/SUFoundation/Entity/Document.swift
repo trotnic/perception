@@ -11,6 +11,11 @@ import Foundation
 public struct SUDocumentMeta: Identifiable {
     public let id: String
     public let workspaceId: String
+
+    public init(id: String, workspaceId: String) {
+        self.id = id
+        self.workspaceId = workspaceId
+    }
 }
 
 public extension SUDocumentMeta {

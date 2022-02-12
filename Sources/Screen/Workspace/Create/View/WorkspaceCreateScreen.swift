@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SUDesign
 
 struct WorkspaceCreateScreen: View {
 
@@ -20,7 +21,7 @@ struct WorkspaceCreateScreen: View {
                 VStack(spacing: 16.0) {
                     ZStack {
                         VStack {
-                            SUButton(icon: "chevron.left", action: viewModel.backAction)
+                            SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         VStack {
@@ -29,7 +30,7 @@ struct WorkspaceCreateScreen: View {
                                 .foregroundColor(ColorProvider.text)
                         }
                         VStack {
-                            SUButton(icon: "plus", action: viewModel.createAction)
+                            SUButtonCircular(icon: "plus", action: viewModel.createAction)
                         }
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }

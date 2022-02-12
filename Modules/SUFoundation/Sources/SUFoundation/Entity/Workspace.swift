@@ -11,6 +11,10 @@ import Firebase
 
 public struct SUWorkspaceMeta: Identifiable {
     public let id: String
+
+    public init(id: String) {
+        self.id = id
+    }
 }
 
 public extension SUWorkspaceMeta {

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SUDesign
 
 struct SpaceCreateScreen: View {
 
@@ -20,7 +21,7 @@ struct SpaceCreateScreen: View {
                 VStack(spacing: 16.0) {
                     ZStack {
                         VStack {
-                            SUButton(icon: "chevron.left") {
+                            SUButtonCircular(icon: "chevron.left") {
                                 viewModel.backAction()
                             }
                         }
@@ -31,7 +32,7 @@ struct SpaceCreateScreen: View {
                                 .foregroundColor(ColorProvider.text)
                         }
                         VStack {
-                            SUButton(icon: "plus") {
+                            SUButtonCircular(icon: "plus") {
                                 viewModel.createWorkspace()
                             }
                         }

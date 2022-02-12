@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SUDesign
 
 struct SUToolbar: View {
 
@@ -117,7 +118,7 @@ struct SUToolbar: View {
                 HStack {
                     HStack(spacing: 12.0) {
                         ForEach(leftItems) { item in
-                            SUButton(icon: item.icon) {
+                            SUButtonCircular(icon: item.icon) {
                                 selectedTwins = item.twins
                                 withAnimation {
                                     isExpanded = true
@@ -129,7 +130,7 @@ struct SUToolbar: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     HStack {
                         if let item = middleItem {
-                            SUButton(icon: item.icon) {
+                            SUButtonCircular(icon: item.icon) {
                                 selectedTwins = item.twins
                                 withAnimation {
                                     isExpanded = true
@@ -141,7 +142,7 @@ struct SUToolbar: View {
                     HStack(spacing: 12.0) {
                         Spacer()
                         ForEach(rightItems) { item in
-                            SUButton(icon: item.icon) {
+                            SUButtonCircular(icon: item.icon) {
                                 selectedTwins = item.twins
                                 withAnimation {
                                     isExpanded = true
