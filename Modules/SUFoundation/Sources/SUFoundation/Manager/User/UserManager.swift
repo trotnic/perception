@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class UserManager {
+public final class UserManager: SUManagerUser {
 
     private let userSession: UserSession
 

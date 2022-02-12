@@ -1,5 +1,5 @@
 //
-//  AppState.swift
+//  SUAppState.swift
 //  Perception
 //
 //  Created by Uladzislau Volchyk on 15.01.22.
@@ -10,10 +10,11 @@ import Foundation
 import SwiftUIRouter
 import SUFoundation
 
-public final class AppState: ObservableObject {
 
-    private var currentScreen: Screen = .none
-    private var screenStack: [Screen] = []
+public final class SUAppState: SUAppStateProvider {
+
+    private var currentScreen: SUAppScreen = .none
+    private var screenStack: [SUAppScreen] = []
 
     private let navigator: Navigator
 
@@ -21,27 +22,7 @@ public final class AppState: ObservableObject {
         self.navigator = navigator
     }
 
-    public enum Screen {
-        case none
-        case back
-        case authentication
-        case account
-        case space
-        case create
-        case read(Content)
-    }
-
-    public enum Intention {
-        case create
-        case read(UUID)
-    }
-
-    public enum Content {
-        case workspace(SUWorkspaceMeta)
-        case document(SUDocumentMeta)
-    }
-
-    public func change(route: Screen) {
+    public func change(route: SUAppScreen) {
         switch route {
         case .none:
             break

@@ -17,12 +17,12 @@ public final class WorkspaceViewModel: ObservableObject {
     @Published public private(set) var membersCount: Int = 0
     @Published public private(set) var viewItems: [ListTileViewItem] = []
 
-    private let appState: AppState
-    private let workspaceManager: WorkspaceManager
+    private let appState: SUAppStateProvider
+    private let workspaceManager: SUManagerWorkspace
     private let workspaceMeta: SUWorkspaceMeta
 
-    public init(appState: AppState,
-                workspaceManager: WorkspaceManager,
+    public init(appState: SUAppStateProvider,
+                workspaceManager: SUManagerWorkspace,
                 workspaceMeta: SUWorkspaceMeta) {
         self.appState = appState
         self.workspaceManager = workspaceManager

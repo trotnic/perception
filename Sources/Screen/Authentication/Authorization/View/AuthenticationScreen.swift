@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SUFoundation
 
 struct AuthenticationScreen {
 
@@ -90,12 +91,15 @@ extension AuthenticationScreen: View {
     }
 }
 
-//struct AuthorizationScreen_Previews: PreviewProvider {
-//    static let viewModel = AuthenticationViewModel(environment: .preview)
-//
-//    static var previews: some View {
-//        AuthenticationScreen(viewModel: viewModel)
-//    }
-//}
-//
-//
+struct AuthorizationScreen_Previews: PreviewProvider {
+    static let viewModel = AuthenticationViewModel(
+        appState: SUAppStateProviderMock(),
+        userManager: SUManagerUserMock()
+    )
+
+    static var previews: some View {
+        AuthenticationScreen(
+            viewModel: viewModel
+        )
+    }
+}

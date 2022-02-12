@@ -14,10 +14,11 @@ public final class AuthenticationViewModel: ObservableObject {
     @Published public var email: String = ""
     @Published public var password: String = ""
 
-    private let appState: AppState
-    private let userManager: UserManager
+    private let appState: SUAppStateProvider
+    private let userManager: SUManagerUser
 
-    public init(appState: AppState, userManager: UserManager) {
+    public init(appState: SUAppStateProvider,
+                userManager: SUManagerUser) {
         self.appState = appState
         self.userManager = userManager
     }

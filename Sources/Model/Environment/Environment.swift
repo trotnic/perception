@@ -13,12 +13,13 @@ import Combine
 import SwiftUIRouter
 import SUFoundation
 
+
 public final class SUEnvironment: ObservableObject {
 
     private let factory = SUDepFactory()
 
     public let navigator: Navigator = Navigator()
-    public private(set) lazy var appState: AppState = AppState(navigator: navigator)
+    public private(set) lazy var appState: SUAppStateProvider = SUAppState(navigator: navigator)
 
     public var repository: Repository { factory.repository }
     public var userManager: UserManager { factory.userManager }

@@ -13,10 +13,11 @@ public final class AccountViewModel: ObservableObject {
 
     @Published var username: String = "Kek Lolman"
 
-    private let appState: AppState
-    private let userManager: UserManager
+    private let appState: SUAppStateProvider
+    private let userManager: SUManagerUser
 
-    public init(appState: AppState, userManager: UserManager) {
+    public init(appState: SUAppStateProvider,
+                userManager: SUManagerUser) {
         self.appState = appState
         self.userManager = userManager
     }

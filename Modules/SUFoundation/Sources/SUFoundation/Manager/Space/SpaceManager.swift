@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class SpaceManager {
+public final class SpaceManager: SUManagerSpace {
 
     private let repository: Repository
 

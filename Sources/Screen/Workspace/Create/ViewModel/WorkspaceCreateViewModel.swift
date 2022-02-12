@@ -13,14 +13,14 @@ public final class WorkspaceCreateViewModel: ObservableObject {
 
     @Published var itemName: String = ""
 
-    private let appState: AppState
-    private let workspaceManager: WorkspaceManager
-    private let userManager: UserManager
+    private let appState: SUAppStateProvider
+    private let workspaceManager: SUManagerWorkspace
+    private let userManager: SUManagerUser
     private let workspaceMeta: SUWorkspaceMeta
 
-    public init(appState: AppState,
-                workspaceManager: WorkspaceManager,
-                userManager: UserManager,
+    public init(appState: SUAppStateProvider,
+                workspaceManager: SUManagerWorkspace,
+                userManager: SUManagerUser,
                 workspaceMeta: SUWorkspaceMeta) {
         self.appState = appState
         self.workspaceManager = workspaceManager

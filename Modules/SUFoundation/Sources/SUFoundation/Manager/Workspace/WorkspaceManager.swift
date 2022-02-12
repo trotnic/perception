@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class WorkspaceManager {
+public final class WorkspaceManager: SUManagerWorkspace {
 
     private let repository: Repository
 

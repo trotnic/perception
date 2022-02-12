@@ -19,13 +19,13 @@ public final class SpaceViewModel: ObservableObject {
 
     private var disposeBag = Set<AnyCancellable>()
 
-    private let appState: AppState
-    private let spaceManager: SpaceManager
-    private let userManager: UserManager
+    private let appState: SUAppStateProvider
+    private let spaceManager: SUManagerSpace
+    private let userManager: SUManagerUser
 
-    public init(appState: AppState,
-                spaceManager: SpaceManager,
-                userManager: UserManager) {
+    public init(appState: SUAppStateProvider,
+                spaceManager: SUManagerSpace,
+                userManager: SUManagerUser) {
         self.appState = appState
         self.spaceManager = spaceManager
         self.userManager = userManager

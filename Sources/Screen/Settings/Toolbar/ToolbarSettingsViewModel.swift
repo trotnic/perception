@@ -10,9 +10,9 @@ import Foundation
 
 public final class ToolbarSettingsViewModel: ObservableObject {
 
-    private let appState: AppState
+    private let appState: SUAppStateProvider
 
-    public init(appState: AppState) {
+    public init(appState: SUAppStateProvider) {
         self.appState = appState
     }
 
