@@ -26,14 +26,11 @@ public final class AuthenticationViewModel: ObservableObject {
                 userManager: SUManagerUser) {
         self.appState = appState
         self.userManager = userManager
-        $password
-            .merge(with: $email)
-            .map { [self] _ in
-                !(email.isEmpty || password.isEmpty)
-            }
-            .assign(to: &$isSignButtonActive)
+        setupBindings()
     }
 }
+
+// MARK: - Public interface
 
 public extension AuthenticationViewModel {
 
@@ -45,7 +42,9 @@ public extension AuthenticationViewModel {
                     appState.change(route: .space)
                 }
             } catch {
-                fatalError(error.localizedDescription)
+                await MainActor.run {
+                    errorText = "Invalid email or password"
+                }
             }
         }
     }
@@ -58,8 +57,29 @@ public extension AuthenticationViewModel {
                     appState.change(route: .space)
                 }
             } catch {
-                fatalError(error.localizedDescription)
+                await MainActor.run {
+                    errorText = "Error occured. Try again"
+                }
             }
         }
+    }
+}
+
+// MARK: - Private interface
+
+private extension AuthenticationViewModel {
+
+    func setupBindings() {
+        $password
+            .merge(with: $email)
+            .map { [self] _ in
+                !(email.isEmpty || password.isEmpty)
+            }
+            .assign(to: &$isSignButtonActive)
+        $password
+            .merge(with: $email)
+            .drop { _ in self.errorText.isEmpty }
+            .sink { _ in self.errorText = .empty }
+            .store(in: &disposeBag)
     }
 }
