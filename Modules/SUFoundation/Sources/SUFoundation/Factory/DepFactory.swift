@@ -12,7 +12,7 @@ import Firebase
 public final class SUDepFactory {
 
     enum Constants {
-        static let appName = "com.startuco.firebaseapp"
+        static let appName = "com-staruco-firebaseapp"
     }
 
     private lazy var app: FirebaseApp = .app(name: Constants.appName)!

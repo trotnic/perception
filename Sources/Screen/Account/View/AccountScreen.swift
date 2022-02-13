@@ -19,7 +19,7 @@ extension AccountScreen: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ColorProvider.background
+            SUColorStandartPalette.background
                 .ignoresSafeArea()
             VStack(spacing: 16.0) {
 
@@ -35,7 +35,7 @@ extension AccountScreen: View {
                                 Spacer()
                                 VStack(spacing: 12.0) {
                                     RoundedRectangle(cornerRadius: 20)
-                                        .fill(ColorProvider.secondary2)
+                                        .fill(SUColorStandartPalette.secondary2)
                                         .frame(width: 72.0, height: 4.0)
                                     Text("Edit profile")
                                 }
@@ -57,7 +57,7 @@ extension AccountScreen: View {
                                         .font(.system(size: 16.0))
                                         .padding(16.0)
                                         .frame(maxWidth: .infinity, alignment: .leading)
-                                        .background(ColorProvider.tile)
+                                        .background(SUColorStandartPalette.tile)
                                         .cornerRadius(10.0)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -67,7 +67,7 @@ extension AccountScreen: View {
                                         .font(.system(size: 16.0))
                                         .padding(16.0)
                                         .frame(maxWidth: .infinity, alignment: .leading)
-                                        .background(ColorProvider.tile)
+                                        .background(SUColorStandartPalette.tile)
                                         .cornerRadius(10.0)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -78,10 +78,10 @@ extension AccountScreen: View {
                             } label: {
                                 Text("Save")
                                     .font(.system(size: 20.0).weight(.bold))
-                                    .foregroundColor(ColorProvider.text)
+                                    .foregroundColor(SUColorStandartPalette.text)
                                     .frame(maxWidth: proxy.size.width - 32)
                                     .frame(height: 56)
-                                    .background(ColorProvider.tint)
+                                    .background(SUColorStandartPalette.tint)
                                     .cornerRadius(20.0)
                             }
                         }
@@ -124,7 +124,7 @@ extension AccountScreen: View {
                                     .font(.system(size: 16.0))
                                     .padding(16.0)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(ColorProvider.tile)
+                                    .background(SUColorStandartPalette.tile)
                                     .cornerRadius(10.0)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -136,17 +136,17 @@ extension AccountScreen: View {
                         } label: {
                             Text("Log out")
                                 .font(.system(size: 20.0).weight(.bold))
-                                .foregroundColor(ColorProvider.text)
+                                .foregroundColor(SUColorStandartPalette.text)
                                 .frame(maxWidth: proxy.size.width - 32)
                                 .frame(height: 56)
-                                .background(ColorProvider.destructive)
+                                .background(SUColorStandartPalette.destructive)
                                 .cornerRadius(20.0)
                         }
                     }
                     .padding(.horizontal, 16.0)
                 }
             }
-            .foregroundColor(ColorProvider.text)
+            .foregroundColor(SUColorStandartPalette.text)
         }
     }
 }

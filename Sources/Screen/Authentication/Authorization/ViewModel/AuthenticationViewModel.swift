@@ -6,13 +6,18 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SUFoundation
 
 public final class AuthenticationViewModel: ObservableObject {
 
-    @Published public var email: String = ""
-    @Published public var password: String = ""
+    @Published public var email: String = .empty
+    @Published public var password: String = .empty
+    @Published public var errorText: String = .empty
+    @Published public private(set) var isSignButtonActive: Bool = false
+
+    private var disposeBag = Set<AnyCancellable>()
 
     private let appState: SUAppStateProvider
     private let userManager: SUManagerUser
@@ -21,6 +26,12 @@ public final class AuthenticationViewModel: ObservableObject {
                 userManager: SUManagerUser) {
         self.appState = appState
         self.userManager = userManager
+        $password
+            .merge(with: $email)
+            .map { [self] _ in
+                !(email.isEmpty || password.isEmpty)
+            }
+            .assign(to: &$isSignButtonActive)
     }
 }
 

@@ -16,7 +16,7 @@ struct WorkspaceCreateScreen: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                ColorProvider.background
+                SUColorStandartPalette.background
                     .edgesIgnoringSafeArea(.all)
                 VStack(spacing: 16.0) {
                     ZStack {
@@ -27,7 +27,7 @@ struct WorkspaceCreateScreen: View {
                         VStack {
                             Text("Create document")
                                 .font(.custom("Comfortaa", size: 20.0).weight(.bold))
-                                .foregroundColor(ColorProvider.text)
+                                .foregroundColor(SUColorStandartPalette.text)
                         }
                         VStack {
                             SUButtonCircular(icon: "plus", action: viewModel.createAction)
@@ -49,18 +49,18 @@ struct WorkspaceCreateScreen: View {
             TextField("", text: $viewModel.itemName)
                 .placeholder(when: viewModel.itemName.isEmpty) {
                     Text("Name document")
-                        .foregroundColor(ColorProvider.secondary1)
+                        .foregroundColor(SUColorStandartPalette.secondary1)
                 }
                 
             RoundedRectangle(cornerRadius: 1)
                 .fill(.white.opacity(0.2))
                 .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
         }
-        .foregroundColor(ColorProvider.text)
+        .foregroundColor(SUColorStandartPalette.text)
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
-            ColorProvider.tile
+            SUColorStandartPalette.tile
         }
         .mask {
             RoundedRectangle(cornerRadius: 20)

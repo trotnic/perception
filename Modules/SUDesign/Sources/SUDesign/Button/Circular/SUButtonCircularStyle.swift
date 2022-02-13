@@ -1,5 +1,5 @@
 //
-//  SUButton.swift
+//  SUButtonCircularStyle.swift
 //  SUDesign
 //
 //  Created by Uladzislau Volchyk on 12.02.22.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct SUButtonStyle: ButtonStyle {
+struct SUButtonCircularStyle: ButtonStyle {
 
     let escalationRadius: CGFloat
     let borderColor: Color
