@@ -27,6 +27,9 @@ let project = Project(
             resources: [
                 "Resources/**",
             ],
+            scripts: [
+                .post(script: "./Scripts/lint.sh", name: "SwiftLint")
+            ],
             dependencies: [
                 .package(product: "Fakery"),
                 .package(product: "SwiftUIRouter"),
@@ -35,6 +38,19 @@ let project = Project(
             ],
             coreDataModels: [
                 CoreDataModel(.relativeToCurrentFile("Sources/Model/Persistance/CoreData/Perception.xcdatamodeld"), currentVersion: "Perception")
+            ]
+        ),
+        Target(
+            name: "PerceptionTests",
+            platform: .iOS,
+            product: .unitTests,
+            bundleId: "com.staruco.perception-tests",
+            infoPlist: .default,
+            sources: [
+                "Tests/**"
+            ],
+            dependencies: [
+                .target(name: "Perception")
             ]
         )
     ]
