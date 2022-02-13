@@ -32,7 +32,7 @@ extension SUButtonCircular: View {
         }
         .buttonStyle(
             SUButtonCircularStyle(
-                escalationRadius: 4.0,
+                radius: 4.0,
                 borderColor: .white
             )
         )

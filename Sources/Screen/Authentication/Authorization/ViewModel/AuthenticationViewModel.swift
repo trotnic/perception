@@ -9,7 +9,7 @@
 import Combine
 import Foundation
 import SUFoundation
-
+    
 public final class AuthenticationViewModel: ObservableObject {
 
     @Published public var email: String = .empty

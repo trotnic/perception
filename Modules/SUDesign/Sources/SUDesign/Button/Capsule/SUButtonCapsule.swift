@@ -56,7 +56,6 @@ private struct SUButtonCapsule_Previews: PreviewProvider {
                         height: 56.0
                     )
                 ) {
-                    
                 }
             }
             .frame(width: proxy.size.width)

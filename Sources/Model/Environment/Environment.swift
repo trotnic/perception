@@ -13,7 +13,6 @@ import Combine
 import SwiftUIRouter
 import SUFoundation
 
-
 public final class SUEnvironment: ObservableObject {
 
     private let factory = SUDepFactory()
