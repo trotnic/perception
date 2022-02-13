@@ -13,37 +13,34 @@ public final class WorkspaceCreateViewModel: ObservableObject {
 
     @Published var itemName: String = ""
 
-    private let environment: Environment
+    private let appState: SUAppStateProvider
+    private let workspaceManager: SUManagerWorkspace
+    private let userManager: SUManagerUser
     private let workspaceMeta: SUWorkspaceMeta
 
-    private var state: AppState {
-        environment.state
-    }
-
-    private var userSession: UserSession {
-        environment.userSession
-    }
-
-    private var workspaceManager: WorkspaceManager {
-        environment.workspaceManager
-    }
-
-    public init(meta: SUWorkspaceMeta, environment: Environment = .dev) {
-        self.environment = environment
-        workspaceMeta = meta
+    public init(appState: SUAppStateProvider,
+                workspaceManager: SUManagerWorkspace,
+                userManager: SUManagerUser,
+                workspaceMeta: SUWorkspaceMeta) {
+        self.appState = appState
+        self.workspaceManager = workspaceManager
+        self.userManager = userManager
+        self.workspaceMeta = workspaceMeta
     }
 }
 
 public extension WorkspaceCreateViewModel {
 
     func backAction() {
-        state.change(route: .back)
+        appState.change(route: .back)
     }
 
     func createAction() {
         Task {
-            let documentId = try await workspaceManager.createDocument(title: itemName, workspaceId: workspaceMeta.id, userId: userSession.userId!)
-            state.change(route: .read(.document(SUDocumentMeta(id: documentId, workspaceId: workspaceMeta.id))))
+            let documentId = try await workspaceManager.createDocument(title: itemName,
+                                                                       workspaceId: workspaceMeta.id,
+                                                                       userId: userManager.userId)
+            appState.change(route: .read(.document(SUDocumentMeta(id: documentId, workspaceId: workspaceMeta.id))))
         }
     }
 }

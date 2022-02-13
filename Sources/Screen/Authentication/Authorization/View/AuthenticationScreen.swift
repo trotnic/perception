@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import SUFoundation
+import SUDesign
 
 struct AuthenticationScreen {
 
@@ -24,52 +26,42 @@ extension AuthenticationScreen: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ColorProvider.background
+            SUColorStandartPalette.background
                 .ignoresSafeArea()
             VStack(spacing: proxy.size.height * 0.274) {
                 VStack(alignment: .center, spacing: 64.0) {
                     Text(state == .signIn ? "Sign In" : "Sign Up")
                         .font(.system(size: 36.0, weight: .medium, design: .rounded))
-                        .foregroundColor(ColorProvider.text)
-                    VStack(spacing: 48.0) {
-                        VStack(spacing: 24.0) {
-                            TextField("", text: $viewModel.email)
-                                .placeholder(when: viewModel.email.isEmpty) {
-                                    Text("Enter your email...")
-                                        .foregroundColor(ColorProvider.secondary1)
-                                }
-                                .textInputAutocapitalization(.never)
-                                .keyboardType(.emailAddress)
-                                .foregroundColor(ColorProvider.text)
-                                .padding(.horizontal, 16.0)
-                                .padding(.vertical, 15.0)
-                                .background(ColorProvider.tile)
-                                .cornerRadius(10.0)
-                                .frame(maxWidth: proxy.size.width - 40, maxHeight: 48.0)
-                            TextField("", text: $viewModel.password)
-                                .placeholder(when: viewModel.password.isEmpty) {
-                                    Text("Enter your password...")
-                                        .foregroundColor(ColorProvider.secondary1)
-                                }
-                                .textInputAutocapitalization(.never)
-                                .foregroundColor(ColorProvider.text)
-                                .padding(.horizontal, 16.0)
-                                .padding(.vertical, 15.0)
-                                .background(ColorProvider.tile)
-                                .cornerRadius(10.0)
-                                .frame(maxWidth: proxy.size.width - 40, maxHeight: 48.0)
+                        .foregroundColor(SUColorStandartPalette.text)
+                    VStack(spacing: 24.0) {
+                        VStack(alignment: .leading, spacing: 8.0) {
+                            VStack(spacing: 24.0) {
+                                SUTextFieldCapsule(
+                                    text: $viewModel.email,
+                                    placeholder: "Enter your email"
+                                )
+                                    .frame(maxWidth: proxy.size.width - 44.0)
+                                SUSecureTextFieldCapsule(
+                                    text: $viewModel.password,
+                                    placeholder: "Enter your password"
+                                )
+                                    .frame(maxWidth: proxy.size.width - 44.0)
+                            }
+                            .textInputAutocapitalization(.never)
+                            Text(viewModel.errorText)
+                                .font(.system(size: 14.0).bold())
+                                .foregroundColor(SUColorStandartPalette.destructive)
+                                .padding(.leading, 8.0)
+                                .opacity(viewModel.errorText.isEmpty ? 0.0 : 1.0)
+                                .frame(height: 16.0)
                         }
-
-                        Button {
+                        SUButtonCapsule(
+                            isActive: viewModel.isSignButtonActive,
+                            title: state == .signIn ? "Sign In" : "Sign Up",
+                            size: CGSize(width: proxy.size.width - 40.0, height: 56.0)
+                        ) {
                             state == .signIn ? viewModel.signIn() : viewModel.signUp()
-                        } label: {
-                            Text(state == .signIn ? "Sign In" : "Sign Up")
-                                .foregroundColor(ColorProvider.text)
-                                .font(.system(size: 20.0, weight: .medium, design: .rounded))
                         }
-                        .frame(maxWidth: proxy.size.width - 40.0, maxHeight: 56.0)
-                        .background(ColorProvider.tint)
-                        .cornerRadius(20.0)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -77,25 +69,28 @@ extension AuthenticationScreen: View {
 
                 HStack(spacing: 16.0) {
                     Text(state == .signIn ? "Don't have an account?" : "Already have an account?")
-                        .foregroundColor(ColorProvider.secondary1)
+                        .foregroundColor(SUColorStandartPalette.secondary1)
                     Button {
                         state = state == .signUp ? .signIn : .signUp
                     } label: {
                         Text(state == .signIn ? "Sign Up" : "Sign In")
                     }
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: proxy.size.width - 44.0)
             }
         }
     }
 }
 
 struct AuthorizationScreen_Previews: PreviewProvider {
-    static let viewModel = AuthenticationViewModel(environment: .preview)
+    static let viewModel = AuthenticationViewModel(
+        appState: SUAppStateProviderMock(),
+        userManager: SUManagerUserMock()
+    )
 
     static var previews: some View {
-        AuthenticationScreen(viewModel: viewModel)
+        AuthenticationScreen(
+            viewModel: viewModel
+        )
     }
 }
-
-

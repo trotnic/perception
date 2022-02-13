@@ -3,12 +3,12 @@ import SwiftUIRouter
 
 @main
 struct PerceptionApp: App {
-    @StateObject var environment: Environment = .dev
+    @StateObject var environment = SUEnvironment()
 
 	var body: some Scene {
 		WindowGroup {
             Router(navigator: environment.navigator) {
-                RootScreen(viewModel: RootViewModel())
+                RootScreen(environment: environment)
             }
 		}
 	}

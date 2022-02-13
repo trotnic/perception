@@ -10,14 +10,10 @@ import Foundation
 
 public final class ToolbarSettingsViewModel: ObservableObject {
 
-    private let environment: Environment
+    private let appState: SUAppStateProvider
 
-    private var state: AppState {
-        environment.state
-    }
-
-    public init(environment: Environment = .dev) {
-        self.environment = environment
+    public init(appState: SUAppStateProvider) {
+        self.appState = appState
     }
 
 }
@@ -25,6 +21,6 @@ public final class ToolbarSettingsViewModel: ObservableObject {
 public extension ToolbarSettingsViewModel {
 
     func accountAction() {
-        state.change(route: .account)
+        appState.change(route: .account)
     }
 }

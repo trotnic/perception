@@ -1,29 +1,32 @@
 //
 //  UserSession.swift
-//  Perception
+//  SUFoundation
 //
 //  Created by Uladzislau Volchyk on 1.02.22.
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
 import Foundation
+import Firebase
 import FirebaseAuth
 
 public final class UserSession {
 
-    private var auth: Auth {
-        Auth.auth()
+    private let auth: Auth
+
+    public init(auth: Auth) {
+        self.auth = auth
     }
 }
 
 public extension UserSession {
 
     var isAuthenticated: Bool {
-        !(auth.currentUser?.isAnonymous ?? true)
+        auth.currentUserUnwrapped.isAuthenticated
     }
 
-    var userId: String? {
-        auth.currentUser?.uid
+    var userId: String {
+        auth.currentUserUnwrapped.uid
     }
 
     func signIn(email: String, password: String) async throws {

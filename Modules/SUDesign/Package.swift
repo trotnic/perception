@@ -12,7 +12,7 @@ let package = Package(
         .library(
             name: "SUDesign",
             targets: ["SUDesign"]
-        ),
+        )
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -26,6 +26,7 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "SUDesignTests",
-            dependencies: ["SUDesign"]),
+            dependencies: ["SUDesign"]
+        )
     ]
 )

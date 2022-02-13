@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SUDesign
 
 struct ListTile: View {
     @GestureState private var press = false
@@ -58,7 +59,7 @@ struct ListTile: View {
         .padding(16)
         .foregroundColor(.white)
         .background {
-            ColorProvider.tile
+            SUColorStandartPalette.tile
         }
         .mask {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -150,7 +151,7 @@ struct ListTile_Previews: PreviewProvider {
 
     static var previews: some View {
         ZStack {
-            ColorProvider.background
+            SUColorStandartPalette.background
                 .ignoresSafeArea()
             ListTile(viewItem: viewItem) {}
                 .padding(.horizontal, 20)

@@ -1,5 +1,5 @@
 //
-//  SUButton.swift
+//  SUButtonCircularStyle.swift
 //  SUDesign
 //
 //  Created by Uladzislau Volchyk on 12.02.22.
@@ -8,9 +8,9 @@
 
 import SwiftUI
 
-struct SUButtonStyle: ButtonStyle {
+struct SUButtonCircularStyle: ButtonStyle {
 
-    let escalationRadius: CGFloat
+    let radius: CGFloat
     let borderColor: Color
 
     func makeBody(configuration: Configuration) -> some View {
@@ -22,8 +22,10 @@ struct SUButtonStyle: ButtonStyle {
                     Circle()
                         .stroke(lineWidth: 2.0)
                         .fill(borderColor)
-                        .frame(width: configuration.isPressed ? proxy.size.width - escalationRadius : proxy.size.width + escalationRadius,
-                               height: configuration.isPressed ? proxy.size.height - escalationRadius : proxy.size.height + escalationRadius)
+                        .frame(
+                            width: configuration.isPressed ? proxy.size.width - radius : proxy.size.width + radius,
+                            height: configuration.isPressed ? proxy.size.height - radius : proxy.size.height + radius
+                        )
                 }
                 .animation(.easeInOut(duration: 0.12), value: configuration.isPressed)
         }

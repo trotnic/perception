@@ -62,7 +62,7 @@ struct SUToolbar: View {
         if isExpanded {
             VStack(spacing: 16.0) {
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(ColorProvider.secondary2)
+                    .fill(SUColorStandartPalette.secondary2)
                     .frame(width: 48, height: 4)
                 VStack {
                     ForEach(selectedTwins) { twin in
@@ -82,7 +82,7 @@ struct SUToolbar: View {
                                     .font(.system(size: 24.0).weight(.regular))
                             }
                         }
-                        .foregroundColor(ColorProvider.text)
+                        .foregroundColor(SUColorStandartPalette.text)
                         .padding(.horizontal, 8.0)
                         .padding(.vertical, 16.0)
                         .onTapGesture(perform: twin.action)
@@ -92,7 +92,7 @@ struct SUToolbar: View {
             }
             .padding(16.0)
             .background {
-                ColorProvider.background
+                SUColorStandartPalette.background
                     .matchedGeometryEffect(id: "background", in: namespace, isSource: isExpanded)
             }
             .mask {
@@ -156,7 +156,7 @@ struct SUToolbar: View {
             }
             .padding(16.0)
             .background {
-                ColorProvider.background
+                SUColorStandartPalette.background
                     .matchedGeometryEffect(id: "background", in: namespace, isSource: !isExpanded)
             }
             .mask {
@@ -184,7 +184,7 @@ struct SUToolbar: View {
 struct SUToolbar_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            ColorProvider.background
+            SUColorStandartPalette.background
                 .ignoresSafeArea()
             VStack {
                 Spacer()

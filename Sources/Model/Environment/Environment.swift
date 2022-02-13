@@ -1,5 +1,5 @@
 //
-//  Environment.swift
+//  SUEnvironment.swift
 //  Perception
 //
 //  Created by Uladzislau Volchyk on 14.01.22.
@@ -13,37 +13,15 @@ import Combine
 import SwiftUIRouter
 import SUFoundation
 
-public final class Environment: ObservableObject {
-    public static let dev = Environment()
-    public static let preview = Environment(param: 42)
+public final class SUEnvironment: ObservableObject {
 
-    init(param: Int) {
-        repository = nil
-        state = nil
-        navigator = nil
-        userSession = nil
-        workspaceManager = nil
-        spaceManager = nil
-    }
+    private let factory = SUDepFactory()
 
-    init() {
-        FirebaseApp.configure()
-        let repository = FireRepository()
-        self.repository = repository
-        userSession = UserSession()
-        let navigator = Navigator()
-        self.navigator = navigator
-        state = AppState(navigator: navigator)
-        workspaceManager = WorkspaceManager(repository: repository)
-        spaceManager = SpaceManager(repository: repository)
-    }
+    public let navigator: Navigator = Navigator()
+    public private(set) lazy var appState: SUAppStateProvider = SUAppState(navigator: navigator)
 
-    public let repository: FireRepository!
-    public let state: AppState!
-    public let navigator: Navigator!
-
-    public let userSession: UserSession!
-
-    public let workspaceManager: WorkspaceManager!
-    public let spaceManager: SpaceManager!
+    public var repository: Repository { factory.repository }
+    public var userManager: UserManager { factory.userManager }
+    public var spaceManager: SpaceManager { factory.spaceManager }
+    public var workspaceManager: WorkspaceManager { factory.workspaceManager }
 }

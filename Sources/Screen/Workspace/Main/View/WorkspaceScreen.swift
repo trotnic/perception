@@ -17,7 +17,7 @@ struct WorkspaceScreen: View {
     var body: some View {
         GeometryReader { _ in
             ZStack {
-                ColorProvider.background
+                SUColorStandartPalette.background
                     .edgesIgnoringSafeArea(.all)
                 VStack {
                     ZStack {
@@ -34,7 +34,7 @@ struct WorkspaceScreen: View {
                         VStack {
                             Text(viewModel.navigationTitle)
                                 .font(.custom("Comfortaa", size: 20).weight(.bold))
-                                .foregroundColor(ColorProvider.text)
+                                .foregroundColor(SUColorStandartPalette.text)
                         }
                     }
                     .padding(.top, 16)
@@ -52,7 +52,7 @@ struct WorkspaceScreen: View {
 
     @ViewBuilder private var topTile: some View {
         ZStack {
-            ColorProvider.tile
+            SUColorStandartPalette.tile
             VStack(alignment: .leading, spacing: 16) {
                 Image(systemName: "pencil.and.outline")
                 Text(viewModel.workspaceTitle)
@@ -68,7 +68,7 @@ struct WorkspaceScreen: View {
                         .overlay {
                             RoundedRectangle(cornerRadius: 20)
                                 .stroke()
-                                .fill(ColorProvider.redOutline)
+                                .fill(SUColorStandartPalette.redOutline)
                         }
                         
 //                    Text("52 documents")
@@ -82,7 +82,7 @@ struct WorkspaceScreen: View {
 //                        }
                 }
             }
-            .foregroundColor(ColorProvider.text)
+            .foregroundColor(SUColorStandartPalette.text)
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -107,7 +107,7 @@ struct WorkspaceScreen: View {
                 }
             }
         }
-        .foregroundColor(ColorProvider.text)
+        .foregroundColor(SUColorStandartPalette.text)
     }
 }
 

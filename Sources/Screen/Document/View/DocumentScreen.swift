@@ -15,7 +15,7 @@ struct DocumentScreen: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ColorProvider.background
+            SUColorStandartPalette.background
                 .edgesIgnoringSafeArea(.all)
             VStack {
                 ZStack {
@@ -45,22 +45,22 @@ struct DocumentScreen: View {
                     .padding(.horizontal, 20.0)
                     .frame(maxWidth: proxy.size.width - 32)
                     .frame(height: 143.0)
-                    .background(ColorProvider.tile)
+                    .background(SUColorStandartPalette.tile)
                     .cornerRadius(20.0)
                     Text("LOLKEK CHEBUREK")
                 }
-                .foregroundColor(ColorProvider.text)
+                .foregroundColor(SUColorStandartPalette.text)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
 }
 
-struct DocumentScreen_Previews: PreviewProvider {
-    static let viewModel = DocumentViewModel(meta: .empty)
-
-    static var previews: some View {
-        DocumentScreen(viewModel: viewModel)
-            .previewDevice("iPhone 13 mini")
-    }
-}
+//struct DocumentScreen_Previews: PreviewProvider {
+//    static let viewModel = DocumentViewModel(meta: .empty)
+//
+//    static var previews: some View {
+//        DocumentScreen(viewModel: viewModel)
+//            .previewDevice("iPhone 13 mini")
+//    }
+//}

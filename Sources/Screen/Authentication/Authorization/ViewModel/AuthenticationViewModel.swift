@@ -6,40 +6,45 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
 import Foundation
-
+import SUFoundation
+    
 public final class AuthenticationViewModel: ObservableObject {
 
-    @Published public var email: String = ""
-    @Published public var password: String = ""
+    @Published public var email: String = .empty
+    @Published public var password: String = .empty
+    @Published public var errorText: String = .empty
+    @Published public private(set) var isSignButtonActive: Bool = false
 
-    private let environment: Environment
+    private var disposeBag = Set<AnyCancellable>()
 
-    private var userSession: UserSession {
-        environment.userSession
+    private let appState: SUAppStateProvider
+    private let userManager: SUManagerUser
+
+    public init(appState: SUAppStateProvider,
+                userManager: SUManagerUser) {
+        self.appState = appState
+        self.userManager = userManager
+        setupBindings()
     }
-
-    private var state: AppState {
-        environment.state
-    }
-
-    public init(environment: Environment = .dev) {
-        self.environment = environment
-    }
-
 }
+
+// MARK: - Public interface
 
 public extension AuthenticationViewModel {
 
     func signIn() {
         Task {
             do {
-                try await userSession.signIn(email: email, password: password)
+                try await userManager.signIn(email: email, password: password)
                 await MainActor.run {
-                    state.change(route: .space)
+                    appState.change(route: .space)
                 }
             } catch {
-                fatalError(error.localizedDescription)
+                await MainActor.run {
+                    errorText = "Invalid email or password"
+                }
             }
         }
     }
@@ -47,13 +52,34 @@ public extension AuthenticationViewModel {
     func signUp() {
         Task {
             do {
-                try await userSession.signUp(email: email, password: password)
+                try await userManager.signUp(email: email, password: password)
                 await MainActor.run {
-                    state.change(route: .space)
+                    appState.change(route: .space)
                 }
             } catch {
-                fatalError(error.localizedDescription)
+                await MainActor.run {
+                    errorText = "Error occured. Try again"
+                }
             }
         }
+    }
+}
+
+// MARK: - Private interface
+
+private extension AuthenticationViewModel {
+
+    func setupBindings() {
+        $password
+            .merge(with: $email)
+            .map { [self] _ in
+                !(email.isEmpty || password.isEmpty)
+            }
+            .assign(to: &$isSignButtonActive)
+        $password
+            .merge(with: $email)
+            .drop { _ in self.errorText.isEmpty }
+            .sink { _ in self.errorText = .empty }
+            .store(in: &disposeBag)
     }
 }

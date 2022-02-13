@@ -30,7 +30,12 @@ extension SUButtonCircular: View {
                 .font(.system(size: 16.0).weight(.regular))
                 .frame(width: 36.0, height: 36.0)
         }
-        .buttonStyle(SUButtonStyle(escalationRadius: 4.0, borderColor: .white))
+        .buttonStyle(
+            SUButtonCircularStyle(
+                radius: 4.0,
+                borderColor: .white
+            )
+        )
     }
 }
 

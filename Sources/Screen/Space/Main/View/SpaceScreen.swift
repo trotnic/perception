@@ -22,7 +22,7 @@ extension SpaceScreen: View {
     var body: some View {
         GeometryReader { _ in
             ZStack {
-                ColorProvider.background
+                SUColorStandartPalette.background
                     .edgesIgnoringSafeArea(.all)
                 VStack {
                     ZStack {
@@ -36,7 +36,7 @@ extension SpaceScreen: View {
                         VStack {
                             Text(spaceViewModel.title)
                                 .font(.custom("Comfortaa", size: 20).weight(.bold))
-                                .foregroundColor(ColorProvider.text)
+                                .foregroundColor(SUColorStandartPalette.text)
                         }
                     }
                     .padding(.top, 16)
@@ -76,7 +76,7 @@ extension SpaceScreen: View {
                 }
             }
         }
-        .foregroundColor(ColorProvider.text)
+        .foregroundColor(SUColorStandartPalette.text)
     }
 }
 

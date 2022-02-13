@@ -7,37 +7,32 @@
 //
 
 import Foundation
+import SUFoundation
 
 public final class AccountViewModel: ObservableObject {
 
-    @Published var username: String
+    @Published var username: String = "Kek Lolman"
 
-    private let environment: Environment
-    private var state: AppState {
-        environment.state
+    private let appState: SUAppStateProvider
+    private let userManager: SUManagerUser
+
+    public init(appState: SUAppStateProvider,
+                userManager: SUManagerUser) {
+        self.appState = appState
+        self.userManager = userManager
     }
-
-    private var userSession: UserSession {
-        environment.userSession
-    }
-
-    public init(environment: Environment = .dev) {
-        self.environment = environment
-        username = "Kek Lolman"
-    }
-
 }
 
 public extension AccountViewModel {
 
     func backAction() {
-        state.change(route: .back)
+        appState.change(route: .back)
     }
 
     func logoutAction() {
         do {
-            try userSession.signOut()
-            state.change(route: .authentication)
+            try userManager.signOut()
+            appState.change(route: .authentication)
         } catch {
             print(error)
         }
