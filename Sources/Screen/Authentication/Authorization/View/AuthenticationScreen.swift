@@ -41,7 +41,7 @@ extension AuthenticationScreen: View {
                                     placeholder: "Enter your email"
                                 )
                                     .frame(maxWidth: proxy.size.width - 44.0)
-                                SUTextFieldCapsule(
+                                SUSecureTextFieldCapsule(
                                     text: $viewModel.password,
                                     placeholder: "Enter your password"
                                 )
