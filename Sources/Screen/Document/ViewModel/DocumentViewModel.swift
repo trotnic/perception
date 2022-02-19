@@ -9,13 +9,12 @@
 import Foundation
 import SUFoundation
 
-
 public final class DocumentViewModel: ObservableObject {
 
-    private let appState: SUAppState
+    private let appState: SUAppStateProvider
     private let documentMeta: SUDocumentMeta
 
-    public init(appState: SUAppState, documentMeta: SUDocumentMeta) {
+    public init(appState: SUAppStateProvider, documentMeta: SUDocumentMeta) {
         self.appState = appState
         self.documentMeta = documentMeta
     }

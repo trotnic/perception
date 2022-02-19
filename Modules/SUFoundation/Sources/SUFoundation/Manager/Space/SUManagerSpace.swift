@@ -12,8 +12,13 @@ public protocol SUManagerSpace {
 }
 
 public struct SUManagerSpaceMock: SUManagerSpace {
+
+    public let workspaces: [SUWorkspace]
+
     public func loadWorkspaces(for userId: String) async throws -> [SUWorkspace] { [] }
     public func createWorkspace(name: String, userId: String) async throws -> String { String(describing: self) }
 
-    public init() {}
+    public init(workspaces: [SUWorkspace] = []) {
+        self.workspaces = workspaces
+    }
 }

@@ -23,14 +23,6 @@ public extension SpaceManager {
 
     func loadWorkspaces(for userId: String) async throws -> [SUWorkspace] {
         try await repository.workspaces(for: userId)
-//        let result = repository.readWorkspaces()
-//        switch result {
-//        case .success(let workspaces):
-//            return workspaces
-//        case .failure(let error):
-//            print(error)
-//            return []
-//        }
     }
 
     func createWorkspace(name: String, userId: String) async throws -> String {

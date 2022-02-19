@@ -25,7 +25,8 @@ public final class SpaceViewModel: ObservableObject {
 
     public init(appState: SUAppStateProvider,
                 spaceManager: SUManagerSpace,
-                userManager: SUManagerUser) {
+                userManager: SUManagerUser)
+    {
         self.appState = appState
         self.spaceManager = spaceManager
         self.userManager = userManager
@@ -51,15 +52,13 @@ public final class SpaceViewModel: ObservableObject {
 
 public extension SpaceViewModel {
 
-    func load() {
-        Task {
-            try await _load()
-        }
-    }
-
     @MainActor
-    func _load() async throws {
-        _items.value = try await spaceManager.loadWorkspaces(for: userManager.userId)
+    func load() async {
+        do {
+            _items.value = try await spaceManager.loadWorkspaces(for: userManager.userId)
+        } catch {
+            print(error)
+        }
     }
 
     func selectItem(with id: String) {

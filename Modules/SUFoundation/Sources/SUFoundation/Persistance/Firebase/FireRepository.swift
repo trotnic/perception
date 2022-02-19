@@ -38,8 +38,10 @@ extension FireRepository: Repository {
             throw FetchError.cantLoadList
         }
 
-        let result: [SUWorkspace] = try await data.asyncMap { document in
-            let data = try await document.getDocument().data()!
+        let result: [SUWorkspace] = try await data.asyncCompactMap { document in
+            guard let data = try await document.getDocument().data() else {
+                return nil
+            }
             let workspaceId = data["id"] as! String
             let title = data["title"] as! String
             let documents: [SUShallowDocument] = try await (data["documents"] as! Array<DocumentReference>).asyncMap { docRef in

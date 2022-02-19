@@ -13,6 +13,7 @@ import SUFoundation
 struct RootScreen {
 
     let environment: SUEnvironment
+    @StateObject var viewModel: RootViewModel
 }
 
 extension RootScreen: View {
@@ -96,10 +97,11 @@ extension RootScreen: View {
                 )
             }
             .navigationTransition()
-            Route {
-                Navigate(to: "/authentication")
-            }
+//            Route {
+//                Navigate(to: "/authentication")
+//            }
         }
+        .onAppear(perform: viewModel.handleUserAuthenticationState)
     }
 }
 

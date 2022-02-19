@@ -10,23 +10,27 @@ import SwiftUI
 
 struct SUButtonCircularStyle: ButtonStyle {
 
-    let radius: CGFloat
-    let borderColor: Color
-
     func makeBody(configuration: Configuration) -> some View {
         GeometryReader { proxy in
             configuration.label
                 .padding()
-                .foregroundColor(configuration.isPressed ? Color.gray : Color.teal)
+                .foregroundColor(
+                    configuration.isPressed ?
+                    SUColorStandartPalette.secondary1 : SUColorStandartPalette.text
+                )
+                .frame(
+                    width: proxy.size.width,
+                    height: proxy.size.height
+                )
                 .background {
                     Circle()
                         .stroke(lineWidth: 2.0)
-                        .fill(borderColor)
-                        .frame(
-                            width: configuration.isPressed ? proxy.size.width - radius : proxy.size.width + radius,
-                            height: configuration.isPressed ? proxy.size.height - radius : proxy.size.height + radius
+                        .fill(
+                            configuration.isPressed ?
+                            SUColorStandartPalette.secondary3 : SUColorStandartPalette.secondary2
                         )
                 }
+                .scaleEffect(configuration.isPressed ? 0.78 : 1.0)
                 .animation(.easeInOut(duration: 0.12), value: configuration.isPressed)
         }
     }
