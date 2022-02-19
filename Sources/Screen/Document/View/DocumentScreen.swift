@@ -59,7 +59,12 @@ extension DocumentScreen: View {
 //                        .foregroundColor(.black)
 //                        .background(.clear)
                     SUTextCanvas(text: $text)
-                        .frame(width: .infinity, height: 44)
+                        .padding()
+//                        .backgroundColor(.red)
+//                        .padding(16.0)
+//                        .frame(width: proxy.size.width)
+//                        .frame(minHeight: 40.0)
+//                        .frame(maxHeight: .infinity)
 //                        .background(.red)
 //                        .foregroundColor(.blue)
                 }
