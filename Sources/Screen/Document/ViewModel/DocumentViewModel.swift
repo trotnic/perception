@@ -6,6 +6,7 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SUFoundation
 
@@ -18,12 +19,15 @@ public final class DocumentViewModel: ObservableObject {
     private let documentManager: SUManagerDocument
     private let documentMeta: SUDocumentMeta
 
+    private var disposeBag = Set<AnyCancellable>()
+
     public init(appState: SUAppStateProvider,
                 documentManager: SUManagerDocument,
                 documentMeta: SUDocumentMeta) {
         self.appState = appState
         self.documentManager = documentManager
         self.documentMeta = documentMeta
+        setupBindings()
     }
 }
 
@@ -43,5 +47,30 @@ public extension DocumentViewModel {
 
     func backAction() {
         appState.change(route: .back)
+    }
+
+    func deleteAction() {
+        Task {
+            try await documentManager.deleteDocument(id: documentMeta.id, workspaceId: documentMeta.workspaceId)
+            await MainActor.run {
+                appState.change(route: .back)
+            }
+        }
+    }
+}
+
+// MARK: - Private interface
+
+private extension DocumentViewModel {
+
+    func setupBindings() {
+        $text
+            .debounce(for: 2.0, scheduler: DispatchQueue.main)
+            .sink { [self] value in
+                Task {
+                    try await documentManager.writeDocument(id: documentMeta.id, text: value)
+                }
+            }
+            .store(in: &disposeBag)
     }
 }

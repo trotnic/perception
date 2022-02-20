@@ -6,12 +6,20 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
+
 public protocol SUManagerWorkspace {
-    func loadWorkspace(id: String) async throws -> SUWorkspace
+
+    var workspace: PassthroughSubject<SUWorkspace, Never> { get }
+
+    func loadWorkspace(id: String)
     func createDocument(title: String, workspaceId: String, userId: String) async throws -> String
 }
 
-public struct SUManagerWorkspaceMock: SUManagerWorkspace {
+public final class SUManagerWorkspaceMock: SUManagerWorkspace {
+
+    public var workspace: PassthroughSubject<SUWorkspace, Never> = .init()
+    public func loadWorkspace(id: String) {}
     public func loadWorkspace(id: String) async throws -> SUWorkspace { .init(meta: .empty, title: "", documents: []) }
     public func createDocument(title: String, workspaceId: String, userId: String) async throws -> String { String(describing: self) }
 

@@ -35,6 +35,7 @@ private struct UITextViewWrapper: UIViewRepresentable {
         textField.textContainerInset = .zero
         textField.textContainer.lineFragmentPadding = .zero
         textField.textContainerInset = UIEdgeInsets(top: 4.0, left: 4.0, bottom: 4.0, right: 4.0)
+        textField.keyboardType = .twitter
 
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return textField
@@ -60,16 +61,17 @@ private struct UITextViewWrapper: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
-        var text: Binding<String>
+        @Binding var text: String
         var calculatedHeight: Binding<CGFloat>
 
         init(text: Binding<String>, height: Binding<CGFloat>) {
-            self.text = text
+            _text = text
             self.calculatedHeight = height
         }
 
         func textViewDidChange(_ uiView: UITextView) {
-            text.wrappedValue = uiView.text
+            self.text = uiView.text
+//            text.wrappedValue = uiView.text
             UITextViewWrapper.recalculateHeight(view: uiView, result: calculatedHeight)
         }
     }

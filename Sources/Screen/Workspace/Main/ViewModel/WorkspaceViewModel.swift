@@ -21,12 +21,15 @@ public final class WorkspaceViewModel: ObservableObject {
     private let workspaceManager: SUManagerWorkspace
     private let workspaceMeta: SUWorkspaceMeta
 
+    private var disposeBag = Set<AnyCancellable>()
+
     public init(appState: SUAppStateProvider,
                 workspaceManager: SUManagerWorkspace,
                 workspaceMeta: SUWorkspaceMeta) {
         self.appState = appState
         self.workspaceManager = workspaceManager
         self.workspaceMeta = workspaceMeta
+        setupBindings()
     }
 }
 
@@ -35,15 +38,16 @@ public final class WorkspaceViewModel: ObservableObject {
 public extension WorkspaceViewModel {
 
     func load() {
-        Task {
-            let workspace = try await workspaceManager.loadWorkspace(id: workspaceMeta.id)
-            await MainActor.run {
-                workspaceTitle = workspace.title
-                viewItems = workspace.documents.map {
-                    .init(id: $0.meta.id, iconText: "", title: $0.title)
-                }
-            }
-        }
+        workspaceManager.loadWorkspace(id: workspaceMeta.id)
+//        Task {
+//            let workspace = try await workspaceManager.loadWorkspace(id: workspaceMeta.id)
+//            await MainActor.run {
+//                workspaceTitle = workspace.title
+//                viewItems = workspace.documents.map {
+//                    .init(id: $0.meta.id, iconText: "", title: $0.title)
+//                }
+//            }
+//        }
     }
 
     func selectItem(with id: String) {
@@ -62,5 +66,15 @@ public extension WorkspaceViewModel {
 // MARK: - Private interface
 
 private extension WorkspaceViewModel {
-    
+
+    func setupBindings() {
+        workspaceManager.workspace
+            .sink { [self] workspace in
+                workspaceTitle = workspace.title
+                viewItems = workspace.documents.map {
+                    .init(id: $0.meta.id, iconText: "", title: $0.title)
+                }
+            }
+            .store(in: &disposeBag)
+    }
 }

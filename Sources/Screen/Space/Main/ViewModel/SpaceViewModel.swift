@@ -15,7 +15,7 @@ public final class SpaceViewModel: ObservableObject {
     @Published public var title: String = "Space"
     @Published public private(set) var viewItems: [ListTileViewItem] = []
 
-    private var _items = CurrentValueSubject<[SUWorkspace], Never>([])
+    private var _items = CurrentValueSubject<[SUShallowWorkspace], Never>([])
 
     private var disposeBag = Set<AnyCancellable>()
 

@@ -29,7 +29,11 @@ extension DocumentScreen: View {
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    VStack {
+                    HStack(spacing: 16.0) {
+                        SUButtonCircular(icon: "trash") {
+                            viewModel.deleteAction()
+                        }
+                        .frame(width: 36.0, height: 36.0)
                         SUButtonCircular(icon: "ellipsis") {}
                             .frame(width: 36.0, height: 36.0)
                     }

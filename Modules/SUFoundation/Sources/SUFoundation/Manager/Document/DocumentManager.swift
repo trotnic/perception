@@ -22,6 +22,14 @@ public final class DocumentManager {
 extension DocumentManager: SUManagerDocument {
 
     public func loadDocument(id: String) async throws -> SUDocument {
-        try await repository.document(with: id)
+        return try await repository.document(with: id)
+    }
+
+    public func writeDocument(id: String, text: String) async throws {
+        try await repository.updateDocument(with: id, text: text)
+    }
+
+    public func deleteDocument(id: String, workspaceId: String) async throws {
+        try await repository.deleteDocument(with: id, in: workspaceId)
     }
 }

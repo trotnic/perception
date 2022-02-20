@@ -10,6 +10,8 @@ import Foundation
 
 public protocol SUManagerDocument {
     func loadDocument(id: String) async throws -> SUDocument
+    func writeDocument(id: String, text: String) async throws
+    func deleteDocument(id: String, workspaceId: String) async throws
 }
 
 public struct SUManagerDocumentMock: SUManagerDocument {
@@ -17,4 +19,6 @@ public struct SUManagerDocumentMock: SUManagerDocument {
     public func loadDocument(id: String) async throws -> SUDocument {
         .init(meta: .empty, title: "", text: "")
     }
+    public func writeDocument(id: String, text: String) async throws {}
+    public func deleteDocument(id: String, workspaceId: String) async throws {}
 }

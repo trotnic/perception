@@ -21,7 +21,7 @@ public final class SpaceManager: SUManagerSpace {
 
 public extension SpaceManager {
 
-    func loadWorkspaces(for userId: String) async throws -> [SUWorkspace] {
+    func loadWorkspaces(for userId: String) async throws -> [SUShallowWorkspace] {
         try await repository.workspaces(for: userId)
     }
 

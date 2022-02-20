@@ -21,6 +21,7 @@ public final class FireRepository {
     }
 
     private let firestore: Firestore
+    private var listeners: [String : ListenerRegistration] = [:]
 
     public init(firestore: Firestore) {
         self.firestore = firestore
@@ -28,8 +29,10 @@ public final class FireRepository {
 }
 
 extension FireRepository: Repository {
-    
-    public func workspaces(for userId: String) async throws -> [SUWorkspace] {
+
+    // MARK: - Space
+
+    public func workspaces(for userId: String) async throws -> [SUShallowWorkspace] {
         guard
             let data = try await firestore
                 .collection("users")
@@ -41,21 +44,43 @@ extension FireRepository: Repository {
             throw FetchError.cantLoadList
         }
 
-        let result: [SUWorkspace] = try await workspaces.asyncCompactMap { document in
+        let result: [SUShallowWorkspace] = try await workspaces.asyncCompactMap { document in
             guard let data = try await document.getDocument().data() else {
                 return nil
             }
             let workspaceId = data["id"] as! String
             let title = data["title"] as! String
-            let documents: [SUShallowDocument] = try await (data["documents"] as! Array<DocumentReference>).asyncMap { docRef in
-                let doc = try await docRef.getDocument()
-                let title = doc.data()?["title"] as! String
-                return SUShallowDocument(meta: SUDocumentMeta(id: doc.documentID, workspaceId: workspaceId), title: title)
-            }
-            let workspace = SUWorkspace(meta: .init(id: workspaceId), title: title, documents: documents)
+//            let documents: [SUShallowDocument] = try await (data["documents"] as! Array<DocumentReference>).asyncMap { docRef in
+//                let doc = try await docRef.getDocument()
+//                let title = doc.data()?["title"] as! String
+//                return SUShallowDocument(meta: SUDocumentMeta(id: doc.documentID, workspaceId: workspaceId), title: title)
+//            }
+            let workspace = SUShallowWorkspace(meta: .init(id: workspaceId), title: title)
             return workspace
         }
         return result
+    }
+
+    // MARK: - Workspace
+
+    public func listenWorkspace(with id: String, completion: @escaping (SUWorkspace) -> Void) {
+        let listener = firestore
+            .collection("workspaces")
+            .document(id)
+            .addSnapshotListener { snapshot, error in
+                Task {
+                    guard let data = snapshot?.data() else { return }
+                    guard let title = data["title"] as? String else { return }
+                    guard let rawDocuments = data["documents"] as? Array<DocumentReference> else { return }
+                    let documents: [SUShallowDocument] = try await rawDocuments.asyncCompactMap { docRef in
+                        let doc = try await docRef.getDocument()
+                        guard let title = doc.data()?["title"] as? String else { return nil }
+                        return SUShallowDocument(meta: SUDocumentMeta(id: doc.documentID, workspaceId: id), title: title)
+                    }
+                    completion(SUWorkspace(meta: SUWorkspaceMeta(id: id), title: title, documents: documents))
+                }
+            }
+        listeners[id] = listener
     }
 
     public func workspace(with id: String) async throws -> SUWorkspace {
@@ -101,6 +126,8 @@ extension FireRepository: Repository {
         return ref.documentID
     }
 
+    // MARK: - Document
+
     public func createDocument(with title: String,
                                in workspaceId: String,
                                for userId: String) async throws -> String {
@@ -139,9 +166,47 @@ extension FireRepository: Repository {
             throw FetchError.cantLoadEntity
         }
 
+        
         let title = data["title"] as! String
         let text = data["text"] as! String
         let workspaceId = data["workspaceId"] as! String
         return SUDocument(meta: .init(id: id, workspaceId: workspaceId), title: title, text: text)
+    }
+
+    public func observeDocument(with id: String) {
+        firestore
+            .collection("documents")
+            .document(id)
+            .addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else { return }
+                guard let data = snapshot.data() else { return }
+                print(data["text"])
+            }
+    }
+
+    public func updateDocument(with id: String, text: String) async throws {
+        try await firestore
+            .collection("documents")
+            .document(id)
+            .updateData([
+                "text" : text
+            ])
+    }
+
+    public func deleteDocument(with id: String, in workspaceId: String) async throws {
+        let workspaceRef = firestore
+            .collection("workspaces")
+            .document(workspaceId)
+        
+        let documentRef = firestore
+            .collection("documents")
+            .document(id)
+        
+        try await workspaceRef
+            .updateData([
+                "documents" : FieldValue.arrayRemove([documentRef])
+            ])
+        
+        try await documentRef.delete()
     }
 }

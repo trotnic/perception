@@ -6,9 +6,12 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 public final class WorkspaceManager: SUManagerWorkspace {
+
+    public var workspace: PassthroughSubject<SUWorkspace, Never> = .init()
 
     private let repository: Repository
 
@@ -19,8 +22,10 @@ public final class WorkspaceManager: SUManagerWorkspace {
 
 public extension WorkspaceManager {
 
-    func loadWorkspace(id: String) async throws -> SUWorkspace {
-        try await repository.workspace(with: id)
+    func loadWorkspace(id: String) {
+        repository.listenWorkspace(with: id) { workspace in
+            self.workspace.send(workspace)
+        }
     }
 
     func createDocument(title: String, workspaceId: String, userId: String) async throws -> String {
