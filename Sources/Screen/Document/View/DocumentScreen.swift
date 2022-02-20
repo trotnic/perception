@@ -8,11 +8,11 @@
 
 import SwiftUI
 import SUDesign
+import SUFoundation
 
 struct DocumentScreen {
 
     @StateObject var viewModel: DocumentViewModel
-    @State private var text: String = "Some text to check the behavior"
 }
 
 extension DocumentScreen: View {
@@ -35,19 +35,13 @@ extension DocumentScreen: View {
                     }
                     .padding(.trailing, 16)
                     .frame(maxWidth: .infinity, alignment: .trailing)
-                    VStack {
-//                        Text("LOLKEK")
-//                            .font(.custom("Comfortaa", size: 20).weight(.bold))
-//                            .foregroundColor(ColorProvider.text)
-                    }
                 }
                 .padding(.top, 16)
                 ScrollView {
                     ZStack {
-                        Text("LOL")
+                        Text(viewModel.title)
                             .font(.system(size: 36.0, design: .rounded).bold())
                             .frame(maxWidth: .infinity, alignment: .leading)
-//                        listItems
                     }
                     .padding(.vertical, 16.0)
                     .padding(.horizontal, 24.0)
@@ -55,29 +49,21 @@ extension DocumentScreen: View {
                     .background(SUColorStandartPalette.tile)
                     .cornerRadius(20.0)
 
-//                    TextEditor(text: $text)
-//                        .foregroundColor(.black)
-//                        .background(.clear)
-                    SUTextCanvas(text: $text)
+                    SUTextCanvas(text: $viewModel.text)
                         .padding()
-//                        .backgroundColor(.red)
-//                        .padding(16.0)
-//                        .frame(width: proxy.size.width)
-//                        .frame(minHeight: 40.0)
-//                        .frame(maxHeight: .infinity)
-//                        .background(.red)
-//                        .foregroundColor(.blue)
                 }
                 .foregroundColor(SUColorStandartPalette.text)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .onAppear(perform: viewModel.load)
     }
 }
 
 struct DocumentScreen_Previews: PreviewProvider {
     static let viewModel = DocumentViewModel(
         appState: SUAppStateProviderMock(),
+        documentManager: SUManagerDocumentMock(),
         documentMeta: .empty
     )
 

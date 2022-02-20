@@ -40,7 +40,7 @@ public extension WorkspaceViewModel {
             await MainActor.run {
                 workspaceTitle = workspace.title
                 viewItems = workspace.documents.map {
-                    .init(iconText: "", title: $0.title)
+                    .init(id: $0.meta.id, iconText: "", title: $0.title)
                 }
             }
         }

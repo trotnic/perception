@@ -30,15 +30,18 @@ public final class FireRepository {
 extension FireRepository: Repository {
     
     public func workspaces(for userId: String) async throws -> [SUWorkspace] {
-        guard let data = try await firestore
+        guard
+            let data = try await firestore
                 .collection("users")
                 .document(userId)
-                .getDocument().data()?["workspaces"] as? Array<DocumentReference>
+                .getDocument()
+                .data(),
+            let workspaces = data["workspaces"] as? Array<DocumentReference>
         else {
             throw FetchError.cantLoadList
         }
 
-        let result: [SUWorkspace] = try await data.asyncCompactMap { document in
+        let result: [SUWorkspace] = try await workspaces.asyncCompactMap { document in
             guard let data = try await document.getDocument().data() else {
                 return nil
             }
@@ -56,7 +59,8 @@ extension FireRepository: Repository {
     }
 
     public func workspace(with id: String) async throws -> SUWorkspace {
-        guard let data = try await firestore
+        guard
+            let data = try await firestore
                 .collection("workspaces")
                 .document(id)
                 .getDocument().data()
@@ -86,7 +90,8 @@ extension FireRepository: Repository {
         let user = firestore
             .collection("users")
             .document(userId)
-        guard let workspaces = try await user.getDocument().data()?["workspaces"] as? Array<DocumentReference>
+        guard
+            let workspaces = try await user.getDocument().data()?["workspaces"] as? Array<DocumentReference>
         else {
             throw FetchError.cantCreate
         }
@@ -107,7 +112,8 @@ extension FireRepository: Repository {
             "title" : title,
             "workspaceId" : workspaceId,
             "linked" : [],
-            "parts" : []
+            "parts" : [],
+            "text" : ""
         ])
         let workspaceRef = firestore
             .collection("workspaces")
@@ -120,5 +126,22 @@ extension FireRepository: Repository {
             "documents" : documents + [ref]
         ])
         return ref.documentID
+    }
+
+    public func document(with id: String) async throws -> SUDocument {
+        guard
+            let data = try await firestore
+                .collection("documents")
+                .document(id)
+                .getDocument()
+                .data()
+        else {
+            throw FetchError.cantLoadEntity
+        }
+
+        let title = data["title"] as! String
+        let text = data["text"] as! String
+        let workspaceId = data["workspaceId"] as! String
+        return SUDocument(meta: .init(id: id, workspaceId: workspaceId), title: title, text: text)
     }
 }

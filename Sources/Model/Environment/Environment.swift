@@ -24,4 +24,5 @@ public final class SUEnvironment: ObservableObject {
     public var userManager: UserManager { factory.userManager }
     public var spaceManager: SpaceManager { factory.spaceManager }
     public var workspaceManager: WorkspaceManager { factory.workspaceManager }
+    public var documentManager: DocumentManager { factory.documentManager }
 }

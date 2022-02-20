@@ -12,4 +12,5 @@ public protocol Repository {
     func workspace(with id: String) async throws -> SUWorkspace
     func createWorkspace(with title: String, userId: String) async throws -> String
     func createDocument(with title: String, in workspaceId: String, for userId: String) async throws -> String
+    func document(with id: String) async throws -> SUDocument
 }
