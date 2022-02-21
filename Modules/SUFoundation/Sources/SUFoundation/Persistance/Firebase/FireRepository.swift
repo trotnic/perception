@@ -26,6 +26,10 @@ public final class FireRepository {
     public init(firestore: Firestore) {
         self.firestore = firestore
     }
+
+    deinit {
+        listeners.forEach { $0.value.remove() }
+    }
 }
 
 extension FireRepository: Repository {
@@ -103,27 +107,24 @@ extension FireRepository: Repository {
 
     public func createWorkspace(with title: String,
                                 userId: String) async throws -> String {
-        let ref = firestore
+        let workspaceRef = firestore
             .collection("workspaces")
             .document()
-        try await ref.setData([
-            "id" : ref.documentID,
-            "owner" : firestore.collection("users").document(userId),
-            "title" : title,
-            "members" : []
-        ])
-        let user = firestore
+        let userRef = firestore
             .collection("users")
             .document(userId)
-        guard
-            let workspaces = try await user.getDocument().data()?["workspaces"] as? Array<DocumentReference>
-        else {
-            throw FetchError.cantCreate
-        }
-        try await user.updateData([
-            "workspaces" : workspaces + [ref]
+
+        try await workspaceRef.setData([
+            "id" : workspaceRef.documentID,
+            "owner" : userRef,
+            "title" : title,
+            "members" : [],
+            "documents" : []
         ])
-        return ref.documentID
+        try await userRef.updateData([
+            "workspaces" : FieldValue.arrayUnion([workspaceRef])
+        ])
+        return workspaceRef.documentID
     }
 
     // MARK: - Document
@@ -139,7 +140,6 @@ extension FireRepository: Repository {
             "title" : title,
             "workspaceId" : workspaceId,
             "linked" : [],
-            "parts" : [],
             "text" : ""
         ])
         let workspaceRef = firestore
@@ -180,7 +180,6 @@ extension FireRepository: Repository {
             .addSnapshotListener { snapshot, error in
                 guard let snapshot = snapshot else { return }
                 guard let data = snapshot.data() else { return }
-                print(data["text"])
             }
     }
 
@@ -208,5 +207,29 @@ extension FireRepository: Repository {
             ])
         
         try await documentRef.delete()
+    }
+
+    public func deleteWorkspace(id: String, userId: String) async throws {
+        let userRef = firestore
+            .collection("users")
+            .document(userId)
+
+        let workspaceRef = firestore
+            .collection("workspaces")
+            .document(id)
+
+        try await _ = [
+            userRef
+                .updateData([
+                    "workspaces" : FieldValue.arrayRemove([workspaceRef])
+                ]),
+            firestore
+                .collection("documents")
+                .whereField("workspaceId", isEqualTo: id)
+                .getDocuments()
+                .documents
+                .forEach { $0.reference.delete() },
+            workspaceRef.delete()
+        ]
     }
 }

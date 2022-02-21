@@ -59,6 +59,7 @@ extension RootScreen: View {
                     viewModel: WorkspaceViewModel(
                         appState: environment.appState,
                         workspaceManager: environment.workspaceManager,
+                        userManager: environment.userManager,
                         workspaceMeta: meta
                     )
                 )

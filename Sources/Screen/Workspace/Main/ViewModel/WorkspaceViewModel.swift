@@ -19,15 +19,18 @@ public final class WorkspaceViewModel: ObservableObject {
 
     private let appState: SUAppStateProvider
     private let workspaceManager: SUManagerWorkspace
+    private let userManager: SUManagerUser
     private let workspaceMeta: SUWorkspaceMeta
 
     private var disposeBag = Set<AnyCancellable>()
 
     public init(appState: SUAppStateProvider,
                 workspaceManager: SUManagerWorkspace,
+                userManager: SUManagerUser,
                 workspaceMeta: SUWorkspaceMeta) {
         self.appState = appState
         self.workspaceManager = workspaceManager
+        self.userManager = userManager
         self.workspaceMeta = workspaceMeta
         setupBindings()
     }
@@ -38,16 +41,16 @@ public final class WorkspaceViewModel: ObservableObject {
 public extension WorkspaceViewModel {
 
     func load() {
-        workspaceManager.loadWorkspace(id: workspaceMeta.id)
-//        Task {
-//            let workspace = try await workspaceManager.loadWorkspace(id: workspaceMeta.id)
-//            await MainActor.run {
-//                workspaceTitle = workspace.title
-//                viewItems = workspace.documents.map {
-//                    .init(id: $0.meta.id, iconText: "", title: $0.title)
-//                }
-//            }
-//        }
+//        workspaceManager.loadWorkspace(id: workspaceMeta.id)
+        Task {
+            let workspace = try await workspaceManager.loadWorkspace(id: workspaceMeta.id)
+            await MainActor.run {
+                workspaceTitle = workspace.title
+                viewItems = workspace.documents.map {
+                    .init(id: $0.meta.id, iconText: "", title: $0.title)
+                }
+            }
+        }
     }
 
     func selectItem(with id: String) {
@@ -61,6 +64,15 @@ public extension WorkspaceViewModel {
     func backAction() {
         appState.change(route: .back)
     }
+
+    func deleteAction() {
+        Task {
+            try await workspaceManager.deleteWorkspace(id: workspaceMeta.id, userId: userManager.userId)
+            await MainActor.run {
+                appState.change(route: .space)
+            }
+        }
+    }
 }
 
 // MARK: - Private interface
@@ -69,6 +81,7 @@ private extension WorkspaceViewModel {
 
     func setupBindings() {
         workspaceManager.workspace
+            .receive(on: DispatchQueue.main)
             .sink { [self] workspace in
                 workspaceTitle = workspace.title
                 viewItems = workspace.documents.map {

@@ -17,4 +17,5 @@ public protocol Repository {
     func observeDocument(with id: String)
     func updateDocument(with id: String, text: String) async throws
     func deleteDocument(with id: String, in workspaceId: String) async throws
+    func deleteWorkspace(id: String, userId: String) async throws
 }

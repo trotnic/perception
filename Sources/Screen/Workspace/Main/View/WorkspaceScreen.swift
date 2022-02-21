@@ -30,7 +30,9 @@ extension WorkspaceScreen: View {
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    VStack {
+                    HStack(spacing: 12.0) {
+                        SUButtonCircular(icon: "trash", action: viewModel.deleteAction)
+                            .frame(width: 36.0, height: 36.0)
                         SUButtonCircular(icon: "plus", action: viewModel.createAction)
                             .frame(width: 36.0, height: 36.0)
                     }
@@ -127,6 +129,7 @@ struct WorkspaceScreen_Previews: PreviewProvider {
     static let viewModel = WorkspaceViewModel(
         appState: SUAppStateProviderMock(),
         workspaceManager: SUManagerWorkspaceMock(),
+        userManager: SUManagerUserMock(),
         workspaceMeta: .empty
     )
 
