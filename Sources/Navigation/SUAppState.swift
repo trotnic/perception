@@ -27,6 +27,7 @@ public final class SUAppState: SUAppStateProvider {
         case .none:
             break
         case .back:
+            // TODO: Handle creation cases
             navigator.goBack()
             screenStack.removeLast()
             currentScreen = screenStack.last!
