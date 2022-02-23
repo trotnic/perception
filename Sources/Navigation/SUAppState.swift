@@ -10,6 +10,21 @@ import Foundation
 import SwiftUIRouter
 import SUFoundation
 
+/**
+ 
+            +----------back------------+
+            |                          |
+            |                          |
+           \ /                         |
+          space ----> create ----> workspace
+
+            +----------back------------+
+            |                          |
+            |                          |
+           \ /                         |
+        workspace ----> create ----> document
+ 
+ */
 
 public final class SUAppState: SUAppStateProvider {
 
@@ -27,7 +42,6 @@ public final class SUAppState: SUAppStateProvider {
         case .none:
             break
         case .back:
-            // TODO: Handle creation cases
             navigator.goBack()
             screenStack.removeLast()
             currentScreen = screenStack.last!
@@ -60,11 +74,24 @@ public final class SUAppState: SUAppStateProvider {
             currentScreen = .create
             screenStack.append(.create)
         case .read(let content):
-            switch content {
-            case let .workspace(meta):
-                navigator.navigate("/space/workspace/\(meta.id)")
-            case let .document(meta):
-                navigator.navigate("/space/workspace/\(meta.workspaceId)/document/\(meta.id)")
+            switch currentScreen {
+            case .none, .account, .authentication, .back:
+                fatalError("This should never happen")
+            case .read, .space:
+                switch content {
+                case let .workspace(meta):
+                    navigator.navigate("/space/workspace/\(meta.id)")
+                case let .document(meta):
+                    navigator.navigate("/space/workspace/\(meta.workspaceId)/document/\(meta.id)")
+                }
+            case .create:
+                switch content {
+                case let .workspace(meta):
+                    navigator.navigate("/space/workspace/\(meta.id)", replace: true)
+                case let .document(meta):
+                    navigator.navigate("/space/workspace/\(meta.workspaceId)/document/\(meta.id)", replace: true)
+                }
+                screenStack.removeLast()
             }
             currentScreen = .read(content)
             screenStack.append(.read(content))
