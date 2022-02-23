@@ -71,7 +71,9 @@ extension SpaceScreen: View {
             .init(.flexible(minimum: .zero, maximum: .infinity))
         ], spacing: 24) {
             ForEach(spaceViewModel.viewItems) { item in
-                ListTile(viewItem: item) {
+                SUListTile(emoji: item.iconText,
+                           title: item.title,
+                           icon: "chevron.right") {
                     spaceViewModel.selectItem(with: item.id)
                 }
             }

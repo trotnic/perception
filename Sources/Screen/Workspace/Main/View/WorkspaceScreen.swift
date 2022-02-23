@@ -108,7 +108,9 @@ extension WorkspaceScreen: View {
             .init(.flexible(minimum: .zero, maximum: .infinity))
         ], spacing: 24) {
             ForEach(viewModel.viewItems) { item in
-                ListTile(viewItem: item) {
+                SUListTile(emoji: item.iconText,
+                           title: item.title,
+                           icon: "chevron.right") {
                     viewModel.selectItem(with: item.id)
                 }
             }

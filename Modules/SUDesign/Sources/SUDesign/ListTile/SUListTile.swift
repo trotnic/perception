@@ -8,12 +8,25 @@
 
 import SwiftUI
 
-public struct ListTile {
+public struct SUListTile {
 
-    let action: () -> Void
+    private let emoji: String
+    private let title: String
+    private let icon: String
+    private let action: () -> Void
+
+    public init(emoji: String,
+                title: String,
+                icon: String,
+                action: @escaping () -> Void) {
+        self.emoji = emoji
+        self.title = title
+        self.icon = icon
+        self.action = action
+    }
 }
 
-extension ListTile: View {
+extension SUListTile: View {
 
     public var body: some View {
         Button {
@@ -22,13 +35,13 @@ extension ListTile: View {
             HStack {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("🔥")
-                        Text("Amazing workspace")
+                        Text(emoji)
+                        Text(title)
                             .font(.custom("Comfortaa", size: 18).weight(.bold))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                Image(systemName: "chevron.right")
+                Image(systemName: icon)
                     .font(.system(size: 24).weight(.regular))
             }
             .padding(16)
@@ -45,11 +58,11 @@ extension ListTile: View {
                     .fill(.white.opacity(0.08))
             }
         }
-        .buttonStyle(ListTileButtonStyle())
+        .buttonStyle(SUListTileButtonStyle())
     }
 }
 
-private struct ListTileButtonStyle: ButtonStyle {
+private struct SUListTileButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration
@@ -59,73 +72,17 @@ private struct ListTileButtonStyle: ButtonStyle {
     }
 }
 
-extension View {
-    func delaysTouches(for duration: TimeInterval = 0.25, onTap action: @escaping () -> Void = {}) -> some View {
-        modifier(DelaysTouches(duration: duration, action: action))
-    }
-}
-
-fileprivate struct DelaysTouches: ViewModifier {
-    @State private var disabled = false
-    @State private var touchDownDate: Date? = nil
-
-    var duration: TimeInterval
-    var action: () -> Void
-
-    func body(content: Content) -> some View {
-        Button(action: action) {
-            content
-        }
-        .buttonStyle(DelaysTouchesButtonStyle(disabled: $disabled, duration: duration, touchDownDate: $touchDownDate))
-        .disabled(disabled)
-    }
-}
-
-fileprivate struct DelaysTouchesButtonStyle: ButtonStyle {
-    @Binding var disabled: Bool
-    var duration: TimeInterval
-    @Binding var touchDownDate: Date?
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .onChange(of: configuration.isPressed, perform: handleIsPressed)
-    }
-
-    private func handleIsPressed(isPressed: Bool) {
-        if isPressed {
-            let date = Date()
-            touchDownDate = date
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + max(duration, 0)) {
-                if date == touchDownDate {
-                    disabled = true
-
-                    DispatchQueue.main.async {
-                        disabled = false
-                    }
-                }
-            }
-        } else {
-            touchDownDate = nil
-            disabled = false
-        }
-    }
-}
-
-struct ListTile_Previews: PreviewProvider {
-//    static let viewItem: ListTileViewItem =
-//        .init(iconText: "🔥",
-//              title: "The Amazing Spider-Man"
-////              membersTitle: "12 members",
-////              lastEditTitle: "10:21, December 10, 2021"
-//        )
+struct SUListTile_Previews: PreviewProvider {
 
     static var previews: some View {
         ZStack {
             SUColorStandartPalette.background
                 .ignoresSafeArea()
-            ListTile() {}
-                .padding(.horizontal, 20)
+            SUListTile(emoji: "🔥",
+                       title: "Amazing workspace",
+                       icon: "chevron.right") {
+                
+            }
         }
     }
 }
