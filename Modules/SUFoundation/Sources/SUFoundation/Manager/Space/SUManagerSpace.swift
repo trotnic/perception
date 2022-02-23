@@ -7,13 +7,18 @@
 //
 
 public protocol SUManagerSpace {
-    func loadWorkspaces(for userId: String) async throws -> [SUWorkspace]
+    func loadWorkspaces(for userId: String) async throws -> [SUShallowWorkspace]
     func createWorkspace(name: String, userId: String) async throws -> String
 }
 
 public struct SUManagerSpaceMock: SUManagerSpace {
-    public func loadWorkspaces(for userId: String) async throws -> [SUWorkspace] { [] }
+
+    public let workspaces: [SUShallowWorkspace]
+
+    public func loadWorkspaces(for userId: String) async throws -> [SUShallowWorkspace] { [] }
     public func createWorkspace(name: String, userId: String) async throws -> String { String(describing: self) }
 
-    public init() {}
+    public init(workspaces: [SUShallowWorkspace] = []) {
+        self.workspaces = workspaces
+    }
 }

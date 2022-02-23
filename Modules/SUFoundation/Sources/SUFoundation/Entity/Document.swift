@@ -35,4 +35,5 @@ public struct SUShallowDocument {
 public struct SUDocument {
     public let meta: SUDocumentMeta
     public let title: String
+    public let text: String
 }

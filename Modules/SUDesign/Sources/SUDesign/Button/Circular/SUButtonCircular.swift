@@ -10,8 +10,6 @@ import SwiftUI
 
 public struct SUButtonCircular {
 
-    @State private var isDetectingLongPress = false
-
     private let icon: String
     private let action: () -> Void
 
@@ -27,19 +25,14 @@ extension SUButtonCircular: View {
     public var body: some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 16.0).weight(.regular))
-                .frame(width: 36.0, height: 36.0)
+                .font(.system(size: 13.0).weight(.regular))
         }
-        .buttonStyle(
-            SUButtonCircularStyle(
-                radius: 4.0,
-                borderColor: .white
-            )
-        )
+        .buttonStyle(SUButtonCircularStyle())
     }
 }
 
 struct SUButton_Previews: PreviewProvider {
+
     static var previews: some View {
         ZStack {
             Color.black

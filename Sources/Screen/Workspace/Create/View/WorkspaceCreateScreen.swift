@@ -8,10 +8,14 @@
 
 import SwiftUI
 import SUDesign
+import SUFoundation
 
-struct WorkspaceCreateScreen: View {
+struct WorkspaceCreateScreen {
 
     @StateObject var viewModel: WorkspaceCreateViewModel
+}
+
+extension WorkspaceCreateScreen: View {
 
     var body: some View {
         GeometryReader { proxy in
@@ -22,6 +26,7 @@ struct WorkspaceCreateScreen: View {
                     ZStack {
                         VStack {
                             SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
+                                .frame(width: 36.0, height: 36.0)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         VStack {
@@ -31,6 +36,7 @@ struct WorkspaceCreateScreen: View {
                         }
                         VStack {
                             SUButtonCircular(icon: "plus", action: viewModel.createAction)
+                                .frame(width: 36.0, height: 36.0)
                         }
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }
@@ -74,8 +80,16 @@ struct WorkspaceCreateScreen: View {
 
 }
 
-//struct WorkspaceCreateScreen_Previews: PreviewProvider {
-//    static var previews: some View {
-//        WorkspaceCreateScreen()
-//    }
-//}
+struct WorkspaceCreateScreen_Previews: PreviewProvider {
+
+    static let viewModel = WorkspaceCreateViewModel(
+        appState: SUAppStateProviderMock(),
+        workspaceManager: SUManagerWorkspaceMock(),
+        userManager: SUManagerUserMock(),
+        workspaceMeta: .empty
+    )
+
+    static var previews: some View {
+        WorkspaceCreateScreen(viewModel: viewModel)
+    }
+}

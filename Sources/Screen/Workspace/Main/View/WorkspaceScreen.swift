@@ -9,42 +9,48 @@
 import SwiftUI
 import SwiftUIRouter
 import SUDesign
+import SUFoundation
 
-struct WorkspaceScreen: View {
+struct WorkspaceScreen {
 
     @StateObject var viewModel: WorkspaceViewModel
+}
+
+extension WorkspaceScreen: View {
 
     var body: some View {
-        GeometryReader { _ in
-            ZStack {
-                SUColorStandartPalette.background
-                    .edgesIgnoringSafeArea(.all)
-                VStack {
-                    ZStack {
-                        VStack {
-                            SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
-                        }
-                        .padding(.leading, 16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        VStack {
-                            SUButtonCircular(icon: "plus", action: viewModel.createAction)
-                        }
-                        .padding(.trailing, 16)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        VStack {
-                            Text(viewModel.navigationTitle)
-                                .font(.custom("Comfortaa", size: 20).weight(.bold))
-                                .foregroundColor(SUColorStandartPalette.text)
-                        }
+        GeometryReader { proxy in
+            SUColorStandartPalette.background
+                .edgesIgnoringSafeArea(.all)
+            VStack {
+                ZStack {
+                    VStack {
+                        SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
+                            .frame(width: 36.0, height: 36.0)
                     }
-                    .padding(.top, 16)
-                    ScrollView {
-                        VStack(spacing: 40) {
-                            topTile
-                            listItems
-                        }
-                        .padding(16)
+                    .padding(.leading, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack(spacing: 12.0) {
+                        SUButtonCircular(icon: "trash", action: viewModel.deleteAction)
+                            .frame(width: 36.0, height: 36.0)
+                        SUButtonCircular(icon: "plus", action: viewModel.createAction)
+                            .frame(width: 36.0, height: 36.0)
                     }
+                    .padding(.trailing, 16)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    VStack {
+                        Text(viewModel.navigationTitle)
+                            .font(.custom("Comfortaa", size: 20).weight(.bold))
+                            .foregroundColor(SUColorStandartPalette.text)
+                    }
+                }
+                .padding(.top, 16)
+                ScrollView {
+                    VStack(spacing: 40) {
+                        topTile
+                        listItems
+                    }
+                    .padding(16)
                 }
             }
         }
@@ -118,12 +124,17 @@ extension View {
     }
 }
 
-//struct WorkspaceScreen_Previews: PreviewProvider {
-//
-//    static let viewModel = WorkspaceViewModel(meta: .empty)
-//
-//    static var previews: some View {
-//        WorkspaceScreen(viewModel: viewModel)
-//            .previewDevice("iPhone 13 mini")
-//    }
-//}
+struct WorkspaceScreen_Previews: PreviewProvider {
+
+    static let viewModel = WorkspaceViewModel(
+        appState: SUAppStateProviderMock(),
+        workspaceManager: SUManagerWorkspaceMock(),
+        userManager: SUManagerUserMock(),
+        workspaceMeta: .empty
+    )
+
+    static var previews: some View {
+        WorkspaceScreen(viewModel: viewModel)
+            .previewDevice("iPhone 13 mini")
+    }
+}

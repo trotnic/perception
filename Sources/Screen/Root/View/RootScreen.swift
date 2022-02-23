@@ -13,6 +13,7 @@ import SUFoundation
 struct RootScreen {
 
     let environment: SUEnvironment
+    @StateObject var viewModel: RootViewModel
 }
 
 extension RootScreen: View {
@@ -58,6 +59,7 @@ extension RootScreen: View {
                     viewModel: WorkspaceViewModel(
                         appState: environment.appState,
                         workspaceManager: environment.workspaceManager,
+                        userManager: environment.userManager,
                         workspaceMeta: meta
                     )
                 )
@@ -80,11 +82,13 @@ extension RootScreen: View {
                 .init(id: $0.parameters["dId"]!,
                       workspaceId: $0.parameters["wId"]!)
             }) { (meta: SUDocumentMeta) in
-                VStack {
-                    Text(meta.id)
-                    Text(meta.workspaceId)
-                }
-//                DocumentScreen(viewModel: DocumentViewModel(meta: meta))
+                DocumentScreen(
+                    viewModel: DocumentViewModel(
+                        appState: environment.appState,
+                        documentManager: environment.documentManager,
+                        documentMeta: meta
+                    )
+                )
             }
             .navigationTransition()
             Route("account") {
@@ -96,10 +100,8 @@ extension RootScreen: View {
                 )
             }
             .navigationTransition()
-            Route {
-                Navigate(to: "/authentication")
-            }
         }
+        .onAppear(perform: viewModel.handleUserAuthenticationState)
     }
 }
 

@@ -21,9 +21,8 @@ struct SpaceCreateScreen: View {
                 VStack(spacing: 16.0) {
                     ZStack {
                         VStack {
-                            SUButtonCircular(icon: "chevron.left") {
-                                viewModel.backAction()
-                            }
+                            SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
+                                .frame(width: 36.0, height: 36.0)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         VStack {
@@ -32,9 +31,8 @@ struct SpaceCreateScreen: View {
                                 .foregroundColor(SUColorStandartPalette.text)
                         }
                         VStack {
-                            SUButtonCircular(icon: "plus") {
-                                viewModel.createWorkspace()
-                            }
+                            SUButtonCircular(icon: "plus", action: viewModel.createWorkspace)
+                                .frame(width: 36.0, height: 36.0)
                         }
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }
