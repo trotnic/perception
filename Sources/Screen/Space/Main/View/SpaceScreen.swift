@@ -71,9 +71,11 @@ extension SpaceScreen: View {
             .init(.flexible(minimum: .zero, maximum: .infinity))
         ], spacing: 24) {
             ForEach(spaceViewModel.viewItems) { item in
-                SUListTile(emoji: item.iconText,
-                           title: item.title,
-                           icon: "chevron.right") {
+                SUListTile(
+                    emoji: item.iconText,
+                    title: item.title,
+                    icon: "chevron.right"
+                ) {
                     spaceViewModel.selectItem(with: item.id)
                 }
             }
@@ -88,7 +90,14 @@ struct SpaceScreen_Previews: PreviewProvider {
 
     static let spaceViewModel = SpaceViewModel(
         appState: SUAppStateProviderMock(),
-        spaceManager: SUManagerSpaceMock(),
+        spaceManager: SUManagerSpaceMock(workspaces: {
+            [
+                SUShallowWorkspace(
+                    meta: .empty,
+                    title: "Amazing Workspace!"
+                )
+            ]
+        }),
         userManager: SUManagerUserMock()
     )
 

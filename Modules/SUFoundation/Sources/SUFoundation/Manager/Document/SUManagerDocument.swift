@@ -15,9 +15,27 @@ public protocol SUManagerDocument {
 }
 
 public struct SUManagerDocumentMock: SUManagerDocument {
-    public init() {}
+
+    private let meta: () -> SUDocumentMeta
+    private let title: () -> String
+    private let text: () -> String
+
+    public init(
+        meta: @escaping () -> SUDocumentMeta = { .empty },
+        title: @escaping () -> String = { .empty },
+        text: @escaping () -> String = { .empty }
+    ) {
+        self.meta = meta
+        self.title = title
+        self.text = text
+    }
+
     public func loadDocument(id: String) async throws -> SUDocument {
-        .init(meta: .empty, title: "", text: "")
+        SUDocument(
+            meta: meta(),
+            title: title(),
+            text: text()
+        )
     }
     public func writeDocument(id: String, text: String) async throws {}
     public func deleteDocument(id: String, workspaceId: String) async throws {}

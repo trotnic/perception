@@ -13,12 +13,12 @@ public protocol SUManagerSpace {
 
 public struct SUManagerSpaceMock: SUManagerSpace {
 
-    public let workspaces: [SUShallowWorkspace]
+    private let workspaces: () -> [SUShallowWorkspace]
 
-    public func loadWorkspaces(for userId: String) async throws -> [SUShallowWorkspace] { [] }
-    public func createWorkspace(name: String, userId: String) async throws -> String { String(describing: self) }
-
-    public init(workspaces: [SUShallowWorkspace] = []) {
+    public init(workspaces: @escaping () -> [SUShallowWorkspace] = { [] }) {
         self.workspaces = workspaces
     }
+
+    public func loadWorkspaces(for userId: String) async throws -> [SUShallowWorkspace] { workspaces() }
+    public func createWorkspace(name: String, userId: String) async throws -> String { String(describing: self) }
 }

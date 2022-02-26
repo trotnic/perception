@@ -22,6 +22,10 @@ public final class WorkspaceManager: SUManagerWorkspace {
 
 public extension WorkspaceManager {
 
+    func createDocument(title: String, workspaceId: String, userId: String) async throws -> String {
+        try await repository.createDocument(with: title, in: workspaceId, for: userId)
+    }
+
     func loadWorkspace(id: String) async throws -> SUWorkspace {
         try await repository.workspace(with: id)
 //        repository.listenWorkspace(with: id) { workspace in
@@ -29,8 +33,8 @@ public extension WorkspaceManager {
 //        }
     }
 
-    func createDocument(title: String, workspaceId: String, userId: String) async throws -> String {
-        try await repository.createDocument(with: title, in: workspaceId, for: userId)
+    func updateWorkspace(id: String, title: String) async throws {
+        try await repository.updateDocument(with: id, text: title)
     }
 
     func deleteWorkspace(id: String, userId: String) async throws {

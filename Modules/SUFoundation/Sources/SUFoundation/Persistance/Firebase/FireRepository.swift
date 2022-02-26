@@ -144,7 +144,11 @@ extension FireRepository: Repository {
 //        listeners[id] = listener
 //    }
 
-  public func deleteWorkspace(id: String, userId: String) async throws {
+    public func updateWorkspace(id: String, title: String) async throws {
+        
+    }
+
+    public func deleteWorkspace(id: String, userId: String) async throws {
         let userRef = userRef(id: userId)
         let workspaceRef = workspaceRef(id: id)
 

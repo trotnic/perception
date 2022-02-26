@@ -12,18 +12,38 @@ public protocol SUManagerWorkspace {
 
     var workspace: PassthroughSubject<SUWorkspace, Never> { get }
 
-    func loadWorkspace(id: String) async throws -> SUWorkspace
     func createDocument(title: String, workspaceId: String, userId: String) async throws -> String
+    func loadWorkspace(id: String) async throws -> SUWorkspace
+    func updateWorkspace(id: String, title: String) async throws
     func deleteWorkspace(id: String, userId: String) async throws
 }
 
 public final class SUManagerWorkspaceMock: SUManagerWorkspace {
 
-    public var workspace: PassthroughSubject<SUWorkspace, Never> = .init()
-    public func loadWorkspace(id: String) {}
-    public func loadWorkspace(id: String) async throws -> SUWorkspace { .init(meta: .empty, title: "", documents: []) }
-    public func createDocument(title: String, workspaceId: String, userId: String) async throws -> String { String(describing: self) }
-    public func deleteWorkspace(id: String, userId: String) async throws {}
+    private let title: () -> String
+    private let documents: () -> [SUShallowDocument]
+    private let meta: () -> SUWorkspaceMeta
 
-    public init() {}
+    public var workspace: PassthroughSubject<SUWorkspace, Never> = .init()
+
+    public init(
+        meta: @escaping () -> SUWorkspaceMeta = { .empty },
+        title: @escaping () -> String = { .empty },
+        documents: @escaping () -> [SUShallowDocument] = { [] }
+    ) {
+        self.meta = meta
+        self.title = title
+        self.documents = documents
+    }
+
+    public func createDocument(title: String, workspaceId: String, userId: String) async throws -> String { String(describing: self) }
+    public func loadWorkspace(id: String) async throws -> SUWorkspace {
+        SUWorkspace(
+            meta: meta(),
+            title: title(),
+            documents: documents()
+        )
+    }
+    public func updateWorkspace(id: String, title: String) async throws {}
+    public func deleteWorkspace(id: String, userId: String) async throws {}
 }

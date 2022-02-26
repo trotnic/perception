@@ -14,6 +14,7 @@ import SUFoundation
 struct WorkspaceScreen {
 
     @StateObject var viewModel: WorkspaceViewModel
+    @State private var workspaceTitle: String = ""
 }
 
 extension WorkspaceScreen: View {
@@ -61,7 +62,7 @@ extension WorkspaceScreen: View {
             SUColorStandartPalette.tile
             VStack(alignment: .leading, spacing: 16) {
                 Image(systemName: "pencil.and.outline")
-                Text(viewModel.workspaceTitle)
+                TextField("", text: $viewModel.workspaceTitle)
                     .font(.custom("Comfortaa", size: 18.0).weight(.bold))
                 RoundedRectangle(cornerRadius: 1)
                     .fill(.white.opacity(0.2))
@@ -130,7 +131,13 @@ struct WorkspaceScreen_Previews: PreviewProvider {
 
     static let viewModel = WorkspaceViewModel(
         appState: SUAppStateProviderMock(),
-        workspaceManager: SUManagerWorkspaceMock(),
+        workspaceManager: SUManagerWorkspaceMock(meta: {
+            .empty
+        }, title: {
+            "Title"
+        }, documents: {
+            []
+        }),
         userManager: SUManagerUserMock(),
         workspaceMeta: .empty
     )

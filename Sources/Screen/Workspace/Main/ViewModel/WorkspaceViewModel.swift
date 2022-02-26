@@ -13,7 +13,7 @@ import SUFoundation
 public final class WorkspaceViewModel: ObservableObject {
 
     @Published public private(set) var navigationTitle: String = "Workspace"
-    @Published public private(set) var workspaceTitle: String = ""
+    @Published public var workspaceTitle: String = ""
     @Published public private(set) var membersCount: Int = 0
     @Published public private(set) var viewItems: [ListTileViewItem] = []
 
@@ -87,6 +87,13 @@ private extension WorkspaceViewModel {
                 viewItems = workspace.documents.map {
                     .init(id: $0.meta.id, iconText: "", title: $0.title)
                 }
+            }
+            .store(in: &disposeBag)
+
+        $workspaceTitle
+            .debounce(for: 2.0, scheduler: DispatchQueue.main)
+            .sink { value in
+                
             }
             .store(in: &disposeBag)
     }

@@ -24,6 +24,14 @@ public extension SUWorkspaceMeta {
 public struct SUShallowWorkspace {
     public let meta: SUWorkspaceMeta
     public let title: String
+
+    public init(
+        meta: SUWorkspaceMeta,
+        title: String
+    ) {
+        self.meta = meta
+        self.title = title
+    }
 }
 
 public struct SUWorkspace {
@@ -31,6 +39,15 @@ public struct SUWorkspace {
     public let title: String
     public let documents: [SUShallowDocument]
 
+    public init(
+        meta: SUWorkspaceMeta,
+        title: String,
+        documents: [SUShallowDocument]
+    ) {
+        self.meta = meta
+        self.title = title
+        self.documents = documents
+    }
 //    enum CodingKeys: String, CodingKey {
 //        case id
 //        case title

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SUDesign
+import SUFoundation
 
 struct AccountScreen {
 
@@ -94,6 +95,7 @@ extension AccountScreen: View {
                     ZStack {
                         VStack {
                             SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
+                                .frame(width: 36.0, height: 36.0)
                         }
                         .padding(.horizontal, 16)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -151,11 +153,14 @@ extension AccountScreen: View {
     }
 }
 
-//struct AccountScreen_Previews: PreviewProvider {
-//    
-//    static let viewModel = AccountViewModel(environment: .preview)
-//
-//    static var previews: some View {
-//        AccountScreen(viewModel: viewModel)
-//    }
-//}
+struct AccountScreen_Previews: PreviewProvider {
+
+    static let viewModel = AccountViewModel(
+        appState: SUAppStateProviderMock(),
+        userManager: SUManagerUserMock()
+    )
+
+    static var previews: some View {
+        AccountScreen(viewModel: viewModel)
+    }
+}
