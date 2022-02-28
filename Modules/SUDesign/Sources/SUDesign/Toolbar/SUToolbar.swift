@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public struct SUToolbar: View {
+public struct SUToolbar {
 
     public enum Row {
         case actionNext
@@ -23,7 +23,12 @@ public struct SUToolbar: View {
             public let type: Row
             public let action: () -> Void
 
-            public init(icon: String, title: String, type: Row, action: @escaping () -> Void) {
+            public init(
+                icon: String,
+                title: String,
+                type: Row,
+                action: @escaping () -> Void
+            ) {
                 self.icon = icon
                 self.title = title
                 self.type = type
@@ -35,7 +40,10 @@ public struct SUToolbar: View {
         public let icon: String
         public let twins: [Twin]
 
-        public init(icon: String, twins: [Twin]) {
+        public init(
+            icon: String,
+            twins: [Twin]
+        ) {
             self.icon = icon
             self.twins = twins
         }
@@ -44,99 +52,106 @@ public struct SUToolbar: View {
     @Namespace private var namespace
 
     @State private var selectedTwins: [Item.Twin] = []
-    @Binding var isExpanded: Bool
+    @State private var isExpanded: Bool = false
 
     private let defaultTwins: [Item.Twin]
     private let leftItems: [Item]
     private let rightItems: [Item]
-    private let middleItem: Item?
 
-    public init(isExpanded: Binding<Bool>,
-         defaultTwins: [Item.Twin] = [],
-         leftItems: [Item] = [],
-         rightItems: [Item] = [],
-         middleItem: Item? = nil)
-    {
-        assert(leftItems.count < 3)
-        assert(rightItems.count < 3)
-
-        self._isExpanded = isExpanded
-        self.defaultTwins = defaultTwins
-        self.leftItems = leftItems
-        self.rightItems = rightItems
-        self.middleItem = middleItem
-
-        selectedTwins = defaultTwins
+    public init(
+        defaultTwins: () -> [Item.Twin] = { [ ] },
+        leftItems: () -> [Item] = { [] },
+        rightItems: () -> [Item] = { [] }
+    ) {
+        self.defaultTwins = defaultTwins()
+        self.leftItems = leftItems()
+        self.rightItems = rightItems()
     }
+}
+
+extension SUToolbar: View {
 
     public var body: some View {
-        if isExpanded {
-            expandedBar
-        } else {
-            unexpandedBar
+        Group {
+            if isExpanded {
+                expandedBar
+            } else {
+                unexpandedBar
+            }
+        }
+        .onAppear {
+            selectedTwins = defaultTwins
         }
     }
+}
 
-    private var expandedBar: some View {
-        VStack(spacing: 16.0) {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(SUColorStandartPalette.secondary2)
-                .frame(width: 48, height: 4)
-            VStack {
-                ForEach(selectedTwins) { twin in
-                    HStack {
-                        HStack(spacing: 12.0) {
-                            Image(systemName: twin.icon)
-                                .font(.system(size: 24.0).weight(.regular))
-                            Text(twin.title)
-                                .font(.system(size: 16.0).weight(.bold))
+private extension SUToolbar {
+
+    var topNotch: some View {
+        RoundedRectangle(cornerRadius: 20)
+            .fill(SUColorStandartPalette.secondary2)
+            .frame(width: 40, height: 4)
+    }
+
+    var expandedBar: some View {
+        VStack {
+            VStack(spacing: 16.0) {
+                topNotch
+                VStack {
+                    ForEach(selectedTwins) { twin in
+                        HStack {
+                            HStack(spacing: 12.0) {
+                                Image(systemName: twin.icon)
+                                    .font(.system(size: 24.0).weight(.regular))
+                                Text(twin.title)
+                                    .font(.system(size: 16.0).weight(.bold))
+                            }
+                            Spacer()
+                            switch twin.type {
+                            case .action:
+                                EmptyView()
+                            case .actionNext:
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 24.0).weight(.regular))
+                            }
                         }
-                        Spacer()
-                        switch twin.type {
-                        case .action:
-                            EmptyView()
-                        case .actionNext:
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 24.0).weight(.regular))
-                        }
+                        .foregroundColor(SUColorStandartPalette.text)
+                        .padding(.horizontal, 8.0)
+                        .padding(.vertical, 16.0)
+                        .onTapGesture(perform: twin.action)
                     }
-                    .foregroundColor(SUColorStandartPalette.text)
-                    .padding(.horizontal, 8.0)
-                    .padding(.vertical, 16.0)
-                    .onTapGesture(perform: twin.action)
                 }
             }
-        }
-        .padding(16.0)
-        .background {
-            SUColorStandartPalette.background
-                .matchedGeometryEffect(id: "background", in: namespace, isSource: isExpanded)
-        }
-        .mask {
-            RoundedRectangle(cornerRadius: 20.0, style: .continuous)
-                .matchedGeometryEffect(id: "mask", in: namespace, isSource: isExpanded)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 20.0, style: .continuous)
-                .stroke()
-                .fill(.white.opacity(0.04))
-                .matchedGeometryEffect(id: "overlay", in: namespace, isSource: isExpanded)
-        }
-        .shadow(color: .black.opacity(0.18), radius: 6.0, x: 0.0, y: 4.0)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 16.0)
-        .onTapGesture {
-            withAnimation {
-                isExpanded = false
-                selectedTwins = defaultTwins
+            .padding(16.0)
+            .frame(maxWidth: .infinity)
+            .background {
+                SUColorStandartPalette.background
+                    .matchedGeometryEffect(id: "background", in: namespace, isSource: isExpanded)
             }
+            .mask {
+                RoundedRectangle(cornerRadius: 20.0, style: .continuous)
+                    .matchedGeometryEffect(id: "mask", in: namespace, isSource: isExpanded)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 20.0, style: .continuous)
+                    .stroke()
+                    .fill(.white.opacity(0.04))
+                    .matchedGeometryEffect(id: "overlay", in: namespace, isSource: isExpanded)
+            }
+            .shadow(color: .black.opacity(0.18), radius: 6.0, x: 0.0, y: 4.0)
+            .onTapGesture {
+                withAnimation {
+                    isExpanded = false
+                }
+            }
+            .padding(.horizontal, 12.0)
         }
     }
 
-    private var unexpandedBar: some View {
+    var unexpandedBar: some View {
         GeometryReader { proxy in
-            HStack {
-                ZStack {
+            VStack {
+                VStack {
                     HStack {
                         HStack(spacing: 12.0) {
                             ForEach(leftItems) { item in
@@ -146,23 +161,14 @@ public struct SUToolbar: View {
                                         isExpanded = true
                                     }
                                 }
-                                .frame(width: 48.0, height: 48.0)
+                                .frame(width: proxy.size.width * 0.128, height: proxy.size.width * 0.128)
                             }
                             Spacer()
                         }
-                        .frame(maxWidth: .infinity)
-                        HStack {
-                            if let item = middleItem {
-                                SUButtonCircular(icon: item.icon) {
-                                    selectedTwins = item.twins
-                                    withAnimation {
-                                        isExpanded = true
-                                    }
-                                }
-                                .frame(width: 48.0, height: 48.0)
-                            }
+                        VStack {
+                            topNotch
+                            Spacer()
                         }
-                        .frame(maxWidth: .infinity)
                         HStack(spacing: 12.0) {
                             Spacer()
                             ForEach(rightItems) { item in
@@ -172,13 +178,13 @@ public struct SUToolbar: View {
                                         isExpanded = true
                                     }
                                 }
-                                .frame(width: 48.0, height: 48.0)
+                                .frame(width: proxy.size.width * 0.128, height: proxy.size.width * 0.128)
                             }
                         }
-                        .frame(maxWidth: .infinity)
                     }
                 }
                 .padding(16.0)
+                .frame(width: proxy.size.width - 24.0)
                 .background {
                     SUColorStandartPalette.background
                         .matchedGeometryEffect(id: "background", in: namespace, isSource: !isExpanded)
@@ -194,10 +200,10 @@ public struct SUToolbar: View {
                         .matchedGeometryEffect(id: "overlay", in: namespace, isSource: !isExpanded)
                 }
                 .shadow(color: .black.opacity(0.18), radius: 6.0, x: 0.0, y: 4.0)
-                .frame(maxWidth: proxy.size.width - 16.0)
                 .onTapGesture {
                     guard !defaultTwins.isEmpty else { return }
                     withAnimation {
+                        selectedTwins = defaultTwins
                         isExpanded = true
                     }
                 }
@@ -208,38 +214,45 @@ public struct SUToolbar: View {
     }
 }
 
-//struct SUToolbar_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ZStack {
-//            SUColorStandartPalette.background
-//                .ignoresSafeArea()
-//            VStack {
-//                Spacer()
-//                SUToolbar(isExpanded: .constant(true),
-//                    defaultTwins: [
-//                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
-//                ], leftItems: [
-//                    SUToolbar.Item(icon: "gear", twins: [
-//                        SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
-//                    ]),
-//                    SUToolbar.Item(icon: "gear", twins: [
-//                        SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
-//                    ])
-//                ], rightItems: [
-//                    SUToolbar.Item(icon: "gear", twins: [
-//                        SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
-//                    ]),
-//                    SUToolbar.Item(icon: "gear", twins: [
-//                        SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
-//                    ])
-//                ], middleItem: SUToolbar.Item(icon: "gear", twins: [
-//                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
-//                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
-//                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
-//                    SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
-//                ]))
-//            }
-//        }
-//        .previewDevice("iPhone 11 Pro")
-//    }
-//}
+// MARK: - Preview
+
+struct SUToolbar_Previews: PreviewProvider {
+    static var previews: some View {
+        ZStack {
+            SUColorStandartPalette.tile
+                .ignoresSafeArea()
+            VStack {
+                Spacer()
+                SUToolbar(
+                    defaultTwins: {
+                        [
+                            SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
+                            SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
+                            SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                        ]
+                    },
+                    leftItems: {
+                        [
+                            SUToolbar.Item(icon: "gear", twins: [
+                                SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                            ]),
+                            SUToolbar.Item(icon: "gear", twins: [
+                                SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                            ])
+                        ]
+                    },
+                    rightItems: {
+                        [
+                            SUToolbar.Item(icon: "gear", twins: [
+                                SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                            ]),
+                            SUToolbar.Item(icon: "gear", twins: [
+                                SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+                            ])
+                        ]
+                    }
+                )
+            }
+        }
+    }
+}

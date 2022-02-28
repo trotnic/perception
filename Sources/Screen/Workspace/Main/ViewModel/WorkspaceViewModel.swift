@@ -24,10 +24,12 @@ public final class WorkspaceViewModel: ObservableObject {
 
     private var disposeBag = Set<AnyCancellable>()
 
-    public init(appState: SUAppStateProvider,
-                workspaceManager: SUManagerWorkspace,
-                userManager: SUManagerUser,
-                workspaceMeta: SUWorkspaceMeta) {
+    public init(
+        appState: SUAppStateProvider,
+        workspaceManager: SUManagerWorkspace,
+        userManager: SUManagerUser,
+        workspaceMeta: SUWorkspaceMeta
+    ) {
         self.appState = appState
         self.workspaceManager = workspaceManager
         self.userManager = userManager

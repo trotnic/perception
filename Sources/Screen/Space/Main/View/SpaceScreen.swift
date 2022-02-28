@@ -14,8 +14,6 @@ import SUFoundation
 struct SpaceScreen {
     @StateObject var spaceViewModel: SpaceViewModel
     @StateObject var settingsViewModel: ToolbarSettingsViewModel
-
-    @State private var isToolbarExpanded: Bool = false
 }
 
 extension SpaceScreen: View {
@@ -27,13 +25,6 @@ extension SpaceScreen: View {
                     .ignoresSafeArea()
                 VStack {
                     ZStack {
-                        Group {
-                            SUButtonCircular(icon: "plus") {
-                                spaceViewModel.createAction()
-                            }
-                            .frame(width: 36.0, height: 36.0)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .trailing)
                         Text(spaceViewModel.title)
                             .font(.custom("Comfortaa", size: 20).weight(.bold))
                             .foregroundColor(SUColorStandartPalette.text)
@@ -47,17 +38,13 @@ extension SpaceScreen: View {
                         .padding(16)
                     }
                     .frame(maxHeight: .infinity)
-                    SUToolbar(isExpanded: $isToolbarExpanded,
-                              defaultTwins: [
-                                SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
-                              ],
-                              leftItems: [
-                                .init(icon: "gear", twins: [
-                                    .init(icon: "person", title: "Account", type: .actionNext) {
-                                        settingsViewModel.accountAction()
-                                    }
-                                ])
-                    ])
+                }
+                .overlay {
+                    HStack {
+                        toolbar
+                    }
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .padding(.bottom, 10.0)
                 }
             }
         }
@@ -65,11 +52,47 @@ extension SpaceScreen: View {
             await spaceViewModel.load()
         }
     }
+}
 
-    @ViewBuilder private var listItems: some View {
-        LazyVGrid(columns: [
-            .init(.flexible(minimum: .zero, maximum: .infinity))
-        ], spacing: 24) {
+private extension SpaceScreen {
+
+    var toolbar: some View {
+        SUToolbar(
+            defaultTwins: {
+                [
+                    SUToolbar.Item.Twin(
+                        icon: "doc",
+                        title: "Create workspace",
+                        type: .actionNext,
+                        action: spaceViewModel.createAction
+                    )
+                ]
+            },
+            leftItems: {
+                [
+                    SUToolbar.Item(
+                        icon: "gear",
+                        twins: [
+                            SUToolbar.Item.Twin(
+                                icon: "person",
+                                title: "Account",
+                                type: .actionNext,
+                                action: settingsViewModel.accountAction
+                            )
+                        ]
+                    )
+                ]
+            }
+        )
+    }
+
+    var listItems: some View {
+        LazyVGrid(
+            columns: [
+                GridItem(.flexible(minimum: .zero, maximum: .infinity))
+            ],
+            spacing: 24.0
+        ) {
             ForEach(spaceViewModel.viewItems) { item in
                 SUListTile(
                     emoji: item.iconText,
@@ -110,6 +133,7 @@ struct SpaceScreen_Previews: PreviewProvider {
             spaceViewModel: spaceViewModel,
             settingsViewModel: settingsViewModel
         )
+//            .previewDevice("iPod touch (7th generation)")
             .previewDevice("iPhone 13 mini")
     }
 }

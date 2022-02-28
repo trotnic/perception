@@ -22,7 +22,7 @@ public final class UserSession {
 public extension UserSession {
 
     var isAuthenticated: Bool {
-        auth.currentUserUnwrapped.isAuthenticated
+        auth.currentUser?.isAuthenticated ?? false
     }
 
     var userId: String {

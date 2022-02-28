@@ -23,6 +23,7 @@ private struct UITextViewWrapper: UIViewRepresentable {
     func makeUIView(context: UIViewRepresentableContext<UITextViewWrapper>) -> UITextView {
         let textField = UITextView()
         textField.delegate = context.coordinator
+        textField.translatesAutoresizingMaskIntoConstraints = false
 
         textField.isEditable = true
         textField.font = UIFont.preferredFont(forTextStyle: .body)
@@ -62,17 +63,16 @@ private struct UITextViewWrapper: UIViewRepresentable {
 
     final class Coordinator: NSObject, UITextViewDelegate {
         @Binding var text: String
-        var calculatedHeight: Binding<CGFloat>
+        @Binding var calculatedHeight: CGFloat
 
         init(text: Binding<String>, height: Binding<CGFloat>) {
             _text = text
-            self.calculatedHeight = height
+            _calculatedHeight = height
         }
 
         func textViewDidChange(_ uiView: UITextView) {
             self.text = uiView.text
-//            text.wrappedValue = uiView.text
-            UITextViewWrapper.recalculateHeight(view: uiView, result: calculatedHeight)
+            UITextViewWrapper.recalculateHeight(view: uiView, result: $calculatedHeight)
         }
     }
 

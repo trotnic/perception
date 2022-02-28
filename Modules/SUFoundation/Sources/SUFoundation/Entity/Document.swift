@@ -27,6 +27,11 @@ public struct SUShallowDocument {
     public let meta: SUDocumentMeta
     public let title: String
 
+    public init(meta: SUDocumentMeta, title: String) {
+        self.meta = meta
+        self.title = title
+    }
+
     subscript(dynamicMember member: KeyPath<SUDocumentMeta, UUID>) -> UUID {
         meta[keyPath: member]
     }

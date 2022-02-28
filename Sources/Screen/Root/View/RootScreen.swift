@@ -56,11 +56,14 @@ extension RootScreen: View {
                 .init(id: $0.parameters["wId"]!)
             }) { (meta: SUWorkspaceMeta) in
                 WorkspaceScreen(
-                    viewModel: WorkspaceViewModel(
+                    workspaceViewModel: WorkspaceViewModel(
                         appState: environment.appState,
                         workspaceManager: environment.workspaceManager,
                         userManager: environment.userManager,
                         workspaceMeta: meta
+                    ),
+                    settingsViewModel: ToolbarSettingsViewModel(
+                        appState: environment.appState
                     )
                 )
             }
@@ -83,10 +86,13 @@ extension RootScreen: View {
                       workspaceId: $0.parameters["wId"]!)
             }) { (meta: SUDocumentMeta) in
                 DocumentScreen(
-                    viewModel: DocumentViewModel(
+                    documentViewModel: DocumentViewModel(
                         appState: environment.appState,
                         documentManager: environment.documentManager,
                         documentMeta: meta
+                    ),
+                    settingsViewModel: ToolbarSettingsViewModel(
+                        appState: environment.appState
                     )
                 )
             }

@@ -13,8 +13,8 @@ import SUFoundation
 
 struct WorkspaceScreen {
 
-    @StateObject var viewModel: WorkspaceViewModel
-    @State private var workspaceTitle: String = ""
+    @StateObject var workspaceViewModel: WorkspaceViewModel
+    @StateObject var settingsViewModel: ToolbarSettingsViewModel
 }
 
 extension WorkspaceScreen: View {
@@ -26,21 +26,13 @@ extension WorkspaceScreen: View {
             VStack {
                 ZStack {
                     VStack {
-                        SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
+                        SUButtonCircular(icon: "chevron.left", action: workspaceViewModel.backAction)
                             .frame(width: 36.0, height: 36.0)
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    HStack(spacing: 12.0) {
-                        SUButtonCircular(icon: "trash", action: viewModel.deleteAction)
-                            .frame(width: 36.0, height: 36.0)
-                        SUButtonCircular(icon: "plus", action: viewModel.createAction)
-                            .frame(width: 36.0, height: 36.0)
-                    }
-                    .padding(.trailing, 16)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
                     VStack {
-                        Text(viewModel.navigationTitle)
+                        Text(workspaceViewModel.navigationTitle)
                             .font(.custom("Comfortaa", size: 20).weight(.bold))
                             .foregroundColor(SUColorStandartPalette.text)
                     }
@@ -54,21 +46,31 @@ extension WorkspaceScreen: View {
                     .padding(16)
                 }
             }
+            .overlay {
+                VStack {
+                    toolbar
+                }
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding(.bottom, 10.0)
+            }
         }
     }
+}
 
-    @ViewBuilder private var topTile: some View {
+private extension WorkspaceScreen {
+    
+    var topTile: some View {
         ZStack {
             SUColorStandartPalette.tile
             VStack(alignment: .leading, spacing: 16) {
                 Image(systemName: "pencil.and.outline")
-                TextField("", text: $viewModel.workspaceTitle)
+                TextField("", text: $workspaceViewModel.workspaceTitle)
                     .font(.custom("Comfortaa", size: 18.0).weight(.bold))
                 RoundedRectangle(cornerRadius: 1)
                     .fill(.white.opacity(0.2))
                     .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
                 HStack(spacing: 12) {
-                    Text("\(viewModel.membersCount) members")
+                    Text("\(workspaceViewModel.membersCount) members")
                         .font(.custom("Comfortaa", size: 14).weight(.bold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
@@ -77,16 +79,6 @@ extension WorkspaceScreen: View {
                                 .stroke()
                                 .fill(SUColorStandartPalette.redOutline)
                         }
-                        
-//                    Text("52 documents")
-//                        .font(.custom("Comfortaa", size: 14).weight(.bold))
-//                        .padding(.horizontal, 10)
-//                        .padding(.vertical, 5)
-//                        .overlay {
-//                            RoundedRectangle(cornerRadius: 20)
-//                                .stroke()
-//                                .fill(ColorProvider.redOutline)
-//                        }
                 }
             }
             .foregroundColor(SUColorStandartPalette.text)
@@ -101,18 +93,54 @@ extension WorkspaceScreen: View {
                 .stroke()
                 .fill(.white.opacity(0.2))
         }
-        .onAppear(perform: viewModel.load)
+        .onAppear(perform: workspaceViewModel.load)
     }
 
-    @ViewBuilder private var listItems: some View {
+    var toolbar: some View {
+        SUToolbar(
+            defaultTwins: {
+                [
+                    SUToolbar.Item.Twin(
+                        icon: "doc",
+                        title: "Create document",
+                        type: .actionNext,
+                        action: workspaceViewModel.createAction
+                    ),
+                    SUToolbar.Item.Twin(
+                        icon: "trash",
+                        title: "Delete workspace",
+                        type: .action,
+                        action: workspaceViewModel.deleteAction
+                    )
+                ]
+            },
+            leftItems: {
+                [
+                    SUToolbar.Item(
+                        icon: "gear",
+                        twins: [
+                            SUToolbar.Item.Twin(
+                                icon: "person",
+                                title: "Account",
+                                type: .actionNext,
+                                action: settingsViewModel.accountAction
+                            )
+                        ]
+                    )
+                ]
+            }
+        )
+    }
+
+    var listItems: some View {
         LazyVGrid(columns: [
-            .init(.flexible(minimum: .zero, maximum: .infinity))
+            GridItem(.flexible(minimum: .zero, maximum: .infinity))
         ], spacing: 24) {
-            ForEach(viewModel.viewItems) { item in
+            ForEach(workspaceViewModel.viewItems) { item in
                 SUListTile(emoji: item.iconText,
                            title: item.title,
                            icon: "chevron.right") {
-                    viewModel.selectItem(with: item.id)
+                    workspaceViewModel.selectItem(with: item.id)
                 }
             }
         }
@@ -129,21 +157,35 @@ extension View {
 
 struct WorkspaceScreen_Previews: PreviewProvider {
 
-    static let viewModel = WorkspaceViewModel(
+    static let workspaceViewModel = WorkspaceViewModel(
         appState: SUAppStateProviderMock(),
         workspaceManager: SUManagerWorkspaceMock(meta: {
             .empty
         }, title: {
             "Title"
         }, documents: {
-            []
+            [
+                SUShallowDocument(meta: .init(id: "#1", workspaceId: "w1"), title: "Document #1"),
+                SUShallowDocument(meta: .init(id: "#2", workspaceId: "w1"), title: "Document #2"),
+                SUShallowDocument(meta: .init(id: "#3", workspaceId: "w1"), title: "Document #3"),
+                SUShallowDocument(meta: .init(id: "#4", workspaceId: "w1"), title: "Document #4"),
+                SUShallowDocument(meta: .init(id: "#5", workspaceId: "w1"), title: "Document #5"),
+                SUShallowDocument(meta: .init(id: "#6", workspaceId: "w1"), title: "Document #6"),
+            ]
         }),
         userManager: SUManagerUserMock(),
         workspaceMeta: .empty
     )
 
+    static let settingsViewModel = ToolbarSettingsViewModel(
+        appState: SUAppStateProviderMock()
+    )
+
     static var previews: some View {
-        WorkspaceScreen(viewModel: viewModel)
+        WorkspaceScreen(
+            workspaceViewModel: workspaceViewModel,
+            settingsViewModel: settingsViewModel
+        )
             .previewDevice("iPhone 13 mini")
     }
 }
