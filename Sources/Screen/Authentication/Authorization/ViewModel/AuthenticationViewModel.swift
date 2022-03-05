@@ -20,12 +20,14 @@ public final class AuthenticationViewModel: ObservableObject {
     private var disposeBag = Set<AnyCancellable>()
 
     private let appState: SUAppStateProvider
-    private let userManager: SUManagerUser
+    private let sessionManager: SUManagerSession
 
-    public init(appState: SUAppStateProvider,
-                userManager: SUManagerUser) {
+    public init(
+        appState: SUAppStateProvider,
+        sessionManager: SUManagerSession
+    ) {
         self.appState = appState
-        self.userManager = userManager
+        self.sessionManager = sessionManager
         setupBindings()
     }
 }
@@ -37,7 +39,7 @@ public extension AuthenticationViewModel {
     func signIn() {
         Task {
             do {
-                try await userManager.signIn(email: email, password: password)
+                try await sessionManager.signIn(email: email, password: password)
                 await MainActor.run {
                     appState.change(route: .space)
                 }
@@ -52,7 +54,7 @@ public extension AuthenticationViewModel {
     func signUp() {
         Task {
             do {
-                try await userManager.signUp(email: email, password: password)
+                try await sessionManager.signUp(email: email, password: password)
                 await MainActor.run {
                     appState.change(route: .space)
                 }

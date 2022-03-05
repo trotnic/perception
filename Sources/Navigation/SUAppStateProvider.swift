@@ -17,7 +17,7 @@ public enum SUAppScreen {
     case none
     case back
     case authentication
-    case account
+    case account(SUUserMeta)
     case space
     case create
     case read(SUAppScreenContent)

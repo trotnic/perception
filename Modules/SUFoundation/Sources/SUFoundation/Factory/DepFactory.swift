@@ -33,7 +33,7 @@ public extension SUDepFactory {
 
     var userSession: UserSession { _userSession }
 
-    var userManager: UserManager { UserManager(session: _userSession) }
+    var userManager: UserManager { UserManager(repository: _repository, userSession: _userSession) }
 
     var spaceManager: SpaceManager { SpaceManager(repository: _repository) }
 

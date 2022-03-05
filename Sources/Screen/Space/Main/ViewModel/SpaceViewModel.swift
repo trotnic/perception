@@ -21,16 +21,16 @@ public final class SpaceViewModel: ObservableObject {
 
     private let appState: SUAppStateProvider
     private let spaceManager: SUManagerSpace
-    private let userManager: SUManagerUser
+    private let sessionManager: SUManagerUserIdentifiable
 
     public init(
         appState: SUAppStateProvider,
         spaceManager: SUManagerSpace,
-        userManager: SUManagerUser
+        sessionManager: SUManagerUserIdentifiable
     ) {
         self.appState = appState
         self.spaceManager = spaceManager
-        self.userManager = userManager
+        self.sessionManager = sessionManager
         _items
             .map { items in
                 items.map { item in
@@ -56,7 +56,7 @@ public extension SpaceViewModel {
     @MainActor
     func load() async {
         do {
-            _items.value = try await spaceManager.loadWorkspaces(for: userManager.userId)
+            _items.value = try await spaceManager.loadWorkspaces(for: sessionManager.userId)
         } catch {
             print(error)
         }

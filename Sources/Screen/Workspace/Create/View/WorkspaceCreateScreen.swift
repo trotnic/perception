@@ -85,7 +85,7 @@ struct WorkspaceCreateScreen_Previews: PreviewProvider {
     static let viewModel = WorkspaceCreateViewModel(
         appState: SUAppStateProviderMock(),
         workspaceManager: SUManagerWorkspaceMock(),
-        userManager: SUManagerUserMock(),
+        sessionManager: SUManagerUserPrimeMock(),
         workspaceMeta: .empty
     )
 

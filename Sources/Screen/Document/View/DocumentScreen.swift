@@ -126,7 +126,8 @@ struct DocumentScreen_Previews: PreviewProvider {
     )
 
     static let settingsViewModel = ToolbarSettingsViewModel(
-        appState: SUAppStateProviderMock()
+        appState: SUAppStateProviderMock(),
+        sessionManager: SUManagerUserPrimeMock()
     )
 
     static var previews: some View {

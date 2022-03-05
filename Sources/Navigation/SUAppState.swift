@@ -49,10 +49,10 @@ public final class SUAppState: SUAppStateProvider {
             navigator.navigate("/authentication")
             screenStack.removeAll()
             currentScreen = .authentication
-        case .account:
-            navigator.navigate("/account")
-            screenStack.append(.account)
-            currentScreen = .account
+        case .account(let userMeta):
+            navigator.navigate("/account/\(userMeta.id)")
+            screenStack.append(.account(userMeta))
+            currentScreen = .account(userMeta)
         case .space:
             navigator.navigate("/space")
             screenStack.append(.space)

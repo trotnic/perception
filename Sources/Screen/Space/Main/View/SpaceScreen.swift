@@ -121,11 +121,12 @@ struct SpaceScreen_Previews: PreviewProvider {
                 )
             ]
         }),
-        userManager: SUManagerUserMock()
+        sessionManager: SUManagerUserPrimeMock()
     )
 
     static let settingsViewModel = ToolbarSettingsViewModel(
-        appState: SUAppStateProviderMock()
+        appState: SUAppStateProviderMock(),
+        sessionManager: SUManagerUserPrimeMock()
     )
 
     static var previews: some View {

@@ -24,7 +24,7 @@ extension RootScreen: View {
                 AuthenticationScreen(
                     viewModel: AuthenticationViewModel(
                         appState: environment.appState,
-                        userManager: environment.userManager
+                        sessionManager: environment.userManager
                     )
                 )
             }
@@ -34,10 +34,11 @@ extension RootScreen: View {
                     spaceViewModel: SpaceViewModel(
                         appState: environment.appState,
                         spaceManager: environment.spaceManager,
-                        userManager: environment.userManager
+                        sessionManager: environment.userManager
                     ),
                     settingsViewModel: ToolbarSettingsViewModel(
-                        appState: environment.appState
+                        appState: environment.appState,
+                        sessionManager: environment.userManager
                     )
                 )
             }
@@ -47,7 +48,7 @@ extension RootScreen: View {
                     viewModel: SpaceCreateViewModel(
                         appState: environment.appState,
                         spaceManager: environment.spaceManager,
-                        userManager: environment.userManager
+                        sessionManager: environment.userManager
                     )
                 )
             }
@@ -59,11 +60,12 @@ extension RootScreen: View {
                     workspaceViewModel: WorkspaceViewModel(
                         appState: environment.appState,
                         workspaceManager: environment.workspaceManager,
-                        userManager: environment.userManager,
+                        sessionManager: environment.userManager,
                         workspaceMeta: meta
                     ),
                     settingsViewModel: ToolbarSettingsViewModel(
-                        appState: environment.appState
+                        appState: environment.appState,
+                        sessionManager: environment.userManager
                     )
                 )
             }
@@ -75,7 +77,7 @@ extension RootScreen: View {
                     viewModel: WorkspaceCreateViewModel(
                         appState: environment.appState,
                         workspaceManager: environment.workspaceManager,
-                        userManager: environment.userManager,
+                        sessionManager: environment.userManager,
                         workspaceMeta: meta
                     )
                 )
@@ -92,16 +94,20 @@ extension RootScreen: View {
                         documentMeta: meta
                     ),
                     settingsViewModel: ToolbarSettingsViewModel(
-                        appState: environment.appState
+                        appState: environment.appState,
+                        sessionManager: environment.userManager
                     )
                 )
             }
             .navigationTransition()
-            Route("account") {
+            Route("account/:uId", validator: {
+                .init(id: $0.parameters["uId"]!)
+            }) { (meta: SUUserMeta) in
                 AccountScreen(
                     viewModel: AccountViewModel(
                         appState: environment.appState,
-                        userManager: environment.userManager
+                        userManager: environment.userManager,
+                        userMeta: meta
                     )
                 )
             }

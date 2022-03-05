@@ -231,4 +231,13 @@ extension FireRepository: Repository {
             documentRef.delete()
         ]
     }
+
+    public func user(with id: String) async throws -> SUUser {
+        let user = try await userRef(id: id).getDocument()
+
+        guard let username = user.get("username") as? String else { throw FetchError.cantLoadEntity }
+        guard let email = user.get("email") as? String else { throw FetchError.cantLoadEntity }
+
+        return SUUser(meta: .init(id: id), username: username, email: email)
+    }
 }

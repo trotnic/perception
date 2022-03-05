@@ -12,9 +12,12 @@ import SUFoundation
 public final class RootViewModel: ObservableObject {
 
     private let appState: SUAppStateProvider
-    private let userManager: SUManagerUser
+    private let userManager: SUManagerSession
 
-    public init(appState: SUAppStateProvider, userManager: SUManagerUser) {
+    public init(
+        appState: SUAppStateProvider,
+        userManager: SUManagerSession
+    ) {
         self.appState = appState
         self.userManager = userManager
     }

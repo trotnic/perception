@@ -8,6 +8,30 @@
 
 import Foundation
 
+public struct SUUserMeta {
+    public let id: String
+
+    public init(id: String) {
+        self.id = id
+    }
+}
+
 public struct SUUser {
-    let id: String
+    public let meta: SUUserMeta
+    public let username: String
+    public let email: String
+
+    public init(
+        meta: SUUserMeta,
+        username: String,
+        email: String
+    ) {
+        self.meta = meta
+        self.username = username
+        self.email = email
+    }
+}
+
+public extension SUUser {
+    static let empty = SUUser(meta: .init(id: .empty), username: .empty, email: .empty)
 }

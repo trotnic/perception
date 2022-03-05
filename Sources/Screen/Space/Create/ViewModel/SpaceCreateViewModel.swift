@@ -16,14 +16,16 @@ public final class SpaceCreateViewModel: ObservableObject {
 
     private let appState: SUAppStateProvider
     private let spaceManager: SUManagerSpace
-    private let userManager: SUManagerUser
+    private let sessionManager: SUManagerUserIdentifiable
 
-    public init(appState: SUAppStateProvider,
-                spaceManager: SUManagerSpace,
-                userManager: SUManagerUser) {
+    public init(
+        appState: SUAppStateProvider,
+        spaceManager: SUManagerSpace,
+        sessionManager: SUManagerUserIdentifiable
+    ) {
         self.appState = appState
         self.spaceManager = spaceManager
-        self.userManager = userManager
+        self.sessionManager = sessionManager
     }
 }
 
@@ -33,7 +35,7 @@ public extension SpaceCreateViewModel {
 
     func createWorkspace() {
         Task {
-            let workspaceId = try await spaceManager.createWorkspace(name: workspaceName, userId: userManager.userId)
+            let workspaceId = try await spaceManager.createWorkspace(name: workspaceName, userId: sessionManager.userId)
             await MainActor.run {
                 appState.change(route: .read(.workspace(SUWorkspaceMeta(id: workspaceId))))
             }

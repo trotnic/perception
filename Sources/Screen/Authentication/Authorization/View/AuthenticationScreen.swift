@@ -85,7 +85,7 @@ extension AuthenticationScreen: View {
 struct AuthorizationScreen_Previews: PreviewProvider {
     static let viewModel = AuthenticationViewModel(
         appState: SUAppStateProviderMock(),
-        userManager: SUManagerUserMock()
+        sessionManager: SUManagerUserPrimeMock()
     )
 
     static var previews: some View {

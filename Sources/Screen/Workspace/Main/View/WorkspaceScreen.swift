@@ -173,12 +173,13 @@ struct WorkspaceScreen_Previews: PreviewProvider {
                 SUShallowDocument(meta: .init(id: "#6", workspaceId: "w1"), title: "Document #6"),
             ]
         }),
-        userManager: SUManagerUserMock(),
+        sessionManager: SUManagerUserPrimeMock(),
         workspaceMeta: .empty
     )
 
     static let settingsViewModel = ToolbarSettingsViewModel(
-        appState: SUAppStateProviderMock()
+        appState: SUAppStateProviderMock(),
+        sessionManager: SUManagerUserPrimeMock()
     )
 
     static var previews: some View {

@@ -6,22 +6,51 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
-public protocol SUManagerUser {
-    var isAuthenticated: Bool { get }
+public typealias SUManagerUserPrime = SUManagerUser & SUManagerSession
+
+public protocol SUManagerUserIdentifiable {
     var userId: String { get }
+}
+
+public protocol SUManagerSession: SUManagerUserIdentifiable {
+    var isAuthenticated: Bool { get }
 
     func signIn(email: String, password: String) async throws
     func signOut() throws
     func signUp(email: String, password: String) async throws
 }
 
-public struct SUManagerUserMock: SUManagerUser {
-    public var isAuthenticated: Bool { false }
-    public var userId: String { String(describing: self) }
+public protocol SUManagerUser {
+
+    func fetch(id: String) async throws -> SUUser
+}
+
+// MARK: - Mocks
+
+public struct SUManagerUserPrimeMock {
+
+    private let userIdCallback: () -> String
+    private let isAuthenticatedCallback: () -> Bool
+    private let userCallback: () -> SUUser
+
+    public init(
+        userId: @escaping () -> String = { .empty },
+        isAuthenticated: @escaping () -> Bool = { false },
+        user: @escaping () -> SUUser = { .empty }
+    ) {
+        userIdCallback = userId
+        isAuthenticatedCallback = isAuthenticated
+        userCallback = user
+    }
+}
+
+extension SUManagerUserPrimeMock: SUManagerUserPrime {
+    public var isAuthenticated: Bool { isAuthenticatedCallback() }
+    public var userId: String { userIdCallback() }
 
     public func signIn(email: String, password: String) async throws {}
     public func signOut() throws {}
     public func signUp(email: String, password: String) async throws {}
 
-    public init() {}
+    public func fetch(id: String) async throws -> SUUser { userCallback() }
 }

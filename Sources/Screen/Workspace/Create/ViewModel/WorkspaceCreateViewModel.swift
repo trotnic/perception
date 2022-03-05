@@ -15,16 +15,18 @@ public final class WorkspaceCreateViewModel: ObservableObject {
 
     private let appState: SUAppStateProvider
     private let workspaceManager: SUManagerWorkspace
-    private let userManager: SUManagerUser
+    private let sessionManager: SUManagerUserIdentifiable
     private let workspaceMeta: SUWorkspaceMeta
 
-    public init(appState: SUAppStateProvider,
-                workspaceManager: SUManagerWorkspace,
-                userManager: SUManagerUser,
-                workspaceMeta: SUWorkspaceMeta) {
+    public init(
+        appState: SUAppStateProvider,
+        workspaceManager: SUManagerWorkspace,
+        sessionManager: SUManagerUserIdentifiable,
+        workspaceMeta: SUWorkspaceMeta
+    ) {
         self.appState = appState
         self.workspaceManager = workspaceManager
-        self.userManager = userManager
+        self.sessionManager = sessionManager
         self.workspaceMeta = workspaceMeta
     }
 }
@@ -39,7 +41,7 @@ public extension WorkspaceCreateViewModel {
         Task {
             let documentId = try await workspaceManager.createDocument(title: itemName,
                                                                        workspaceId: workspaceMeta.id,
-                                                                       userId: userManager.userId)
+                                                                       userId: sessionManager.userId)
             appState.change(route: .read(.document(SUDocumentMeta(id: documentId, workspaceId: workspaceMeta.id))))
         }
     }

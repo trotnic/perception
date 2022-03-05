@@ -11,7 +11,7 @@ let project = Project(
         .remote(url: "https://github.com/vadymmarkov/Fakery.git", requirement: .upToNextMajor(from: .init(5, 1, 0))),
         .remote(url: "https://github.com/frzi/SwiftUIRouter.git", requirement: .upToNextMajor(from: .init(1, 3, 1))),
         .package(path: "Modules/SUDesign"),
-        .package(path: "Modules/SUFoundation")
+        .package(path: "Modules/SUFoundation"),
     ],
     targets: [
         Target(
@@ -34,7 +34,7 @@ let project = Project(
                 .package(product: "Fakery"),
                 .package(product: "SwiftUIRouter"),
                 .package(product: "SUDesign"),
-                .package(product: "SUFoundation")
+                .package(product: "SUFoundation"),
             ],
             coreDataModels: [
                 CoreDataModel(.relativeToCurrentFile("Sources/Model/Persistance/CoreData/Perception.xcdatamodeld"), currentVersion: "Perception")

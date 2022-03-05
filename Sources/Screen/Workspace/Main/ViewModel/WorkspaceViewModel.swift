@@ -19,7 +19,7 @@ public final class WorkspaceViewModel: ObservableObject {
 
     private let appState: SUAppStateProvider
     private let workspaceManager: SUManagerWorkspace
-    private let userManager: SUManagerUser
+    private let sessionManager: SUManagerUserIdentifiable
     private let workspaceMeta: SUWorkspaceMeta
 
     private var disposeBag = Set<AnyCancellable>()
@@ -27,12 +27,12 @@ public final class WorkspaceViewModel: ObservableObject {
     public init(
         appState: SUAppStateProvider,
         workspaceManager: SUManagerWorkspace,
-        userManager: SUManagerUser,
+        sessionManager: SUManagerUserIdentifiable,
         workspaceMeta: SUWorkspaceMeta
     ) {
         self.appState = appState
         self.workspaceManager = workspaceManager
-        self.userManager = userManager
+        self.sessionManager = sessionManager
         self.workspaceMeta = workspaceMeta
         setupBindings()
     }
@@ -69,7 +69,7 @@ public extension WorkspaceViewModel {
 
     func deleteAction() {
         Task {
-            try await workspaceManager.deleteWorkspace(id: workspaceMeta.id, userId: userManager.userId)
+            try await workspaceManager.deleteWorkspace(id: workspaceMeta.id, userId: sessionManager.userId)
             await MainActor.run {
                 appState.change(route: .space)
             }
