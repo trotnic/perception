@@ -1,6 +1,13 @@
 #!/bin/zsh
 
-alias swiftlint="/opt/homebrew/bin/swiftlint"
+arch=`{uname -m}`
+
+if [ $arch = "arm64" ]
+then
+    alias swiftlint="/opt/homebrew/bin/swiftlint"
+else
+    alias swiftlint="/usr/local/bin/swiftlint"
+fi
 
 echo $PWD
 
