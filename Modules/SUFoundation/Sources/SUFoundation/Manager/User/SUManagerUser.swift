@@ -6,6 +6,8 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
+
 public typealias SUManagerUserPrime = SUManagerUser & SUManagerSession
 
 public protocol SUManagerUserIdentifiable {
@@ -22,12 +24,18 @@ public protocol SUManagerSession: SUManagerUserIdentifiable {
 
 public protocol SUManagerUser {
 
+    var user: CurrentValueSubject<SUUser, Never> { get }
+
     func fetch(id: String) async throws -> SUUser
+    func update(id: String, name: String) async throws
+    func setup(id: String)
 }
 
 // MARK: - Mocks
 
 public struct SUManagerUserPrimeMock {
+
+    public let user = CurrentValueSubject<SUUser, Never>(.empty)
 
     private let userIdCallback: () -> String
     private let isAuthenticatedCallback: () -> Bool
@@ -45,6 +53,7 @@ public struct SUManagerUserPrimeMock {
 }
 
 extension SUManagerUserPrimeMock: SUManagerUserPrime {
+
     public var isAuthenticated: Bool { isAuthenticatedCallback() }
     public var userId: String { userIdCallback() }
 
@@ -53,4 +62,6 @@ extension SUManagerUserPrimeMock: SUManagerUserPrime {
     public func signUp(email: String, password: String) async throws {}
 
     public func fetch(id: String) async throws -> SUUser { userCallback() }
+    public func update(id: String, name: String) async throws {}
+    public func setup(id: String) {}
 }

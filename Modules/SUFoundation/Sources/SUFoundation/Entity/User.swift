@@ -16,6 +16,10 @@ public struct SUUserMeta {
     }
 }
 
+public extension SUUserMeta {
+    static let empty = SUUserMeta(id: .empty)
+}
+
 public struct SUUser {
     public let meta: SUUserMeta
     public let username: String

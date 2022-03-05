@@ -240,4 +240,25 @@ extension FireRepository: Repository {
 
         return SUUser(meta: .init(id: id), username: username, email: email)
     }
+
+    public func updateUser(with id: String, name: String) async throws {
+        try await userRef(id: id)
+            .updateData([
+                "username": name
+            ])
+    }
+
+    public func startListenUser(with id: String, callback: @escaping (SUUser) -> Void) {
+        let listener = userRef(id: id)
+            .addSnapshotListener { snapshot, error in
+                guard let username = snapshot?.get("username") as? String else { return }
+                guard let email = snapshot?.get("email") as? String else { return }
+                callback(SUUser(meta: SUUserMeta(id: id), username: username, email: email))
+            }
+        listeners[id] = listener
+    }
+
+    public func stopListen(with id: String) {
+        listeners[id] = nil
+    }
 }

@@ -21,4 +21,8 @@ public protocol Repository {
     func deleteWorkspace(id: String, userId: String) async throws
 
     func user(with id: String) async throws -> SUUser
+    func updateUser(with id: String, name: String) async throws
+
+    func startListenUser(with id: String, callback: @escaping (SUUser) -> Void)
+    func stopListen(with id: String)
 }

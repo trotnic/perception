@@ -13,9 +13,10 @@ import SUFoundation
 struct AccountScreen {
 
     @StateObject var viewModel: AccountViewModel
-    @State private var isEditing = true
+    @State private var isEditing = false
 
     @FocusState private var nameIsFocused: Bool
+    @Namespace var namespace
 }
 
 extension AccountScreen: View {
@@ -43,23 +44,12 @@ private extension AccountScreen {
         VStack(spacing: 32.0) {
             Circle()
                 .frame(width: 120.0, height: 120.0)
-            SUSheet(
-                height: size.height * 0.6108374384,
-                title: "Edit profile",
-                content: {
-                    [
-                        SUSheet.SUSheetItem(
-                            title: "Name",
-                            placeholder: "Some text",
-                            text: .constant("Uladzislau Volchyk")
-                        )
-                    ]
-                }
-            )
+
+            Sheet(height: size.height * 0.6108374384)
                 .padding(.horizontal, 16.0)
-                .focused($nameIsFocused)
+
             Button {
-                viewModel.logoutAction()
+                viewModel.saveAction()
             } label: {
                 Text("Save")
                     .font(.system(size: 20.0).weight(.bold))
@@ -69,6 +59,7 @@ private extension AccountScreen {
                     .background(SUColorStandartPalette.tint)
                     .cornerRadius(20.0)
             }
+            .matchedGeometryEffect(id: "bottom_button", in: namespace)
         }
         .frame(maxWidth: .infinity)
         .onTapGesture {
@@ -99,26 +90,13 @@ private extension AccountScreen {
                         Text(viewModel.email)
                             .font(.system(size: 14.0))
                     }
-                    Button {
-                        isEditing = true
-                    } label: {
-                        Text("Edit profile")
-                            .font(.system(size: 14.0))
+                    SUButtonStroke(text: "Edit profile") {
+                        withAnimation {
+                            isEditing = true
+                        }
                     }
                 }
-
-                VStack(alignment: .leading) {
-                    Text("Title")
-                    Text("Software Engineer")
-                        .font(.system(size: 16.0))
-                        .padding(16.0)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(SUColorStandartPalette.tile)
-                        .cornerRadius(10.0)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            
             Spacer()
             Button {
                 viewModel.logoutAction()
@@ -131,18 +109,77 @@ private extension AccountScreen {
                     .background(SUColorStandartPalette.destructive)
                     .cornerRadius(20.0)
             }
+            .matchedGeometryEffect(id: "bottom_button", in: namespace)
         }
         .padding(.horizontal, 16.0)
     }
+
+    func Sheet(height: CGFloat) -> some View {
+        ZStack {
+            VStack(spacing: .zero) {
+                HStack {
+                    SUButtonCircular(icon: "xmark", action: {
+                        withAnimation {
+                            isEditing = false
+                        }
+                    })
+                        .frame(width: 36.0, height: 36.0)
+                        .padding(.vertical, 20.0)
+                    Spacer()
+                    VStack {
+                        RoundedRectangle(cornerRadius: 10.0)
+                            .fill(SUColorStandartPalette.secondary2)
+                            .frame(width: 72.0, height: 4.0)
+                        Text("Edit profile")
+                            .font(.system(size: 18.0))
+                            .foregroundColor(SUColorStandartPalette.text)
+                    }
+
+                    Spacer()
+                    SUButtonStroke(text: "Reset") {
+                        viewModel.resetAction()
+                    }
+                }
+                .padding(.horizontal, 16.0)
+
+                ScrollView {
+                    VStack(spacing: 24.0) {
+                        VStack(alignment: .leading, spacing: 16.0) {
+                            Text("Name")
+                                .font(.system(size: 16.0, weight: .bold))
+                                .foregroundColor(SUColorStandartPalette.secondary1)
+                            SUTextFieldCapsule(
+                                text: $viewModel.username,
+                                placeholder: "Start typing"
+                            )
+                        }
+                        .padding(.horizontal, 16.0)
+                        Spacer()
+                    }
+                }
+                .padding(.vertical, 20.0)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Spacer()
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: height)
+        .background(SUColorStandartPalette.background)
+        .cornerStroke(
+            20.0,
+            corners: .allCorners,
+            color: SUColorStandartPalette.tile
+        )
+    }
 }
 
-struct AccountScreen_Previews: PreviewProvider {
+struct AccountScreenSS_Previews: PreviewProvider {
 
     static let viewModel = AccountViewModel(
         appState: SUAppStateProviderMock(),
         userManager: SUManagerUserPrimeMock(
             userId: { .empty },
-            isAuthenticated: { true },
+            isAuthenticated: { false },
             user: {
                 SUUser(
                     meta: .init(id: .empty),
@@ -151,10 +188,12 @@ struct AccountScreen_Previews: PreviewProvider {
                 )
             }
         ),
-        userMeta: .init(id: .empty)
+        userMeta: .empty
     )
 
     static var previews: some View {
-        AccountScreen(viewModel: viewModel)
+        ZStack {
+            AccountScreen(viewModel: viewModel)
+        }
     }
 }
