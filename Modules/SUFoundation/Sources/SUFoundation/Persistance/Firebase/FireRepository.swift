@@ -127,10 +127,10 @@ extension FireRepository: Repository {
         let workspaceSnapshot = try await workspaceRef(id: id).getDocument()
 
         guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantCreate }
-        guard let documents = workspaceSnapshot.get("documents") as? Array<DocumentReference> else { throw FetchError.cantCreate }
+        guard let documents = workspaceSnapshot.get("documents") as? Array<String> else { throw FetchError.cantCreate }
 
-        let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { document in
-            let document = try await document.getDocument()
+        let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
+            let document = try await documentRef(id: documentId).getDocument()
             guard let title = document.get("title") as? String else { return nil }
             return SUShallowDocument(meta: SUDocumentMeta(id: document.documentID, workspaceId: id), title: title)
         }
