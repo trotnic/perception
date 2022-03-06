@@ -10,12 +10,18 @@ import SwiftUI
 
 public struct SUTextFieldCapsule {
 
-    @Binding var text: String
-    let placeholder: String
+    @Binding private var text: String
+    private let placeholder: String
+    private let paddings: UIEdgeInsets
 
-    public init(text: Binding<String>, placeholder: String) {
+    public init(
+        text: Binding<String>,
+        placeholder: String,
+        paddings: UIEdgeInsets = UIEdgeInsets(top: 16.0, left: 16.0, bottom: 16.0, right: 16.0)
+    ) {
         _text = text
         self.placeholder = placeholder
+        self.paddings = paddings
     }
 }
 
@@ -25,9 +31,13 @@ extension SUTextFieldCapsule: View {
         TextField("", text: _text)
             .placeholder(when: text.isEmpty) {
                 Text(placeholder)
+                    .font(.system(size: 14.0))
                     .foregroundColor(SUColorStandartPalette.secondary1)
             }
-            .padding(16.0)
+            .padding(.leading, paddings.left)
+            .padding(.top, paddings.top)
+            .padding(.trailing, paddings.right)
+            .padding(.bottom, paddings.bottom)
             .background(SUColorStandartPalette.tile)
             .cornerRadius(10.0)
             .foregroundColor(SUColorStandartPalette.text)

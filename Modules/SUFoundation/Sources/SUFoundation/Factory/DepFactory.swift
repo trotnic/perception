@@ -37,6 +37,8 @@ public extension SUDepFactory {
 
     var spaceManager: SpaceManager { SpaceManager(repository: _repository) }
 
+    var searchManager: SearchManager { SearchManager(repository: _repository) }
+
     var workspaceManager: WorkspaceManager { WorkspaceManager(repository: _repository) }
 
     var documentManager: DocumentManager { DocumentManager(repository: _repository) }

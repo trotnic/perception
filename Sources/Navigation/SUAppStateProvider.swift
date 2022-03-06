@@ -21,6 +21,7 @@ public enum SUAppScreen {
     case space
     case create
     case read(SUAppScreenContent)
+    case search
 }
 
 public enum SUAppIntention {

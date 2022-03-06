@@ -14,6 +14,7 @@ import SUFoundation
 struct SpaceScreen {
     @StateObject var spaceViewModel: SpaceViewModel
     @StateObject var settingsViewModel: ToolbarSettingsViewModel
+    @StateObject var searchViewModel: ToolbarSearchViewModel
 }
 
 extension SpaceScreen: View {
@@ -80,6 +81,17 @@ private extension SpaceScreen {
                                 action: settingsViewModel.accountAction
                             )
                         ]
+                    ),
+                    SUToolbar.Item(
+                        icon: "magnifyingglass",
+                        twins: [
+                            SUToolbar.Item.Twin(
+                                icon: "magnifyingglass",
+                                title: "Search",
+                                type: .actionNext,
+                                action: searchViewModel.searchAction
+                            )
+                        ]
                     )
                 ]
             }
@@ -129,12 +141,16 @@ struct SpaceScreen_Previews: PreviewProvider {
         sessionManager: SUManagerUserPrimeMock()
     )
 
+    static let searchViewModel = ToolbarSearchViewModel(
+        appState: SUAppStateProviderMock()
+    )
+
     static var previews: some View {
         SpaceScreen(
             spaceViewModel: spaceViewModel,
-            settingsViewModel: settingsViewModel
+            settingsViewModel: settingsViewModel,
+            searchViewModel: searchViewModel
         )
-//            .previewDevice("iPod touch (7th generation)")
             .previewDevice("iPhone 13 mini")
     }
 }

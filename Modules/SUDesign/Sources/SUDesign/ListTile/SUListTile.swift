@@ -15,10 +15,12 @@ public struct SUListTile {
     private let icon: String
     private let action: () -> Void
 
-    public init(emoji: String,
-                title: String,
-                icon: String,
-                action: @escaping () -> Void) {
+    public init(
+        emoji: String,
+        title: String,
+        icon: String,
+        action: @escaping () -> Void
+    ) {
         self.emoji = emoji
         self.title = title
         self.icon = icon
@@ -78,11 +80,11 @@ struct SUListTile_Previews: PreviewProvider {
         ZStack {
             SUColorStandartPalette.background
                 .ignoresSafeArea()
-            SUListTile(emoji: "🔥",
-                       title: "Amazing workspace",
-                       icon: "chevron.right") {
-                
-            }
+            SUListTile(
+                emoji: "🔥",
+                title: "Amazing workspace",
+                icon: "chevron.right"
+            ) {}
         }
     }
 }

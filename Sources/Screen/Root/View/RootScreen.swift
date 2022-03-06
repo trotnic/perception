@@ -39,6 +39,9 @@ extension RootScreen: View {
                     settingsViewModel: ToolbarSettingsViewModel(
                         appState: environment.appState,
                         sessionManager: environment.userManager
+                    ),
+                    searchViewModel: ToolbarSearchViewModel(
+                        appState: environment.appState
                     )
                 )
             }
@@ -112,6 +115,15 @@ extension RootScreen: View {
                 )
             }
             .navigationTransition()
+            Route("search") {
+                SearchScreen(
+                    viewModel: SearchViewModel(
+                        appState: environment.appState,
+                        searchManager: environment.searchManager,
+                        sessionManager: environment.userManager
+                    )
+                )
+            }
         }
         .onAppear(perform: viewModel.handleUserAuthenticationState)
     }

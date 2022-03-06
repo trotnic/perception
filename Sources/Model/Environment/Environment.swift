@@ -23,6 +23,7 @@ public final class SUEnvironment: ObservableObject {
     public var repository: Repository { factory.repository }
     public var userManager: UserManager { factory.userManager }
     public var spaceManager: SpaceManager { factory.spaceManager }
+    public var searchManager: SearchManager { factory.searchManager }
     public var workspaceManager: WorkspaceManager { factory.workspaceManager }
     public var documentManager: DocumentManager { factory.documentManager }
 }

@@ -22,6 +22,11 @@ let package = Package(
             url: "https://github.com/firebase/firebase-ios-sdk.git",
             from: Version(8, 10, 0)
         ),
+        .package(
+            name: "Typesense",
+            url: "https://github.com/typesense/typesense-swift",
+            from: Version(0, 1, 0)
+        )
     ],
     targets: [
         .target(
@@ -30,6 +35,7 @@ let package = Package(
                 .product(name: "FirebaseAuth", package: "Firebase"),
                 .product(name: "FirebaseStorage", package: "Firebase"),
                 .product(name: "FirebaseFirestore", package: "Firebase"),
+                .product(name: "Typesense", package: "Typesense")
             ]
         ),
         .testTarget(

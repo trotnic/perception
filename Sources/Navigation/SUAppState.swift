@@ -59,7 +59,7 @@ public final class SUAppState: SUAppStateProvider {
             currentScreen = .space
         case .create:
             switch currentScreen {
-            case .back, .create, .authentication, .account, .none:
+            case .back, .create, .authentication, .account, .none, .search:
                 fatalError("This should never happen")
             case .space:
                 navigator.navigate("/space/create")
@@ -77,7 +77,7 @@ public final class SUAppState: SUAppStateProvider {
             switch currentScreen {
             case .none, .account, .authentication, .back:
                 fatalError("This should never happen")
-            case .read, .space:
+            case .read, .space, .search:
                 switch content {
                 case let .workspace(meta):
                     navigator.navigate("/space/workspace/\(meta.id)")
@@ -95,6 +95,10 @@ public final class SUAppState: SUAppStateProvider {
             }
             currentScreen = .read(content)
             screenStack.append(.read(content))
+        case .search:
+            navigator.navigate("/search")
+            currentScreen = .search
+            screenStack.append(.search)
         }
         SULogger.navigation.log("Changed route")
     }

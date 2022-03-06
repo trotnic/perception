@@ -25,4 +25,7 @@ public protocol Repository {
 
     func startListenUser(with id: String, callback: @escaping (SUUser) -> Void)
     func stopListen(with id: String)
+
+    func searchWorkspaces(for userId: String, with name: String) async throws -> [SUShallowWorkspace]
+    func searchDocuments(for userId: String, with name: String) async throws -> [SUShallowDocument]
 }

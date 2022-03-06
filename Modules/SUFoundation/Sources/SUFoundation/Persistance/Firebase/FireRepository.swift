@@ -53,21 +53,33 @@ public final class FireRepository {
 
 private extension FireRepository {
 
-    func userRef(id: String) -> DocumentReference {
+    func users() -> CollectionReference {
         firestore
             .collection("users")
+    }
+
+    func workspaces() -> CollectionReference {
+        firestore
+            .collection("workspaces")
+    }
+
+    func documents() -> CollectionReference {
+        firestore
+            .collection("documents")
+    }
+
+    func userRef(id: String) -> DocumentReference {
+        users()
             .document(id)
     }
 
     func workspaceRef(id: String) -> DocumentReference {
-        firestore
-            .collection("workspaces")
+        workspaces()
             .document(id)
     }
 
     func documentRef(id: String) -> DocumentReference {
-        firestore
-            .collection("documents")
+        documents()
             .document(id)
     }
 }
@@ -92,14 +104,13 @@ extension FireRepository: Repository {
     // MARK: - Workspace
 
     public func createWorkspace(with title: String, userId: String) async throws -> String {
-        let workspaceRef = firestore
-            .collection("workspaces")
+        let workspaceRef = workspaces()
             .document()
         let userRef = userRef(id: userId)
         try await _ = [
             workspaceRef.setData([
                 "id" : workspaceRef.documentID,
-                "owner" : userRef,
+                "ownerId" : userId,
                 "title" : title,
                 "members" : [],
                 "documents" : []
@@ -180,14 +191,15 @@ extension FireRepository: Repository {
         try await _ = [
             documentRef.setData([
                 "id" : documentRef.documentID,
+                "workspaceId" : workspaceId,
+                "ownerId" : userId,
                 "title" : title,
-                "workspace" : workspaceRef,
                 "text" : "",
                 "linked" : []
             ]),
             workspaceRef
                 .updateData([
-                    "documents" : FieldValue.arrayUnion([documentRef])
+                    "documents" : FieldValue.arrayUnion([documentRef.documentID])
                 ])
         ]
 
@@ -260,5 +272,41 @@ extension FireRepository: Repository {
 
     public func stopListen(with id: String) {
         listeners[id] = nil
+    }
+}
+
+// MARK: - Search
+
+public extension FireRepository {
+
+    func searchWorkspaces(for userId: String, with name: String) async throws -> [SUShallowWorkspace] {
+        return try await workspaces()
+            .whereField("ownerId", isEqualTo: userId)
+            .whereField("title", isGreaterThanOrEqualTo: name)
+            .whereField("title", isLessThan: name.appending("\u{f8ff}"))
+            .getDocuments()
+            .documents
+            .asyncCompactMap { document in
+                guard let workspaceId = document.get("id") as? String else { return nil }
+                guard let title = document.get("title") as? String else { return nil }
+
+                return SUShallowWorkspace(meta: .init(id: workspaceId), title: title)
+            }
+    }
+
+    func searchDocuments(for userId: String, with name: String) async throws -> [SUShallowDocument] {
+        return try await documents()
+            .whereField("ownerId", isEqualTo: userId)
+            .whereField("title", isGreaterThanOrEqualTo: name)
+            .whereField("title", isLessThan: name.appending("\u{f8ff}"))
+            .getDocuments()
+            .documents
+            .asyncCompactMap { document in
+                guard let documentId = document.get("id") as? String else { return nil }
+                guard let workspaceId = document.get("workspaceId") as? String else { return nil }
+                guard let title = document.get("title") as? String else { return nil }
+
+                return SUShallowDocument(meta: .init(id: documentId, workspaceId: workspaceId), title: title)
+            }
     }
 }
