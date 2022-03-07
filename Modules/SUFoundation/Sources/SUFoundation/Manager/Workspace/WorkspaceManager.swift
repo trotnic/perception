@@ -11,19 +11,24 @@ import Foundation
 
 public final class WorkspaceManager: SUManagerWorkspace {
 
-    public var workspace: PassthroughSubject<SUWorkspace, Never> = .init()
+    public var workspace = CurrentValueSubject<SUWorkspace, Never>(.empty)
 
     private let repository: Repository
 
-    public init(repository: Repository) {
+    public init(
+        repository: Repository
+    ) {
         self.repository = repository
     }
 }
 
 public extension WorkspaceManager {
 
-    func createDocument(title: String, workspaceId: String, userId: String) async throws -> String {
-        try await repository.createDocument(with: title, in: workspaceId, for: userId)
+    func observe(workspaceId: String) {
+        repository
+            .startListenWorkspace(workspaceId: workspaceId) { workspace in
+                self.workspace.value = workspace
+            }
     }
 
     func loadWorkspace(id: String) async throws -> SUWorkspace {
@@ -31,6 +36,10 @@ public extension WorkspaceManager {
 //        repository.listenWorkspace(with: id) { workspace in
 //            self.workspace.send(workspace)
 //        }
+    }
+
+    func createDocument(title: String, workspaceId: String, userId: String) async throws -> String {
+        try await repository.createDocument(with: title, in: workspaceId, for: userId)
     }
 
     func updateWorkspace(id: String, title: String) async throws {

@@ -64,6 +64,18 @@ public struct SUWorkspace {
     }
 }
 
+public extension SUWorkspace {
+
+    static let empty = SUWorkspace(
+        meta: .empty,
+        ownerId: .empty,
+        title: .empty,
+        documents: [],
+        members: [],
+        emoji: .empty
+    )
+}
+
 public struct SUShallowWorkspaceMember {
     public let id: String
     public let permission: Int

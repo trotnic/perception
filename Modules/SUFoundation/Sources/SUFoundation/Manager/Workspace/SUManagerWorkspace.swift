@@ -10,8 +10,9 @@ import Combine
 
 public protocol SUManagerWorkspace {
 
-    var workspace: PassthroughSubject<SUWorkspace, Never> { get }
+    var workspace: CurrentValueSubject<SUWorkspace, Never> { get }
 
+    func observe(workspaceId: String)
     func createDocument(title: String, workspaceId: String, userId: String) async throws -> String
     func loadWorkspace(id: String) async throws -> SUWorkspace
     func updateWorkspace(id: String, title: String) async throws
@@ -27,7 +28,7 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
     private let membersCallback: () -> [SUShallowWorkspaceMember]
     private let emojiCallback: () -> String
 
-    public var workspace: PassthroughSubject<SUWorkspace, Never> = .init()
+    public var workspace = CurrentValueSubject<SUWorkspace, Never>(.empty)
 
     public init(
         meta: @escaping () -> SUWorkspaceMeta = { .empty },
@@ -45,6 +46,16 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
         self.emojiCallback = emoji
     }
 
+    public func observe(workspaceId: String) {
+        workspace.value = SUWorkspace(
+            meta: metaCallback(),
+            ownerId: ownerIdCallback(),
+            title: titleCallback(),
+            documents: documentsCallback(),
+            members: membersCallback(),
+            emoji: emojiCallback()
+        )
+    }
     public func createDocument(title: String, workspaceId: String, userId: String) async throws -> String { String(describing: self) }
     public func loadWorkspace(id: String) async throws -> SUWorkspace {
         SUWorkspace(

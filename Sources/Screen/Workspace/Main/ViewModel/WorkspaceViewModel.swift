@@ -12,10 +12,10 @@ import SUFoundation
 
 public final class WorkspaceViewModel: ObservableObject {
 
-    @Published public private(set) var navigationTitle: String = "Workspace"
-    @Published public var workspaceTitle: String = ""
-    @Published public private(set) var membersCount: Int = 0
-    @Published public private(set) var viewItems: [ListTileViewItem] = []
+    @Published public var workspaceTitle: String = .empty
+    @Published public private(set) var membersCount: Int = .zero
+    @Published public private(set) var documentsCount: Int = .zero
+    @Published public private(set) var viewItems: [ListItem] = []
 
     private let appState: SUAppStateProvider
     private let workspaceManager: SUManagerWorkspace
@@ -34,6 +34,7 @@ public final class WorkspaceViewModel: ObservableObject {
         self.workspaceManager = workspaceManager
         self.sessionManager = sessionManager
         self.workspaceMeta = workspaceMeta
+
         setupBindings()
     }
 }
@@ -43,20 +44,7 @@ public final class WorkspaceViewModel: ObservableObject {
 public extension WorkspaceViewModel {
 
     func load() {
-//        workspaceManager.loadWorkspace(id: workspaceMeta.id)
-        Task {
-            let workspace = try await workspaceManager.loadWorkspace(id: workspaceMeta.id)
-            await MainActor.run {
-                workspaceTitle = workspace.title
-                viewItems = workspace.documents.map {
-                    .init(id: $0.meta.id, iconText: "", title: $0.title)
-                }
-            }
-        }
-    }
-
-    func selectItem(with id: String) {
-        appState.change(route: .read(.document(SUDocumentMeta(id: id, workspaceId: workspaceMeta.id))))
+        workspaceManager.observe(workspaceId: workspaceMeta.id)
     }
 
     func createAction() {
@@ -77,17 +65,36 @@ public extension WorkspaceViewModel {
     }
 }
 
+public extension WorkspaceViewModel {
+
+    struct ListItem: Identifiable {
+        public let id = UUID()
+        public let title: String
+        public let emoji: String
+        public let action: () -> Void
+    }
+}
+
 // MARK: - Private interface
 
 private extension WorkspaceViewModel {
 
     func setupBindings() {
-        workspaceManager.workspace
+        workspaceManager
+            .workspace
             .receive(on: DispatchQueue.main)
             .sink { [self] workspace in
                 workspaceTitle = workspace.title
-                viewItems = workspace.documents.map {
-                    .init(id: $0.meta.id, iconText: "", title: $0.title)
+                membersCount = workspace.members.count
+                documentsCount = workspace.documents.count
+                viewItems = workspace.documents.map { document in
+                    ListItem(
+                        title: document.title,
+                        emoji: document.emoji,
+                        action: {
+                            selectItem(with: document.meta.id)
+                        }
+                    )
                 }
             }
             .store(in: &disposeBag)
@@ -98,5 +105,9 @@ private extension WorkspaceViewModel {
                 
             }
             .store(in: &disposeBag)
+    }
+
+    func selectItem(with id: String) {
+        appState.change(route: .read(.document(SUDocumentMeta(id: id, workspaceId: workspaceMeta.id))))
     }
 }

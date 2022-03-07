@@ -36,7 +36,7 @@ extension WorkspaceScreen: View {
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     VStack {
-                        Text(workspaceViewModel.navigationTitle)
+                        Text("Workspace")
                             .font(.custom("Comfortaa", size: 20).weight(.bold))
                             .foregroundColor(SUColorStandartPalette.text)
                     }
@@ -67,7 +67,12 @@ private extension WorkspaceScreen {
         ZStack {
             SUColorStandartPalette.tile
             VStack(alignment: .leading, spacing: 16) {
-                Image(systemName: "pencil.and.outline")
+                Button(
+                    action: {},
+                    label: {
+                        Image(systemName: "pencil.and.outline")
+                    }
+                )
                 TextField("", text: $workspaceViewModel.workspaceTitle)
                     .font(.custom("Comfortaa", size: 18.0).weight(.bold))
                 RoundedRectangle(cornerRadius: 1)
@@ -75,7 +80,14 @@ private extension WorkspaceScreen {
                     .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
                 HStack(spacing: 12) {
                     Text("\(workspaceViewModel.membersCount) members")
-                        .font(.custom("Comfortaa", size: 14).weight(.bold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke()
+                                .fill(SUColorStandartPalette.redOutline)
+                        }
+                    Text("\(workspaceViewModel.documentsCount) documents")
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .overlay {
@@ -84,6 +96,7 @@ private extension WorkspaceScreen {
                                 .fill(SUColorStandartPalette.redOutline)
                         }
                 }
+                .font(.custom("Comfortaa", size: 14).weight(.bold))
             }
             .foregroundColor(SUColorStandartPalette.text)
             .padding(16)
@@ -157,12 +170,11 @@ private extension WorkspaceScreen {
         ], spacing: 24) {
             ForEach(workspaceViewModel.viewItems) { item in
                 SUListTileWork(
-                    emoji: item.iconText,
+                    emoji: item.emoji,
                     title: item.title,
-                    icon: "chevron.right"
-                ) {
-                    workspaceViewModel.selectItem(with: item.id)
-                }
+                    icon: "chevron.right",
+                    action: item.action
+                )
             }
         }
         .foregroundColor(SUColorStandartPalette.text)

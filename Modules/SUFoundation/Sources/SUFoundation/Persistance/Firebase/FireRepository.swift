@@ -143,6 +143,83 @@ extension FireRepository: Repository {
         return workspaceRef.documentID
     }
 
+    public func startListenWorkspace(
+        workspaceId: String,
+        callback: @escaping (SUWorkspace) -> Void
+    ) {
+        let listener = workspaceRef(id: workspaceId)
+            .addSnapshotListener { [self] workspaceSnapshot, error in
+                guard let workspaceSnapshot = workspaceSnapshot else { return }
+                Task {
+                    do {
+                        guard let ownerId = workspaceSnapshot.get("ownerId") as? String else { throw FetchError.cantLoadEntity }
+                        guard let documents = workspaceSnapshot.get("documents") as? Array<String> else { throw FetchError.cantLoadEntity }
+                        guard let members = workspaceSnapshot.get("members") as? Array<[String: Any]> else { throw FetchError.cantLoadEntity }
+                        guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantLoadEntity }
+                        guard let emoji = workspaceSnapshot.get("emoji") as? String else { throw FetchError.cantLoadEntity }
+                        
+                        let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
+                            let document = try await documentRef(id: documentId).getDocument()
+                            
+                            guard let title = document.get("title") as? String else { return nil }
+                            guard let emoji = document.get("emoji") as? String else { return nil }
+                            
+                            return SUShallowDocument(
+                                meta: SUDocumentMeta(
+                                    id: documentId,
+                                    workspaceId: workspaceId
+                                ),
+                                title: title,
+                                emoji: emoji
+                            )
+                        }
+                        let workspaceMembers: [SUShallowWorkspaceMember] = members.compactMap { memberDict in
+                            
+                            guard let id = memberDict["id"] as? String else { return nil }
+                            guard let permission = memberDict["permission"] as? Int else { return nil }
+                            
+                            return SUShallowWorkspaceMember(
+                                id: id,
+                                permission: permission
+                            )
+                        }
+                        let workspace = SUWorkspace(
+                            meta: SUWorkspaceMeta(
+                                id: workspaceId
+                            ),
+                            ownerId: ownerId,
+                            title: title,
+                            documents: shallowDocuments,
+                            members: workspaceMembers,
+                            emoji: emoji
+                        )
+                        callback(workspace)
+                    } catch {
+                        
+                    }
+                }
+            }
+        listeners[workspaceId] = listener
+    }
+
+    //    public func listenWorkspace(with id: String, completion: @escaping (SUWorkspace) -> Void) {
+    //        let listener = workspaceRef(id: id)
+    //            .addSnapshotListener { snapshot, error in
+    //                Task {
+    //                    guard let data = snapshot?.data() else { return }
+    //                    guard let title = data["title"] as? String else { return }
+    //                    guard let rawDocuments = data["documents"] as? Array<DocumentReference> else { return }
+    //                    let documents: [SUShallowDocument] = try await rawDocuments.asyncCompactMap { docRef in
+    //                        let doc = try await docRef.getDocument()
+    //                        guard let title = doc.data()?["title"] as? String else { return nil }
+    //                        return SUShallowDocument(meta: SUDocumentMeta(id: doc.documentID, workspaceId: id), title: title)
+    //                    }
+    //                    completion(SUWorkspace(meta: SUWorkspaceMeta(id: id), title: title, documents: documents))
+    //                }
+    //            }
+    //        listeners[id] = listener
+    //    }
+
     public func workspace(with id: String) async throws -> SUWorkspace {
         let workspaceSnapshot = try await workspaceRef(id: id).getDocument()
 
@@ -188,24 +265,6 @@ extension FireRepository: Repository {
             emoji: emoji
         )
     }
-
-//    public func listenWorkspace(with id: String, completion: @escaping (SUWorkspace) -> Void) {
-//        let listener = workspaceRef(id: id)
-//            .addSnapshotListener { snapshot, error in
-//                Task {
-//                    guard let data = snapshot?.data() else { return }
-//                    guard let title = data["title"] as? String else { return }
-//                    guard let rawDocuments = data["documents"] as? Array<DocumentReference> else { return }
-//                    let documents: [SUShallowDocument] = try await rawDocuments.asyncCompactMap { docRef in
-//                        let doc = try await docRef.getDocument()
-//                        guard let title = doc.data()?["title"] as? String else { return nil }
-//                        return SUShallowDocument(meta: SUDocumentMeta(id: doc.documentID, workspaceId: id), title: title)
-//                    }
-//                    completion(SUWorkspace(meta: SUWorkspaceMeta(id: id), title: title, documents: documents))
-//                }
-//            }
-//        listeners[id] = listener
-//    }
 
     public func updateWorkspace(id: String, title: String) async throws {
         
