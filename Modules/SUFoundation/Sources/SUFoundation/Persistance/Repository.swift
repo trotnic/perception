@@ -20,6 +20,8 @@ public protocol Repository {
     func deleteDocument(with id: String, in workspaceId: String) async throws
     func deleteWorkspace(id: String, userId: String) async throws
 
+    func members(workspaceId: String, callback: @escaping ([SUWorkspaceMember]) -> Void)
+
     func user(with id: String) async throws -> SUUser
     func updateUser(with id: String, name: String) async throws
 

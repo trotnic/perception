@@ -20,28 +20,40 @@ public protocol SUManagerWorkspace {
 
 public final class SUManagerWorkspaceMock: SUManagerWorkspace {
 
-    private let title: () -> String
-    private let documents: () -> [SUShallowDocument]
-    private let meta: () -> SUWorkspaceMeta
+    private let metaCallback: () -> SUWorkspaceMeta
+    private let ownerIdCallback: () -> String
+    private let titleCallback: () -> String
+    private let documentsCallback: () -> [SUShallowDocument]
+    private let membersCallback: () -> [SUShallowWorkspaceMember]
+    private let emojiCallback: () -> String
 
     public var workspace: PassthroughSubject<SUWorkspace, Never> = .init()
 
     public init(
         meta: @escaping () -> SUWorkspaceMeta = { .empty },
+        ownerId: @escaping () -> String = { .empty },
         title: @escaping () -> String = { .empty },
-        documents: @escaping () -> [SUShallowDocument] = { [] }
+        documents: @escaping () -> [SUShallowDocument] = { [] },
+        members: @escaping () -> [SUShallowWorkspaceMember] = { [] },
+        emoji: @escaping () -> String = { "🔥" }
     ) {
-        self.meta = meta
-        self.title = title
-        self.documents = documents
+        self.metaCallback = meta
+        self.ownerIdCallback = ownerId
+        self.titleCallback = title
+        self.documentsCallback = documents
+        self.membersCallback = members
+        self.emojiCallback = emoji
     }
 
     public func createDocument(title: String, workspaceId: String, userId: String) async throws -> String { String(describing: self) }
     public func loadWorkspace(id: String) async throws -> SUWorkspace {
         SUWorkspace(
-            meta: meta(),
-            title: title(),
-            documents: documents()
+            meta: metaCallback(),
+            ownerId: ownerIdCallback(),
+            title: titleCallback(),
+            documents: documentsCallback(),
+            members: membersCallback(),
+            emoji: emojiCallback()
         )
     }
     public func updateWorkspace(id: String, title: String) async throws {}

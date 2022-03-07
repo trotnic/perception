@@ -106,7 +106,7 @@ private extension SpaceScreen {
             spacing: 24.0
         ) {
             ForEach(spaceViewModel.viewItems) { item in
-                SUListTile(
+                SUListTileWork(
                     emoji: item.iconText,
                     title: item.title,
                     icon: "chevron.right"
@@ -129,7 +129,8 @@ struct SpaceScreen_Previews: PreviewProvider {
             [
                 SUShallowWorkspace(
                     meta: .empty,
-                    title: "Amazing Workspace!"
+                    title: "Amazing Workspace!",
+                    emoji: "❤️"
                 )
             ]
         }),

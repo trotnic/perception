@@ -16,25 +16,33 @@ public protocol SUManagerDocument {
 
 public struct SUManagerDocumentMock: SUManagerDocument {
 
-    private let meta: () -> SUDocumentMeta
-    private let title: () -> String
-    private let text: () -> String
+    private let metaCallback: () -> SUDocumentMeta
+    private let ownerIdCallback: () -> String
+    private let titleCallback: () -> String
+    private let textCallback: () -> String
+    private let emojiCallback: () -> String
 
     public init(
         meta: @escaping () -> SUDocumentMeta = { .empty },
+        ownerId: @escaping () -> String = { .empty },
         title: @escaping () -> String = { .empty },
-        text: @escaping () -> String = { .empty }
+        text: @escaping () -> String = { .empty },
+        emoji: @escaping () -> String = { "🔥" }
     ) {
-        self.meta = meta
-        self.title = title
-        self.text = text
+        self.metaCallback = meta
+        self.ownerIdCallback = ownerId
+        self.titleCallback = title
+        self.textCallback = text
+        self.emojiCallback = emoji
     }
 
     public func loadDocument(id: String) async throws -> SUDocument {
         SUDocument(
-            meta: meta(),
-            title: title(),
-            text: text()
+            meta: metaCallback(),
+            ownerId: ownerIdCallback(),
+            title: titleCallback(),
+            text: textCallback(),
+            emoji: emojiCallback()
         )
     }
     public func writeDocument(id: String, text: String) async throws {}

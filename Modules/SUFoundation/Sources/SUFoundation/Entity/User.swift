@@ -17,7 +17,7 @@ public struct SUUserMeta {
 }
 
 public extension SUUserMeta {
-    static let empty = SUUserMeta(id: .empty)
+    static let empty = SUUserMeta(id: UUID().uuidString)
 }
 
 public struct SUUser {
@@ -37,5 +37,5 @@ public struct SUUser {
 }
 
 public extension SUUser {
-    static let empty = SUUser(meta: .init(id: .empty), username: .empty, email: .empty)
+    static let empty = SUUser(meta: .empty, username: .empty, email: .empty)
 }

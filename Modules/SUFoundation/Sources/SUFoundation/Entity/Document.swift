@@ -12,7 +12,10 @@ public struct SUDocumentMeta: Identifiable {
     public let id: String
     public let workspaceId: String
 
-    public init(id: String, workspaceId: String) {
+    public init(
+        id: String,
+        workspaceId: String
+    ) {
         self.id = id
         self.workspaceId = workspaceId
     }
@@ -26,10 +29,16 @@ public extension SUDocumentMeta {
 public struct SUShallowDocument {
     public let meta: SUDocumentMeta
     public let title: String
+    public let emoji: String
 
-    public init(meta: SUDocumentMeta, title: String) {
+    public init(
+        meta: SUDocumentMeta,
+        title: String,
+        emoji: String
+    ) {
         self.meta = meta
         self.title = title
+        self.emoji = emoji
     }
 
     subscript(dynamicMember member: KeyPath<SUDocumentMeta, UUID>) -> UUID {
@@ -39,6 +48,8 @@ public struct SUShallowDocument {
 
 public struct SUDocument {
     public let meta: SUDocumentMeta
+    public let ownerId: String
     public let title: String
     public let text: String
+    public let emoji: String
 }

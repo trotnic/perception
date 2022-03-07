@@ -61,7 +61,7 @@ extension SearchScreen: View {
                 ScrollView {
                     VStack(spacing: 20.0) {
                         ForEach(viewModel.items) { item in
-                            SUListTile(
+                            SUListTileWork(
                                 emoji: item.emoji,
                                 title: item.title,
                                 icon: "chevron.right",
@@ -88,19 +88,19 @@ struct SearchScreen_Previews: PreviewProvider {
                 [
                     SUShallowWorkspace(
                         meta: .init(id: "#1"),
-                        title: "One workspace"
+                        title: "One workspace", emoji: "❤️"
                     ),
                     SUShallowWorkspace(
                         meta: .init(id: "#2"),
-                        title: "Two workspace"
+                        title: "Two workspace", emoji: "❤️"
                     ),
                     SUShallowWorkspace(
                         meta: .init(id: "#3"),
-                        title: "Three workspace"
+                        title: "Three workspace", emoji: "❤️"
                     ),
                     SUShallowWorkspace(
                         meta: .init(id: "#4"),
-                        title: "Four workspace"
+                        title: "Four workspace", emoji: "❤️"
                     )
                 ]
             }

@@ -15,6 +15,7 @@ struct WorkspaceScreen {
 
     @StateObject var workspaceViewModel: WorkspaceViewModel
     @StateObject var settingsViewModel: ToolbarSettingsViewModel
+    @StateObject var membersViewModel: ToolbarMembersViewModel
 }
 
 extension WorkspaceScreen: View {
@@ -26,7 +27,10 @@ extension WorkspaceScreen: View {
             VStack {
                 ZStack {
                     VStack {
-                        SUButtonCircular(icon: "chevron.left", action: workspaceViewModel.backAction)
+                        SUButtonCircular(
+                            icon: "chevron.left",
+                            action: workspaceViewModel.backAction
+                        )
                             .frame(width: 36.0, height: 36.0)
                     }
                     .padding(.leading, 16)
@@ -128,6 +132,21 @@ private extension WorkspaceScreen {
                         ]
                     )
                 ]
+            },
+            rightItems: {
+                [
+                    SUToolbar.Item(
+                        icon: "person.2",
+                        twins: [
+                            SUToolbar.Item.Twin(
+                                icon: "person.2",
+                                title: "Members",
+                                type: .actionNext,
+                                action: membersViewModel.membersAction
+                            )
+                        ]
+                    )
+                ]
             }
         )
     }
@@ -137,9 +156,11 @@ private extension WorkspaceScreen {
             GridItem(.flexible(minimum: .zero, maximum: .infinity))
         ], spacing: 24) {
             ForEach(workspaceViewModel.viewItems) { item in
-                SUListTile(emoji: item.iconText,
-                           title: item.title,
-                           icon: "chevron.right") {
+                SUListTileWork(
+                    emoji: item.iconText,
+                    title: item.title,
+                    icon: "chevron.right"
+                ) {
                     workspaceViewModel.selectItem(with: item.id)
                 }
             }
@@ -165,12 +186,14 @@ struct WorkspaceScreen_Previews: PreviewProvider {
             "Title"
         }, documents: {
             [
-                SUShallowDocument(meta: .init(id: "#1", workspaceId: "w1"), title: "Document #1"),
-                SUShallowDocument(meta: .init(id: "#2", workspaceId: "w1"), title: "Document #2"),
-                SUShallowDocument(meta: .init(id: "#3", workspaceId: "w1"), title: "Document #3"),
-                SUShallowDocument(meta: .init(id: "#4", workspaceId: "w1"), title: "Document #4"),
-                SUShallowDocument(meta: .init(id: "#5", workspaceId: "w1"), title: "Document #5"),
-                SUShallowDocument(meta: .init(id: "#6", workspaceId: "w1"), title: "Document #6"),
+                SUShallowDocument(
+                    meta: SUDocumentMeta(
+                        id: "#1",
+                        workspaceId: "w1"
+                    ),
+                    title: "Document #1",
+                    emoji: "❤️"
+                ),
             ]
         }),
         sessionManager: SUManagerUserPrimeMock(),
@@ -182,10 +205,16 @@ struct WorkspaceScreen_Previews: PreviewProvider {
         sessionManager: SUManagerUserPrimeMock()
     )
 
+    static let membersViewModel = ToolbarMembersViewModel(
+        appState: SUAppStateProviderMock(),
+        workspaceMeta: .empty
+    )
+
     static var previews: some View {
         WorkspaceScreen(
             workspaceViewModel: workspaceViewModel,
-            settingsViewModel: settingsViewModel
+            settingsViewModel: settingsViewModel,
+            membersViewModel: membersViewModel
         )
             .previewDevice("iPhone 13 mini")
     }

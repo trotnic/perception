@@ -1,5 +1,5 @@
 //
-//  SUListTile.swift
+//  SUListTileWork.swift
 //  SUDesign
 //
 //  Created by Uladzislau Volchyk on 18.02.22.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public struct SUListTile {
+public struct SUListTileWork {
 
     private let emoji: String
     private let title: String
@@ -28,7 +28,7 @@ public struct SUListTile {
     }
 }
 
-extension SUListTile: View {
+extension SUListTileWork: View {
 
     public var body: some View {
         Button {
@@ -64,23 +64,13 @@ extension SUListTile: View {
     }
 }
 
-private struct SUListTileButtonStyle: ButtonStyle {
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration
-            .label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
-    }
-}
-
 struct SUListTile_Previews: PreviewProvider {
 
     static var previews: some View {
         ZStack {
             SUColorStandartPalette.background
                 .ignoresSafeArea()
-            SUListTile(
+            SUListTileWork(
                 emoji: "🔥",
                 title: "Amazing workspace",
                 icon: "chevron.right"

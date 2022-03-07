@@ -42,4 +42,6 @@ public extension SUDepFactory {
     var workspaceManager: WorkspaceManager { WorkspaceManager(repository: _repository) }
 
     var documentManager: DocumentManager { DocumentManager(repository: _repository) }
+
+    var memberManager: MemberManager { MemberManager(repository: _repository) }
 }

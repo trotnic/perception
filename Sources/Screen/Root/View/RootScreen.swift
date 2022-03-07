@@ -69,6 +69,10 @@ extension RootScreen: View {
                     settingsViewModel: ToolbarSettingsViewModel(
                         appState: environment.appState,
                         sessionManager: environment.userManager
+                    ),
+                    membersViewModel: ToolbarMembersViewModel(
+                        appState: environment.appState,
+                        workspaceMeta: meta
                     )
                 )
             }
@@ -87,8 +91,10 @@ extension RootScreen: View {
             }
             .navigationTransition()
             Route("space/workspace/:wId/document/:dId", validator: {
-                .init(id: $0.parameters["dId"]!,
-                      workspaceId: $0.parameters["wId"]!)
+                .init(
+                    id: $0.parameters["dId"]!,
+                    workspaceId: $0.parameters["wId"]!
+                )
             }) { (meta: SUDocumentMeta) in
                 DocumentScreen(
                     documentViewModel: DocumentViewModel(
@@ -99,6 +105,20 @@ extension RootScreen: View {
                     settingsViewModel: ToolbarSettingsViewModel(
                         appState: environment.appState,
                         sessionManager: environment.userManager
+                    )
+                )
+            }
+            .navigationTransition()
+            Route("space/workspace/:wId/members", validator: {
+                .init(
+                    id: $0.parameters["wId"]!
+                )
+            }) { (meta: SUWorkspaceMeta) in
+                WorkspaceMemberScreen(
+                    viewModel: WorkspaceMemberViewModel(
+                        appState: environment.appState,
+                        memberManager: environment.memberManager,
+                        workspaceMeta: meta
                     )
                 )
             }

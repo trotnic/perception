@@ -22,6 +22,7 @@ public enum SUAppScreen {
     case create
     case read(SUAppScreenContent)
     case search
+    case members(SUWorkspaceMeta)
 }
 
 public enum SUAppIntention {

@@ -15,18 +15,24 @@ import FirebaseFirestore
 
 /*
 Workspace:
-    - id
-    - documents
-    - title
-    - owner
-    - members
+    - id: String
+    - ownerId: String
+    - documents: [String]
+    - members: [WorkspaceMember]
+    - title: String
+    - emoji: String
+
+WorkspaceMember:
+    - id: String
+    - permission: Int
 
 Document:
-    - id
-    - workspaceId
-    - title
-    - text
-    - linked
+    - id: String
+    - workspaceId: String
+    - ownerId: String
+    - title: String
+    - text: String
+    - emoji: String
  */
 
 public final class FireRepository {
@@ -89,14 +95,21 @@ extension FireRepository: Repository {
     // MARK: - Space
 
     public func workspaces(for userId: String) async throws -> [SUShallowWorkspace] {
-        guard let workspaces = try await userRef(id: userId).getDocument().get("workspaces") as? Array<DocumentReference> else { throw FetchError.cantLoadList }
+        guard let workspaces = try await userRef(id: userId).getDocument().get("workspaces") as? Array<String> else { throw FetchError.cantLoadList }
 
-        let result: [SUShallowWorkspace] = try await workspaces.asyncCompactMap { document in
-            let document = try await document.getDocument()
-            guard let workspaceId = document.get("id") as? String else { return nil }
-            guard let title = document.get("title") as? String else { return nil }
+        let result: [SUShallowWorkspace] = try await workspaces.asyncCompactMap { workspaceId in
+            let workspace = try await workspaceRef(id: workspaceId).getDocument()
 
-            return SUShallowWorkspace(meta: .init(id: workspaceId), title: title)
+            guard let title = workspace.get("title") as? String else { return nil }
+            guard let emoji = workspace.get("emoji") as? String else { return nil }
+
+            return SUShallowWorkspace(
+                meta: SUWorkspaceMeta(
+                    id: workspaceId
+                ),
+                title: title,
+                emoji: emoji
+            )
         }
         return result
     }
@@ -108,16 +121,23 @@ extension FireRepository: Repository {
             .document()
         let userRef = userRef(id: userId)
         try await _ = [
-            workspaceRef.setData([
-                "id" : workspaceRef.documentID,
-                "ownerId" : userId,
-                "title" : title,
-                "members" : [],
-                "documents" : []
-            ]),
+            workspaceRef
+                .setData([
+                    "id" : workspaceRef.documentID,
+                    "ownerId" : userId,
+                    "documents" : [],
+                    "members" : [
+                        [
+                            "id" : userId,
+                            "permission" : 0
+                        ]
+                    ],
+                    "title" : title,
+                    "emoji" : "🔥"
+                ]),
             userRef
                 .updateData([
-                    "workspaces" : FieldValue.arrayUnion([workspaceRef])
+                    "workspaces" : FieldValue.arrayUnion([workspaceRef.documentID])
                 ])
         ]
         return workspaceRef.documentID
@@ -126,15 +146,47 @@ extension FireRepository: Repository {
     public func workspace(with id: String) async throws -> SUWorkspace {
         let workspaceSnapshot = try await workspaceRef(id: id).getDocument()
 
-        guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantCreate }
-        guard let documents = workspaceSnapshot.get("documents") as? Array<String> else { throw FetchError.cantCreate }
+        guard let ownerId = workspaceSnapshot.get("ownerId") as? String else { throw FetchError.cantLoadEntity }
+        guard let documents = workspaceSnapshot.get("documents") as? Array<String> else { throw FetchError.cantLoadEntity }
+        guard let members = workspaceSnapshot.get("members") as? Array<[String: Any]> else { throw FetchError.cantLoadEntity }
+        guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantLoadEntity }
+        guard let emoji = workspaceSnapshot.get("emoji") as? String else { throw FetchError.cantLoadEntity }
 
         let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
             let document = try await documentRef(id: documentId).getDocument()
+
             guard let title = document.get("title") as? String else { return nil }
-            return SUShallowDocument(meta: SUDocumentMeta(id: document.documentID, workspaceId: id), title: title)
+            guard let emoji = document.get("emoji") as? String else { return nil }
+
+            return SUShallowDocument(
+                meta: SUDocumentMeta(
+                    id: documentId,
+                    workspaceId: id
+                ),
+                title: title,
+                emoji: emoji
+            )
         }
-        return SUWorkspace(meta: SUWorkspaceMeta(id: id), title: title, documents: shallowDocuments)
+        let workspaceMembers: [SUShallowWorkspaceMember] = members.compactMap { memberDict in
+
+            guard let id = memberDict["id"] as? String else { return nil }
+            guard let permission = memberDict["permission"] as? Int else { return nil }
+
+            return SUShallowWorkspaceMember(
+                id: id,
+                permission: permission
+            )
+        }
+        return SUWorkspace(
+            meta: SUWorkspaceMeta(
+                id: id
+            ),
+            ownerId: ownerId,
+            title: title,
+            documents: shallowDocuments,
+            members: workspaceMembers,
+            emoji: emoji
+        )
     }
 
 //    public func listenWorkspace(with id: String, completion: @escaping (SUWorkspace) -> Void) {
@@ -166,11 +218,10 @@ extension FireRepository: Repository {
         try await _ = [
             userRef
                 .updateData([
-                    "workspaces" : FieldValue.arrayRemove([workspaceRef])
+                    "workspaces" : FieldValue.arrayRemove([id])
                 ]),
-            firestore
-                .collection("documents")
-                .whereField("workspace", isEqualTo: workspaceRef)
+            documents()
+                .whereField("workspaceId", isEqualTo: id)
                 .getDocuments()
                 .documents
                 .forEach { $0.reference.delete() },
@@ -178,11 +229,52 @@ extension FireRepository: Repository {
         ]
     }
 
+    public func members(workspaceId: String, callback: @escaping ([SUWorkspaceMember]) -> Void) {
+        let listener = workspaceRef(id: workspaceId)
+            .addSnapshotListener { snapshot, error in
+                Task {
+                    do {
+                        guard let snapshot = snapshot else { return }
+                        guard let members = snapshot.get("members") as? Array<[String: Any]> else { return }
+
+                        let workspaceMembers: [SUWorkspaceMember] = try await members.asyncCompactMap { memberDict in
+
+                            guard let id = memberDict["id"] as? String else { return nil }
+                            guard let permission = memberDict["permission"] as? Int else { return nil }
+
+                            let userRef = try await self.userRef(id: id).getDocument()
+
+                            guard let username = userRef.get("username") as? String else { return nil }
+                            guard let email = userRef.get("email") as? String else { return nil }
+
+                            return SUWorkspaceMember(
+                                user: SUUser(
+                                    meta: SUUserMeta(
+                                        id: id
+                                    ),
+                                    username: username,
+                                    email: email
+                                ),
+                                permission: SUWorkspacePermission(rawValue: permission)!
+                            )
+                        }
+
+                        callback(workspaceMembers)
+                    } catch {
+                        
+                    }
+                }
+            }
+        listeners[workspaceId] = listener
+    }
+
     // MARK: - Document
 
-    public func createDocument(with title: String,
-                               in workspaceId: String,
-                               for userId: String) async throws -> String {
+    public func createDocument(
+        with title: String,
+        in workspaceId: String,
+        for userId: String
+    ) async throws -> String {
         let workspaceRef = workspaceRef(id: workspaceId)
         let documentRef = firestore
             .collection("documents")
@@ -195,7 +287,7 @@ extension FireRepository: Repository {
                 "ownerId" : userId,
                 "title" : title,
                 "text" : "",
-                "linked" : []
+                "emoji" : "📄"
             ]),
             workspaceRef
                 .updateData([
@@ -209,11 +301,22 @@ extension FireRepository: Repository {
     public func document(with id: String) async throws -> SUDocument {
         let document = try await documentRef(id: id).getDocument()
 
+        guard let workspaceId = document.get("workspaceId") as? String else { throw FetchError.cantLoadEntity }
+        guard let ownerId = document.get("ownerId") as? String else { throw FetchError.cantLoadEntity }
         guard let title = document.get("title") as? String else { throw FetchError.cantLoadEntity }
         guard let text = document.get("text") as? String else { throw FetchError.cantLoadEntity }
-        guard let workspaceId = document.get("workspaceId") as? String else { throw FetchError.cantLoadEntity }
+        guard let emoji = document.get("emoji") as? String else { throw FetchError.cantLoadEntity }
 
-        return SUDocument(meta: .init(id: id, workspaceId: workspaceId), title: title, text: text)
+        return SUDocument(
+            meta: SUDocumentMeta(
+                id: id,
+                workspaceId: workspaceId
+            ),
+            ownerId: ownerId,
+            title: title,
+            text: text,
+            emoji: emoji
+        )
     }
 
 //    public func observeDocument(with id: String) {
@@ -238,11 +341,13 @@ extension FireRepository: Repository {
         try await _ = [
             workspaceRef
                 .updateData([
-                    "documents" : FieldValue.arrayRemove([documentRef])
+                    "documents" : FieldValue.arrayRemove([id])
                 ]),
             documentRef.delete()
         ]
     }
+
+    // MARK: - User
 
     public func user(with id: String) async throws -> SUUser {
         let user = try await userRef(id: id).getDocument()
@@ -250,7 +355,13 @@ extension FireRepository: Repository {
         guard let username = user.get("username") as? String else { throw FetchError.cantLoadEntity }
         guard let email = user.get("email") as? String else { throw FetchError.cantLoadEntity }
 
-        return SUUser(meta: .init(id: id), username: username, email: email)
+        return SUUser(
+            meta: SUUserMeta(
+                id: id
+            ),
+            username: username,
+            email: email
+        )
     }
 
     public func updateUser(with id: String, name: String) async throws {
@@ -271,7 +382,7 @@ extension FireRepository: Repository {
     }
 
     public func stopListen(with id: String) {
-        listeners[id] = nil
+        listeners.removeValue(forKey: id)
     }
 }
 
@@ -289,8 +400,15 @@ public extension FireRepository {
             .asyncCompactMap { document in
                 guard let workspaceId = document.get("id") as? String else { return nil }
                 guard let title = document.get("title") as? String else { return nil }
+                guard let emoji = document.get("emoji") as? String else { return nil }
 
-                return SUShallowWorkspace(meta: .init(id: workspaceId), title: title)
+                return SUShallowWorkspace(
+                    meta: SUWorkspaceMeta(
+                        id: workspaceId
+                    ),
+                    title: title,
+                    emoji: emoji
+                )
             }
     }
 
@@ -305,8 +423,16 @@ public extension FireRepository {
                 guard let documentId = document.get("id") as? String else { return nil }
                 guard let workspaceId = document.get("workspaceId") as? String else { return nil }
                 guard let title = document.get("title") as? String else { return nil }
+                guard let emoji = document.get("emoji") as? String else { return nil }
 
-                return SUShallowDocument(meta: .init(id: documentId, workspaceId: workspaceId), title: title)
+                return SUShallowDocument(
+                    meta: SUDocumentMeta(
+                        id: documentId,
+                        workspaceId: workspaceId
+                    ),
+                    title: title,
+                    emoji: emoji
+                )
             }
     }
 }
