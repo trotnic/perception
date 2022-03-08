@@ -6,15 +6,26 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 public protocol SUManagerDocument {
+
+    var document: CurrentValueSubject<SUDocument, Never> { get }
+
+    func observe(documentId: String)
     func loadDocument(id: String) async throws -> SUDocument
-    func writeDocument(id: String, text: String) async throws
+
+    func updateDocument(id: String, title: String) async throws
+    func updateDocument(id: String, emoji: String) async throws
+    func updateDocument(id: String, text: String) async throws
+
     func deleteDocument(id: String, workspaceId: String) async throws
 }
 
 public struct SUManagerDocumentMock: SUManagerDocument {
+
+    public private(set) var document = CurrentValueSubject<SUDocument, Never>(.empty)
 
     private let metaCallback: () -> SUDocumentMeta
     private let ownerIdCallback: () -> String
@@ -36,6 +47,15 @@ public struct SUManagerDocumentMock: SUManagerDocument {
         self.emojiCallback = emoji
     }
 
+    public func observe(documentId: String) {
+        document.value = SUDocument(
+            meta: metaCallback(),
+            ownerId: ownerIdCallback(),
+            title: titleCallback(),
+            text: textCallback(),
+            emoji: emojiCallback()
+        )
+    }
     public func loadDocument(id: String) async throws -> SUDocument {
         SUDocument(
             meta: metaCallback(),
@@ -45,6 +65,8 @@ public struct SUManagerDocumentMock: SUManagerDocument {
             emoji: emojiCallback()
         )
     }
-    public func writeDocument(id: String, text: String) async throws {}
+    public func updateDocument(id: String, title: String) async throws {}
+    public func updateDocument(id: String, emoji: String) async throws {}
+    public func updateDocument(id: String, text: String) async throws {}
     public func deleteDocument(id: String, workspaceId: String) async throws {}
 }

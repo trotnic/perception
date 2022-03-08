@@ -6,13 +6,17 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 public final class DocumentManager {
 
+    public private(set) var document = CurrentValueSubject<SUDocument, Never>(.empty)
     private let repository: Repository
 
-    public init(repository: Repository) {
+    public init(
+        repository: Repository
+    ) {
         self.repository = repository
     }
 }
@@ -21,11 +25,25 @@ public final class DocumentManager {
 
 extension DocumentManager: SUManagerDocument {
 
+    public func observe(documentId: String) {
+        repository.startListenDocument(documentId: documentId) { document in
+            self.document.value = document
+        }
+    }
+
     public func loadDocument(id: String) async throws -> SUDocument {
         return try await repository.document(with: id)
     }
 
-    public func writeDocument(id: String, text: String) async throws {
+    public func updateDocument(id: String, title: String) async throws {
+        try await repository.updateDocument(with: id, title: title)
+    }
+
+    public func updateDocument(id: String, emoji: String) async throws {
+        try await repository.updateDocument(with: id, emoji: emoji)
+    }
+
+    public func updateDocument(id: String, text: String) async throws {
         try await repository.updateDocument(with: id, text: text)
     }
 

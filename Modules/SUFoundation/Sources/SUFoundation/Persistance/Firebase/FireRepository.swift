@@ -371,6 +371,39 @@ extension FireRepository: Repository {
 
     // MARK: - Document
 
+    public func startListenDocument(
+        documentId: String,
+        callback: @escaping (SUDocument) -> Void
+    ) {
+        let listener = documentRef(id: documentId)
+            .addSnapshotListener { document, error in
+                guard let document = document else { return }
+
+                Task {
+                    guard let workspaceId = document.get("workspaceId") as? String else { throw FetchError.cantLoadEntity }
+                    guard let ownerId = document.get("ownerId") as? String else { throw FetchError.cantLoadEntity }
+                    guard let title = document.get("title") as? String else { throw FetchError.cantLoadEntity }
+                    guard let text = document.get("text") as? String else { throw FetchError.cantLoadEntity }
+                    guard let emoji = document.get("emoji") as? String else { throw FetchError.cantLoadEntity }
+
+                    let document = SUDocument(
+                        meta: SUDocumentMeta(
+                            id: documentId,
+                            workspaceId: workspaceId
+                        ),
+                        ownerId: ownerId,
+                        title: title,
+                        text: text,
+                        emoji: emoji
+                    )
+                    print(document)
+                    print(text)
+                    callback(document)
+                }
+            }
+        listeners[documentId] = listener
+    }
+
     public func createDocument(
         with title: String,
         in workspaceId: String,
@@ -388,7 +421,7 @@ extension FireRepository: Repository {
                 "ownerId" : userId,
                 "title" : title,
                 "text" : "",
-                "emoji" : "📄"
+                "emoji" : ""
             ]),
             workspaceRef
                 .updateData([
@@ -427,6 +460,20 @@ extension FireRepository: Repository {
 //                guard let data = snapshot.data() else { return }
 //            }
 //    }
+
+    public func updateDocument(with id: String, title: String) async throws {
+        try await documentRef(id: id)
+            .updateData([
+                "title" : title
+            ])
+    }
+
+    public func updateDocument(with id: String, emoji: String) async throws {
+        try await documentRef(id: id)
+            .updateData([
+                "emoji" : emoji
+            ])
+    }
 
     public func updateDocument(with id: String, text: String) async throws {
         try await documentRef(id: id)

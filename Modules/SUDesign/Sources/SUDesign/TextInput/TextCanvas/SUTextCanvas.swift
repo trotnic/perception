@@ -46,9 +46,9 @@ private struct UITextViewWrapper: UIViewRepresentable {
         if uiView.text != text {
             uiView.text = text
         }
-        if uiView.window != nil, !uiView.isFirstResponder {
-            uiView.becomeFirstResponder()
-        }
+//        if uiView.window != nil, !uiView.isFirstResponder {
+//            uiView.becomeFirstResponder()
+//        }
         UITextViewWrapper.recalculateHeight(view: uiView, result: $calculatedHeight)
     }
 

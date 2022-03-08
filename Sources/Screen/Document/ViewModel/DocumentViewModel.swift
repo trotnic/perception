@@ -12,8 +12,10 @@ import SUFoundation
 
 public final class DocumentViewModel: ObservableObject {
 
-    @Published public private(set) var title: String = ""
-    @Published public var text: String = ""
+    @Published public var title: String = .empty
+    @Published public var description: String = .empty
+    @Published public var emoji: String = .empty
+    @Published public var text: String = .empty
 
     private let appState: SUAppStateProvider
     private let documentManager: SUManagerDocument
@@ -21,12 +23,15 @@ public final class DocumentViewModel: ObservableObject {
 
     private var disposeBag = Set<AnyCancellable>()
 
-    public init(appState: SUAppStateProvider,
-                documentManager: SUManagerDocument,
-                documentMeta: SUDocumentMeta) {
+    public init(
+        appState: SUAppStateProvider,
+        documentManager: SUManagerDocument,
+        documentMeta: SUDocumentMeta
+    ) {
         self.appState = appState
         self.documentManager = documentManager
         self.documentMeta = documentMeta
+
         setupBindings()
     }
 }
@@ -36,13 +41,7 @@ public final class DocumentViewModel: ObservableObject {
 public extension DocumentViewModel {
 
     func load() {
-        Task {
-            let workspace = try await documentManager.loadDocument(id: documentMeta.id)
-            await MainActor.run {
-                title = workspace.title
-                text = workspace.text
-            }
-        }
+        documentManager.observe(documentId: documentMeta.id)
     }
 
     func backAction() {
@@ -64,11 +63,40 @@ public extension DocumentViewModel {
 private extension DocumentViewModel {
 
     func setupBindings() {
+        documentManager
+            .document
+//            .drop(while: { $0 == SUDocument.empty })
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [self] document in
+                title = document.title
+                emoji = document.emoji
+                text = document.text
+            })
+            .store(in: &disposeBag)
+
+        $title
+            .debounce(for: 1.5, scheduler: DispatchQueue.main)
+            .sink { [self] value in
+                Task {
+                    try await documentManager.updateDocument(id: documentMeta.id, title: value)
+                }
+            }
+            .store(in: &disposeBag)
+
+        $emoji
+            .debounce(for: 1.5, scheduler: DispatchQueue.main)
+            .sink { [self] value in
+                Task {
+                    try await documentManager.updateDocument(id: documentMeta.id, emoji: value)
+                }
+            }
+            .store(in: &disposeBag)
+
         $text
             .debounce(for: 2.0, scheduler: DispatchQueue.main)
             .sink { [self] value in
                 Task {
-                    try await documentManager.writeDocument(id: documentMeta.id, text: value)
+                    try await documentManager.updateDocument(id: documentMeta.id, text: value)
                 }
             }
             .store(in: &disposeBag)

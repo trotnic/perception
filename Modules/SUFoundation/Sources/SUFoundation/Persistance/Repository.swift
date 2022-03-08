@@ -21,9 +21,13 @@ public protocol Repository {
     func updateWorkspace(id: String, title: String) async throws
     func updateWorkspace(id: String, emoji: String) async throws
 
+    func startListenDocument(documentId: String, callback: @escaping (SUDocument) -> Void)
     func document(with id: String) async throws -> SUDocument
-//    func observeDocument(with id: String)
+
+    func updateDocument(with id: String, title: String) async throws
+    func updateDocument(with id: String, emoji: String) async throws
     func updateDocument(with id: String, text: String) async throws
+
     func deleteDocument(with id: String, in workspaceId: String) async throws
     func deleteWorkspace(id: String, userId: String) async throws
 

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct SUDocumentMeta: Identifiable {
+public struct SUDocumentMeta: Identifiable, Equatable {
     public let id: String
     public let workspaceId: String
 
@@ -22,7 +22,7 @@ public struct SUDocumentMeta: Identifiable {
 }
 
 public extension SUDocumentMeta {
-    static let empty = SUDocumentMeta(id: UUID().uuidString, workspaceId: UUID().uuidString)
+    static let empty = SUDocumentMeta(id: .empty, workspaceId: .empty)
 }
 
 @dynamicMemberLookup
@@ -46,10 +46,18 @@ public struct SUShallowDocument {
     }
 }
 
-public struct SUDocument {
+public struct SUDocument: Equatable {
     public let meta: SUDocumentMeta
     public let ownerId: String
     public let title: String
     public let text: String
     public let emoji: String
+
+    public static func == (lhs: SUDocument, rhs: SUDocument) -> Bool {
+        lhs.meta == rhs.meta
+    }
+}
+
+public extension SUDocument {
+    static let empty = SUDocument(meta: .empty, ownerId: .empty, title: .empty, text: .empty, emoji: .empty)
 }

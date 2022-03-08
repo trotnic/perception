@@ -22,30 +22,31 @@ extension DocumentScreen: View {
         GeometryReader { proxy in
             SUColorStandartPalette.background
                 .edgesIgnoringSafeArea(.all)
-            VStack {
+            VStack(spacing: 16.0) {
                 ZStack {
                     VStack {
-                        SUButtonCircular(icon: "chevron.left", action: documentViewModel.backAction)
+                        SUButtonCircular(
+                            icon: "chevron.left",
+                            action: documentViewModel.backAction
+                        )
                             .frame(width: 36.0, height: 36.0)
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-//                    HStack(spacing: 16.0) {
-//                        SUButtonCircular(icon: "trash") {
-//                            documentViewModel.deleteAction()
-//                        }
-//                        .frame(width: 36.0, height: 36.0)
-//                        SUButtonCircular(icon: "ellipsis") {}
-//                            .frame(width: 36.0, height: 36.0)
-//                    }
-//                    .padding(.trailing, 16)
-//                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .padding(.top, 16)
                 ScrollView {
-                    ZStack {
-                        Text(documentViewModel.title)
-                            .font(.system(size: 36.0, design: .rounded).bold())
+                    VStack {
+                        HStack {
+                            SUButtonEmoji(
+                                text: $documentViewModel.emoji,
+                                commit: {}
+                            )
+                                .frame(width: 28.0, height: 28.0)
+                            Spacer()
+                        }
+                        TextField(String.empty, text: $documentViewModel.title)
+                            .font(.custom("Comfortaa", size: 36.0).bold())
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(.vertical, 16.0)
@@ -53,7 +54,6 @@ extension DocumentScreen: View {
                     .frame(maxWidth: proxy.size.width - 32, maxHeight: .infinity)
                     .background(SUColorStandartPalette.tile)
                     .cornerRadius(20.0)
-                    
 
                     SUTextCanvas(text: $documentViewModel.text)
                         .padding(.vertical, 16.0)
@@ -70,7 +70,6 @@ extension DocumentScreen: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        
         .onAppear(perform: documentViewModel.load)
     }
 }
