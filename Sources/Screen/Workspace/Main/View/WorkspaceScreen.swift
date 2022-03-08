@@ -16,6 +16,8 @@ struct WorkspaceScreen {
     @StateObject var workspaceViewModel: WorkspaceViewModel
     @StateObject var settingsViewModel: ToolbarSettingsViewModel
     @StateObject var membersViewModel: ToolbarMembersViewModel
+
+    @FocusState private var emojiButtonFocus: Bool
 }
 
 extension WorkspaceScreen: View {
@@ -49,6 +51,9 @@ extension WorkspaceScreen: View {
                     }
                     .padding(16)
                 }
+                .onTapGesture {
+                    emojiButtonFocus = false
+                }
             }
             .overlay {
                 VStack {
@@ -67,12 +72,8 @@ private extension WorkspaceScreen {
         ZStack {
             SUColorStandartPalette.tile
             VStack(alignment: .leading, spacing: 16) {
-                Button(
-                    action: {},
-                    label: {
-                        Image(systemName: "pencil.and.outline")
-                    }
-                )
+                SUButtonEmoji(text: $workspaceViewModel.emoji, commit: {})
+                    .focused($emojiButtonFocus)
                 TextField("", text: $workspaceViewModel.workspaceTitle)
                     .font(.custom("Comfortaa", size: 18.0).weight(.bold))
                 RoundedRectangle(cornerRadius: 1)
@@ -111,6 +112,9 @@ private extension WorkspaceScreen {
                 .fill(.white.opacity(0.2))
         }
         .onAppear(perform: workspaceViewModel.load)
+        .onDisappear {
+            emojiButtonFocus = false
+        }
     }
 
     var toolbar: some View {
@@ -223,11 +227,13 @@ struct WorkspaceScreen_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        WorkspaceScreen(
-            workspaceViewModel: workspaceViewModel,
-            settingsViewModel: settingsViewModel,
-            membersViewModel: membersViewModel
-        )
-            .previewDevice("iPhone 13 mini")
+        ZStack {
+            WorkspaceScreen(
+                workspaceViewModel: workspaceViewModel,
+                settingsViewModel: settingsViewModel,
+                membersViewModel: membersViewModel
+            )
+                .previewDevice("iPhone 13 mini")
+        }
     }
 }

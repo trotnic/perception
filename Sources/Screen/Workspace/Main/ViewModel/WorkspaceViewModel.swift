@@ -13,6 +13,8 @@ import SUFoundation
 public final class WorkspaceViewModel: ObservableObject {
 
     @Published public var workspaceTitle: String = .empty
+    @Published public var emoji: String = .empty
+
     @Published public private(set) var membersCount: Int = .zero
     @Published public private(set) var documentsCount: Int = .zero
     @Published public private(set) var viewItems: [ListItem] = []
@@ -100,7 +102,14 @@ private extension WorkspaceViewModel {
             .store(in: &disposeBag)
 
         $workspaceTitle
-            .debounce(for: 2.0, scheduler: DispatchQueue.main)
+            .debounce(for: 1.0, scheduler: DispatchQueue.main)
+            .sink { value in
+                
+            }
+            .store(in: &disposeBag)
+
+        $emoji
+            .debounce(for: 1.0, scheduler: DispatchQueue.main)
             .sink { value in
                 
             }
