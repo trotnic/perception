@@ -26,7 +26,7 @@ extension SpaceScreen: View {
                     .ignoresSafeArea()
                 VStack {
                     ZStack {
-                        Text(spaceViewModel.title)
+                        Text("Space")
                             .font(.custom("Comfortaa", size: 20).weight(.bold))
                             .foregroundColor(SUColorStandartPalette.text)
                     }
@@ -49,9 +49,7 @@ extension SpaceScreen: View {
                 }
             }
         }
-        .task {
-            await spaceViewModel.load()
-        }
+        .onAppear(perform: spaceViewModel.load)
     }
 }
 
@@ -105,14 +103,13 @@ private extension SpaceScreen {
             ],
             spacing: 24.0
         ) {
-            ForEach(spaceViewModel.viewItems) { item in
+            ForEach(spaceViewModel.items) { item in
                 SUListTileWork(
-                    emoji: item.iconText,
+                    emoji: item.emoji,
                     title: item.title,
-                    icon: "chevron.right"
-                ) {
-                    spaceViewModel.selectItem(with: item.id)
-                }
+                    icon: "chevron.right",
+                    action: item.action
+                )
             }
         }
         .foregroundColor(SUColorStandartPalette.text)

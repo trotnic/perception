@@ -8,6 +8,8 @@
 
 
 public protocol Repository {
+
+    func startListenSpace(userId: String, callback: @escaping ([SUShallowWorkspace]) -> Void)
     func workspaces(for userId: String) async throws -> [SUShallowWorkspace]
 //    func listenWorkspace(with id: String, completion: @escaping (SUWorkspace) -> Void)
 
@@ -15,7 +17,10 @@ public protocol Repository {
     func workspace(with id: String) async throws -> SUWorkspace
     func createWorkspace(with title: String, userId: String) async throws -> String
     func createDocument(with title: String, in workspaceId: String, for userId: String) async throws -> String
+
     func updateWorkspace(id: String, title: String) async throws
+    func updateWorkspace(id: String, emoji: String) async throws
+
     func document(with id: String) async throws -> SUDocument
 //    func observeDocument(with id: String)
     func updateDocument(with id: String, text: String) async throws

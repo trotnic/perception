@@ -56,7 +56,7 @@ struct SUButtonEmoji_Previews: PreviewProvider {
             SUColorStandartPalette
                 .background
                 .ignoresSafeArea()
-            SUButtonEmoji(text: .constant("🔥"))
+            SUButtonEmoji(text: .constant("🔥"), commit: {})
                 .frame(width: 24.0, height: 24.0)
         }
     }

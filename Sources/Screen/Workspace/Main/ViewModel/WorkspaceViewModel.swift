@@ -45,7 +45,7 @@ public final class WorkspaceViewModel: ObservableObject {
 
 public extension WorkspaceViewModel {
 
-    func load() {
+    func loadAction() {
         workspaceManager.observe(workspaceId: workspaceMeta.id)
     }
 
@@ -87,6 +87,7 @@ private extension WorkspaceViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [self] workspace in
                 workspaceTitle = workspace.title
+                emoji = workspace.emoji
                 membersCount = workspace.members.count
                 documentsCount = workspace.documents.count
                 viewItems = workspace.documents.map { document in
@@ -102,16 +103,30 @@ private extension WorkspaceViewModel {
             .store(in: &disposeBag)
 
         $workspaceTitle
+            .drop(while: { $0.isEmpty })
             .debounce(for: 1.0, scheduler: DispatchQueue.main)
-            .sink { value in
-                
+            .sink { [self] value in
+                Task {
+                    do {
+                        try await workspaceManager.updateWorkspace(id: workspaceMeta.id, title: value)
+                    } catch {
+                        
+                    }
+                }
             }
             .store(in: &disposeBag)
 
         $emoji
+            .drop(while: { $0 == self.workspaceManager.workspace.value.emoji })
             .debounce(for: 1.0, scheduler: DispatchQueue.main)
-            .sink { value in
-                
+            .sink { [self] value in
+                Task {
+                    do {
+                        try await workspaceManager.updateWorkspace(id: workspaceMeta.id, emoji: value)
+                    } catch {
+                        
+                    }
+                }
             }
             .store(in: &disposeBag)
     }

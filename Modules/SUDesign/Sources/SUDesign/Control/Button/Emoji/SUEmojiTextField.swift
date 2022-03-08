@@ -75,11 +75,7 @@ public struct SUEmojiTextField: UIViewRepresentable {
         return view
     }
 
-    public func updateUIView(_ uiView: UITextField, context: Context) {
-        if uiView.window != nil, !uiView.isFirstResponder {
-            uiView.becomeFirstResponder()
-        }
-    }
+    public func updateUIView(_ uiView: UITextField, context: Context) {}
 
     public final class Coordinator: NSObject, UITextFieldDelegate {
 
@@ -92,6 +88,10 @@ public struct SUEmojiTextField: UIViewRepresentable {
         ) {
             _text = text
             commitCallback = commit
+        }
+
+        public func textFieldShouldClear(_ textField: UITextField) -> Bool {
+            true
         }
 
         public func textFieldDidChangeSelection(_ textField: UITextField) {

@@ -15,7 +15,10 @@ public protocol SUManagerWorkspace {
     func observe(workspaceId: String)
     func createDocument(title: String, workspaceId: String, userId: String) async throws -> String
     func loadWorkspace(id: String) async throws -> SUWorkspace
+
     func updateWorkspace(id: String, title: String) async throws
+    func updateWorkspace(id: String, emoji: String) async throws
+
     func deleteWorkspace(id: String, userId: String) async throws
 }
 
@@ -68,5 +71,6 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
         )
     }
     public func updateWorkspace(id: String, title: String) async throws {}
+    public func updateWorkspace(id: String, emoji: String) async throws {}
     public func deleteWorkspace(id: String, userId: String) async throws {}
 }

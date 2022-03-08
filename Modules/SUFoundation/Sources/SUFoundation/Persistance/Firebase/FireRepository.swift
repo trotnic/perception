@@ -114,6 +114,34 @@ extension FireRepository: Repository {
         return result
     }
 
+    public func startListenSpace(
+        userId: String,
+        callback: @escaping ([SUShallowWorkspace]) -> Void
+    ) {
+        let listener = workspaces()
+            .whereField("ownerId", isEqualTo: userId)
+            .addSnapshotListener { snapshot, error in
+                guard let workspaces = snapshot?.documents else { return }
+                Task {
+                    let result: [SUShallowWorkspace] = await workspaces.asyncCompactMap { workspace in
+
+                        guard let title = workspace.get("title") as? String else { return nil }
+                        guard let emoji = workspace.get("emoji") as? String else { return nil }
+
+                        return SUShallowWorkspace(
+                            meta: SUWorkspaceMeta(
+                                id: workspace.documentID
+                            ),
+                            title: title,
+                            emoji: emoji
+                        )
+                    }
+                    callback(result)
+                }
+            }
+        listeners[userId] = listener
+    }
+
     // MARK: - Workspace
 
     public func createWorkspace(with title: String, userId: String) async throws -> String {
@@ -267,7 +295,21 @@ extension FireRepository: Repository {
     }
 
     public func updateWorkspace(id: String, title: String) async throws {
-        
+        let workspaceRef = workspaceRef(id: id)
+
+        try await workspaceRef
+            .updateData([
+                "title" : title
+            ])
+    }
+
+    public func updateWorkspace(id: String, emoji: String) async throws {
+        let workspaceRef = workspaceRef(id: id)
+
+        try await workspaceRef
+            .updateData([
+                "emoji" : emoji
+            ])
     }
 
     public func deleteWorkspace(id: String, userId: String) async throws {
@@ -430,7 +472,10 @@ extension FireRepository: Repository {
             ])
     }
 
-    public func startListenUser(with id: String, callback: @escaping (SUUser) -> Void) {
+    public func startListenUser(
+        with id: String,
+        callback: @escaping (SUUser) -> Void
+    ) {
         let listener = userRef(id: id)
             .addSnapshotListener { snapshot, error in
                 guard let username = snapshot?.get("username") as? String else { return }

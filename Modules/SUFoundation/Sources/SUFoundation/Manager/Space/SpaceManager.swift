@@ -6,13 +6,18 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 public final class SpaceManager: SUManagerSpace {
 
+    public private(set) var workspaces = CurrentValueSubject<[SUShallowWorkspace], Never>([])
+
     private let repository: Repository
 
-    public init(repository: Repository) {
+    public init(
+        repository: Repository
+    ) {
         self.repository = repository
     }
 }
@@ -20,6 +25,13 @@ public final class SpaceManager: SUManagerSpace {
 // MARK: - Public interface
 
 public extension SpaceManager {
+
+    func observe(for userId: String) {
+        repository
+            .startListenSpace(userId: userId) { workspaces in
+                self.workspaces.value = workspaces
+            }
+    }
 
     func loadWorkspaces(for userId: String) async throws -> [SUShallowWorkspace] {
         try await repository.workspaces(for: userId)
@@ -41,5 +53,4 @@ public extension SpaceManager {
 
 private extension SpaceManager {
 
-    
 }

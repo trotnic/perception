@@ -111,7 +111,7 @@ private extension WorkspaceScreen {
                 .stroke()
                 .fill(.white.opacity(0.2))
         }
-        .onAppear(perform: workspaceViewModel.load)
+        .onAppear(perform: workspaceViewModel.loadAction)
         .onDisappear {
             emojiButtonFocus = false
         }

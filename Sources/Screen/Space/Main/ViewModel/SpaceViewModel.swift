@@ -6,16 +6,13 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
-import Foundation
 import Combine
+import Foundation
 import SUFoundation
 
 public final class SpaceViewModel: ObservableObject {
 
-    @Published public var title: String = "Space"
-    @Published public private(set) var viewItems: [ListTileViewItem] = []
-
-    private var _items = CurrentValueSubject<[SUShallowWorkspace], Never>([])
+    @Published public private(set) var items: [ListItem] = []
 
     private var disposeBag = Set<AnyCancellable>()
 
@@ -31,21 +28,8 @@ public final class SpaceViewModel: ObservableObject {
         self.appState = appState
         self.spaceManager = spaceManager
         self.sessionManager = sessionManager
-        _items
-            .map { items in
-                items.map { item in
-                    let viewItem = ListTileViewItem(
-                        id: item.meta.id,
-                        iconText: "",
-                        title: item.title
-                    )
-                    return viewItem
-                }
-            }
-            .sink {
-                self.viewItems = $0
-            }
-            .store(in: &disposeBag)
+
+        setupBindings()
     }
 }
 
@@ -53,17 +37,8 @@ public final class SpaceViewModel: ObservableObject {
 
 public extension SpaceViewModel {
 
-    @MainActor
-    func load() async {
-        do {
-            _items.value = try await spaceManager.loadWorkspaces(for: sessionManager.userId)
-        } catch {
-            print(error)
-        }
-    }
-
-    func selectItem(with id: String) {
-        appState.change(route: .read(.workspace(SUWorkspaceMeta(id: id))))
+    func load() {
+        spaceManager.observe(for: sessionManager.userId)
     }
 
     func createAction() {
@@ -71,8 +46,37 @@ public extension SpaceViewModel {
     }
 }
 
+public extension SpaceViewModel {
+
+    struct ListItem: Identifiable {
+        public let id = UUID()
+        public let title: String
+        public let emoji: String
+        public let action: () -> Void
+    }
+}
+
 // MARK: - Private interface
 
 private extension SpaceViewModel {
 
+    func setupBindings() {
+        spaceManager
+            .workspaces
+            .receive(on: DispatchQueue.main)
+            .map { workspaces in
+                workspaces.map { workspace in
+                    ListItem(
+                        title: workspace.title,
+                        emoji: workspace.emoji,
+                        action: { self.selectItem(with: workspace.meta.id) }
+                    )
+                }
+            }
+            .assign(to: &$items)
+    }
+
+    func selectItem(with id: String) {
+        appState.change(route: .read(.workspace(SUWorkspaceMeta(id: id))))
+    }
 }
