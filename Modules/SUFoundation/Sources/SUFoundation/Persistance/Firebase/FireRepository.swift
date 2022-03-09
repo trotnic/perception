@@ -447,7 +447,8 @@ extension FireRepository: Repository {
             ]),
             workspaceRef
                 .updateData([
-                    "documents" : FieldValue.arrayUnion([documentRef.documentID])
+                    "documents" : FieldValue.arrayUnion([documentRef.documentID]),
+                    "documentsCount" : FieldValue.increment(Int64(1))
                 ])
         ]
 
@@ -518,7 +519,8 @@ extension FireRepository: Repository {
         try await _ = [
             workspaceRef
                 .updateData([
-                    "documents" : FieldValue.arrayRemove([id])
+                    "documents" : FieldValue.arrayRemove([id]),
+                    "documentsCount" : FieldValue.increment(Int64(-1))
                 ]),
             documentRef.delete()
         ]
