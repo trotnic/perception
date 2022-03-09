@@ -21,6 +21,7 @@ Workspace:
     - members: [WorkspaceMember]
     - title: String
     - emoji: String
+    - dateCreated: Date
 
 WorkspaceMember:
     - id: String
@@ -33,6 +34,8 @@ Document:
     - title: String
     - text: String
     - emoji: String
+    - dateCreated: Date
+    - dateEdited: Date
  */
 
 public final class FireRepository {
@@ -161,7 +164,8 @@ extension FireRepository: Repository {
                         ]
                     ],
                     "title" : title,
-                    "emoji" : "🔥"
+                    "emoji" : "",
+                    "dateCreated" : Timestamp(date: Date.now)
                 ]),
             userRef
                 .updateData([
@@ -185,6 +189,7 @@ extension FireRepository: Repository {
                         guard let members = workspaceSnapshot.get("members") as? Array<[String: Any]> else { throw FetchError.cantLoadEntity }
                         guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantLoadEntity }
                         guard let emoji = workspaceSnapshot.get("emoji") as? String else { throw FetchError.cantLoadEntity }
+                        guard let dateCreated = workspaceSnapshot.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
                         
                         let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
                             let document = try await documentRef(id: documentId).getDocument()
@@ -219,7 +224,8 @@ extension FireRepository: Repository {
                             title: title,
                             documents: shallowDocuments,
                             members: workspaceMembers,
-                            emoji: emoji
+                            emoji: emoji,
+                            dateCreated: dateCreated.dateValue()
                         )
                         callback(workspace)
                     } catch {
@@ -256,6 +262,7 @@ extension FireRepository: Repository {
         guard let members = workspaceSnapshot.get("members") as? Array<[String: Any]> else { throw FetchError.cantLoadEntity }
         guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantLoadEntity }
         guard let emoji = workspaceSnapshot.get("emoji") as? String else { throw FetchError.cantLoadEntity }
+        guard let dateCreated = workspaceSnapshot.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
 
         let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
             let document = try await documentRef(id: documentId).getDocument()
@@ -290,7 +297,8 @@ extension FireRepository: Repository {
             title: title,
             documents: shallowDocuments,
             members: workspaceMembers,
-            emoji: emoji
+            emoji: emoji,
+            dateCreated: dateCreated.dateValue()
         )
     }
 
@@ -385,6 +393,8 @@ extension FireRepository: Repository {
                     guard let title = document.get("title") as? String else { throw FetchError.cantLoadEntity }
                     guard let text = document.get("text") as? String else { throw FetchError.cantLoadEntity }
                     guard let emoji = document.get("emoji") as? String else { throw FetchError.cantLoadEntity }
+                    guard let dateCreated = document.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
+                    guard let dateEdited = document.get("dateEdited") as? Timestamp else { throw FetchError.cantLoadEntity }
 
                     let document = SUDocument(
                         meta: SUDocumentMeta(
@@ -394,10 +404,10 @@ extension FireRepository: Repository {
                         ownerId: ownerId,
                         title: title,
                         text: text,
-                        emoji: emoji
+                        emoji: emoji,
+                        dateCreated: dateCreated.dateValue(),
+                        dateEdited: dateEdited.dateValue()
                     )
-                    print(document)
-                    print(text)
                     callback(document)
                 }
             }
@@ -421,7 +431,9 @@ extension FireRepository: Repository {
                 "ownerId" : userId,
                 "title" : title,
                 "text" : "",
-                "emoji" : ""
+                "emoji" : "",
+                "dateCreated" : Timestamp(date: Date.now),
+                "dateEdited" : Timestamp(date: Date.now)
             ]),
             workspaceRef
                 .updateData([
@@ -440,6 +452,8 @@ extension FireRepository: Repository {
         guard let title = document.get("title") as? String else { throw FetchError.cantLoadEntity }
         guard let text = document.get("text") as? String else { throw FetchError.cantLoadEntity }
         guard let emoji = document.get("emoji") as? String else { throw FetchError.cantLoadEntity }
+        guard let dateCreated = document.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
+        guard let dateEdited = document.get("dateEdited") as? Timestamp else { throw FetchError.cantLoadEntity }
 
         return SUDocument(
             meta: SUDocumentMeta(
@@ -449,7 +463,9 @@ extension FireRepository: Repository {
             ownerId: ownerId,
             title: title,
             text: text,
-            emoji: emoji
+            emoji: emoji,
+            dateCreated: dateCreated.dateValue(),
+            dateEdited: dateEdited.dateValue()
         )
     }
 
@@ -464,21 +480,24 @@ extension FireRepository: Repository {
     public func updateDocument(with id: String, title: String) async throws {
         try await documentRef(id: id)
             .updateData([
-                "title" : title
+                "title" : title,
+                "dateEdited" : Timestamp(date: Date.now)
             ])
     }
 
     public func updateDocument(with id: String, emoji: String) async throws {
         try await documentRef(id: id)
             .updateData([
-                "emoji" : emoji
+                "emoji" : emoji,
+                "dateEdited" : Timestamp(date: Date.now)
             ])
     }
 
     public func updateDocument(with id: String, text: String) async throws {
         try await documentRef(id: id)
             .updateData([
-                "text" : text
+                "text" : text,
+                "dateEdited" : Timestamp(date: Date.now)
             ])
     }
 

@@ -46,6 +46,7 @@ public struct SUWorkspace {
     public let documents: [SUShallowDocument]
     public let members: [SUShallowWorkspaceMember]
     public let emoji: String
+    public let dateCreated: Date
 
     public init(
         meta: SUWorkspaceMeta,
@@ -53,7 +54,8 @@ public struct SUWorkspace {
         title: String,
         documents: [SUShallowDocument],
         members: [SUShallowWorkspaceMember],
-        emoji: String
+        emoji: String,
+        dateCreated: Date
     ) {
         self.meta = meta
         self.ownerId = ownerId
@@ -61,6 +63,7 @@ public struct SUWorkspace {
         self.documents = documents
         self.members = members
         self.emoji = emoji
+        self.dateCreated = dateCreated
     }
 }
 
@@ -72,7 +75,8 @@ public extension SUWorkspace {
         title: .empty,
         documents: [],
         members: [],
-        emoji: .empty
+        emoji: .empty,
+        dateCreated: .now
     )
 }
 

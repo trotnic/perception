@@ -52,6 +52,8 @@ public struct SUDocument: Equatable {
     public let title: String
     public let text: String
     public let emoji: String
+    public let dateCreated: Date
+    public let dateEdited: Date
 
     public static func == (lhs: SUDocument, rhs: SUDocument) -> Bool {
         lhs.meta == rhs.meta
@@ -59,5 +61,5 @@ public struct SUDocument: Equatable {
 }
 
 public extension SUDocument {
-    static let empty = SUDocument(meta: .empty, ownerId: .empty, title: .empty, text: .empty, emoji: .empty)
+    static let empty = SUDocument(meta: .empty, ownerId: .empty, title: .empty, text: .empty, emoji: .empty, dateCreated: .now, dateEdited: .now)
 }

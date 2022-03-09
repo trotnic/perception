@@ -75,6 +75,8 @@ private extension DocumentViewModel {
             .store(in: &disposeBag)
 
         $title
+            .removeDuplicates()
+            .drop(while: { $0 == self.documentManager.document.value.title })
             .debounce(for: 1.5, scheduler: DispatchQueue.main)
             .sink { [self] value in
                 Task {
@@ -84,6 +86,8 @@ private extension DocumentViewModel {
             .store(in: &disposeBag)
 
         $emoji
+            .removeDuplicates()
+            .drop(while: { $0 == self.documentManager.document.value.emoji })
             .debounce(for: 1.5, scheduler: DispatchQueue.main)
             .sink { [self] value in
                 Task {
@@ -93,6 +97,8 @@ private extension DocumentViewModel {
             .store(in: &disposeBag)
 
         $text
+            .removeDuplicates()
+            .drop(while: { $0 == self.documentManager.document.value.text })
             .debounce(for: 2.0, scheduler: DispatchQueue.main)
             .sink { [self] value in
                 Task {

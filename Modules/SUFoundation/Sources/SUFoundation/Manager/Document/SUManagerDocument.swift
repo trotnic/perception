@@ -53,7 +53,9 @@ public struct SUManagerDocumentMock: SUManagerDocument {
             ownerId: ownerIdCallback(),
             title: titleCallback(),
             text: textCallback(),
-            emoji: emojiCallback()
+            emoji: emojiCallback(),
+            dateCreated: .now,
+            dateEdited: .now
         )
     }
     public func loadDocument(id: String) async throws -> SUDocument {
@@ -62,7 +64,9 @@ public struct SUManagerDocumentMock: SUManagerDocument {
             ownerId: ownerIdCallback(),
             title: titleCallback(),
             text: textCallback(),
-            emoji: emojiCallback()
+            emoji: emojiCallback(),
+            dateCreated: .now,
+            dateEdited: .now
         )
     }
     public func updateDocument(id: String, title: String) async throws {}

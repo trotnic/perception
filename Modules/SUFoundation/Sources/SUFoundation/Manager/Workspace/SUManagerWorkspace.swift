@@ -56,7 +56,8 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
             title: titleCallback(),
             documents: documentsCallback(),
             members: membersCallback(),
-            emoji: emojiCallback()
+            emoji: emojiCallback(),
+            dateCreated: .now
         )
     }
     public func createDocument(title: String, workspaceId: String, userId: String) async throws -> String { String(describing: self) }
@@ -67,7 +68,8 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
             title: titleCallback(),
             documents: documentsCallback(),
             members: membersCallback(),
-            emoji: emojiCallback()
+            emoji: emojiCallback(),
+            dateCreated: .now
         )
     }
     public func updateWorkspace(id: String, title: String) async throws {}
