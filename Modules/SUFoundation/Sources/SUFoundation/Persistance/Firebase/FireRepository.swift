@@ -105,13 +105,17 @@ extension FireRepository: Repository {
 
             guard let title = workspace.get("title") as? String else { return nil }
             guard let emoji = workspace.get("emoji") as? String else { return nil }
+            guard let documentsCount = workspace.get("documentsCount") as? Int else { return nil }
+            guard let membersCount = workspace.get("membersCount") as? Int else { return nil }
 
             return SUShallowWorkspace(
                 meta: SUWorkspaceMeta(
                     id: workspaceId
                 ),
                 title: title,
-                emoji: emoji
+                emoji: emoji,
+                documentsCount: documentsCount,
+                membersCount: membersCount
             )
         }
         return result
@@ -130,13 +134,17 @@ extension FireRepository: Repository {
 
                         guard let title = workspace.get("title") as? String else { return nil }
                         guard let emoji = workspace.get("emoji") as? String else { return nil }
+                        guard let documentsCount = workspace.get("documentsCount") as? Int else { return nil }
+                        guard let membersCount = workspace.get("membersCount") as? Int else { return nil }
 
                         return SUShallowWorkspace(
                             meta: SUWorkspaceMeta(
                                 id: workspace.documentID
                             ),
                             title: title,
-                            emoji: emoji
+                            emoji: emoji,
+                            documentsCount: documentsCount,
+                            membersCount: membersCount
                         )
                     }
                     callback(result)
@@ -165,7 +173,9 @@ extension FireRepository: Repository {
                     ],
                     "title" : title,
                     "emoji" : "",
-                    "dateCreated" : Timestamp(date: Date.now)
+                    "dateCreated" : Timestamp(date: Date.now),
+                    "documentsCount" : 0,
+                    "membersCount" : 1
                 ]),
             userRef
                 .updateData([
@@ -571,13 +581,17 @@ public extension FireRepository {
                 guard let workspaceId = document.get("id") as? String else { return nil }
                 guard let title = document.get("title") as? String else { return nil }
                 guard let emoji = document.get("emoji") as? String else { return nil }
+                guard let documentsCount = document.get("documentsCount") as? Int else { return nil }
+                guard let membersCount = document.get("membersCount") as? Int else { return nil }
 
                 return SUShallowWorkspace(
                     meta: SUWorkspaceMeta(
                         id: workspaceId
                     ),
                     title: title,
-                    emoji: emoji
+                    emoji: emoji,
+                    documentsCount: documentsCount,
+                    membersCount: membersCount
                 )
             }
     }

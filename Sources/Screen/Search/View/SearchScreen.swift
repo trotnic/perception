@@ -65,6 +65,7 @@ extension SearchScreen: View {
                                 emoji: item.emoji,
                                 title: item.title,
                                 icon: "chevron.right",
+                                badges: [],
                                 action: {
                                     viewModel.readAction(id: item.id)
                                 }
@@ -88,19 +89,31 @@ struct SearchScreen_Previews: PreviewProvider {
                 [
                     SUShallowWorkspace(
                         meta: .init(id: "#1"),
-                        title: "One workspace", emoji: "❤️"
+                        title: "One workspace",
+                        emoji: "❤️",
+                        documentsCount: 1,
+                        membersCount: 1
                     ),
                     SUShallowWorkspace(
                         meta: .init(id: "#2"),
-                        title: "Two workspace", emoji: "❤️"
+                        title: "Two workspace",
+                        emoji: "❤️",
+                        documentsCount: 1,
+                        membersCount: 1
                     ),
                     SUShallowWorkspace(
                         meta: .init(id: "#3"),
-                        title: "Three workspace", emoji: "❤️"
+                        title: "Three workspace",
+                        emoji: "❤️",
+                        documentsCount: 1,
+                        membersCount: 1
                     ),
                     SUShallowWorkspace(
                         meta: .init(id: "#4"),
-                        title: "Four workspace", emoji: "❤️"
+                        title: "Four workspace",
+                        emoji: "❤️",
+                        documentsCount: 1,
+                        membersCount: 1
                     )
                 ]
             }

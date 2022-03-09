@@ -108,11 +108,43 @@ private extension SpaceScreen {
                     emoji: item.emoji,
                     title: item.title,
                     icon: "chevron.right",
+                    badges: item.badges.map {
+                        SUListTileWork.Badge(
+                            title: $0.title,
+                            icon: $0.type.icon,
+                            color: $0.type.color
+                        )
+                    },
                     action: item.action
                 )
             }
         }
         .foregroundColor(SUColorStandartPalette.text)
+    }
+}
+
+extension SpaceViewModel.Badge.BadgeType {
+
+    var color: Color {
+        switch self {
+        case .documents:
+            return .red.opacity(0.8)
+        case .members:
+            return .cyan.opacity(0.8)
+        case .dateCreated:
+            return .green.opacity(0.8)
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .documents:
+            return "doc.on.doc"
+        case .members:
+            return "person.2"
+        case .dateCreated:
+            return "clock.arrow.circlepath"
+        }
     }
 }
 
@@ -127,7 +159,9 @@ struct SpaceScreen_Previews: PreviewProvider {
                 SUShallowWorkspace(
                     meta: .empty,
                     title: "Amazing Workspace!",
-                    emoji: "❤️"
+                    emoji: "❤️",
+                    documentsCount: 1,
+                    membersCount: 1
                 )
             ]
         }),

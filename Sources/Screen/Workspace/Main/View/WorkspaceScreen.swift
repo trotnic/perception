@@ -177,6 +177,7 @@ private extension WorkspaceScreen {
                     emoji: item.emoji,
                     title: item.title,
                     icon: "chevron.right",
+                    badges: [],
                     action: item.action
                 )
             }

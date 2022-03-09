@@ -27,15 +27,21 @@ public struct SUShallowWorkspace {
     public let meta: SUWorkspaceMeta
     public let title: String
     public let emoji: String
+    public let documentsCount: Int
+    public let membersCount: Int
 
     public init(
         meta: SUWorkspaceMeta,
         title: String,
-        emoji: String
+        emoji: String,
+        documentsCount: Int,
+        membersCount: Int
     ) {
         self.meta = meta
         self.title = title
         self.emoji = emoji
+        self.membersCount = membersCount
+        self.documentsCount = documentsCount
     }
 }
 

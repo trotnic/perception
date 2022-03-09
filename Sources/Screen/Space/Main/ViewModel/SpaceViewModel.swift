@@ -52,7 +52,19 @@ public extension SpaceViewModel {
         public let id = UUID()
         public let title: String
         public let emoji: String
+        public let badges: [Badge]
         public let action: () -> Void
+    }
+
+    struct Badge {
+        public enum BadgeType {
+            case members
+            case dateCreated
+            case documents
+        }
+
+        public let title: String
+        public let type: BadgeType
     }
 }
 
@@ -69,6 +81,10 @@ private extension SpaceViewModel {
                     ListItem(
                         title: workspace.title,
                         emoji: workspace.emoji,
+                        badges: [
+                            Badge(title: "\(workspace.membersCount) members", type: .members),
+                            Badge(title: "\(workspace.documentsCount) documents", type: .documents)
+                        ],
                         action: { self.selectItem(with: workspace.meta.id) }
                     )
                 }
