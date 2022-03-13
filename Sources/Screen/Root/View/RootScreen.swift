@@ -123,6 +123,20 @@ extension RootScreen: View {
                 )
             }
             .navigationTransition()
+            Route("space/workspace/:wId/members/invite", validator: {
+                .init(
+                    id: $0.parameters["wId"]!
+                )
+            }) { (meta: SUWorkspaceMeta) in
+                WorkspaceMemberInviteScreen(
+                    viewModel: WorkspaceMemberInviteViewModel(
+                        appState: environment.appState,
+                        inviteManager: environment.inviteManager,
+                        workspaceMeta: meta
+                    )
+                )
+            }
+            .navigationTransition()
             Route("account/:uId", validator: {
                 .init(id: $0.parameters["uId"]!)
             }) { (meta: SUUserMeta) in

@@ -44,4 +44,6 @@ public extension SUDepFactory {
     var documentManager: DocumentManager { DocumentManager(repository: _repository) }
 
     var memberManager: MemberManager { MemberManager(repository: _repository) }
+
+    var inviteManager: InviteManager { InviteManager(repository: _repository) }
 }

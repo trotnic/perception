@@ -42,22 +42,24 @@ extension WorkspaceCreateScreen: View {
                     }
                     .padding(.top, 16.0)
                     .padding(.horizontal, 16.0)
-                    topTile
+                    TopTile()
                         .frame(maxWidth: proxy.size.width - 32.0)
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
             }
         }
     }
+}
 
-    @ViewBuilder private var topTile: some View {
+private extension WorkspaceCreateScreen {
+
+    @ViewBuilder func TopTile() -> some View {
         VStack(alignment: .leading, spacing: 16) {
             TextField("", text: $viewModel.itemName)
                 .placeholder(when: viewModel.itemName.isEmpty) {
                     Text("Name document")
                         .foregroundColor(SUColorStandartPalette.secondary1)
                 }
-                
             RoundedRectangle(cornerRadius: 1)
                 .fill(.white.opacity(0.2))
                 .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
@@ -77,7 +79,6 @@ extension WorkspaceCreateScreen: View {
                 .fill(.white.opacity(0.2))
         }
     }
-
 }
 
 struct WorkspaceCreateScreen_Previews: PreviewProvider {

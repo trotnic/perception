@@ -37,6 +37,15 @@ extension WorkspaceMemberScreen: View {
                             .font(.custom("Comfortaa", size: 20).weight(.bold))
                             .foregroundColor(SUColorStandartPalette.text)
                     }
+                    VStack {
+                        SUButtonCircular(
+                            icon: "person.badge.plus",
+                            action: viewModel.inviteAction
+                        )
+                            .frame(width: 36.0, height: 36.0)
+                    }
+                    .padding(.trailing, 16)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .padding(.top, 16)
                 ScrollView {

@@ -112,3 +112,8 @@ public enum SUWorkspacePermission: Int {
         }
     }
 }
+
+public struct SUMemberInvite {
+    public let id: String
+    public let workspaceId: String
+}

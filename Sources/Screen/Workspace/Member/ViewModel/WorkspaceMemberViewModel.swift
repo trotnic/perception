@@ -42,6 +42,10 @@ public extension WorkspaceMemberViewModel {
     func backAction() {
         appState.change(route: .back)
     }
+
+    func inviteAction() {
+        appState.change(route: .invite(workspaceMeta))
+    }
 }
 
 public extension WorkspaceMemberViewModel {

@@ -184,7 +184,8 @@ struct AccountScreenSS_Previews: PreviewProvider {
                 SUUser(
                     meta: .init(id: .empty),
                     username: "lol kekman",
-                    email: "lol.kekman@gmail.com"
+                    email: "lol.kekman@gmail.com",
+                    invites: []
                 )
             }
         ),

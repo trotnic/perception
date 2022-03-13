@@ -82,6 +82,15 @@ private extension FireRepository {
             .document(id)
     }
 
+    func userRef(email: String) async throws -> DocumentReference? {
+        try await users()
+            .whereField("email", isEqualTo: email)
+            .getDocuments()
+            .documents
+            .first?
+            .reference
+    }
+
     func workspaceRef(id: String) -> DocumentReference {
         workspaces()
             .document(id)
@@ -246,24 +255,6 @@ extension FireRepository: Repository {
         listeners[workspaceId] = listener
     }
 
-    //    public func listenWorkspace(with id: String, completion: @escaping (SUWorkspace) -> Void) {
-    //        let listener = workspaceRef(id: id)
-    //            .addSnapshotListener { snapshot, error in
-    //                Task {
-    //                    guard let data = snapshot?.data() else { return }
-    //                    guard let title = data["title"] as? String else { return }
-    //                    guard let rawDocuments = data["documents"] as? Array<DocumentReference> else { return }
-    //                    let documents: [SUShallowDocument] = try await rawDocuments.asyncCompactMap { docRef in
-    //                        let doc = try await docRef.getDocument()
-    //                        guard let title = doc.data()?["title"] as? String else { return nil }
-    //                        return SUShallowDocument(meta: SUDocumentMeta(id: doc.documentID, workspaceId: id), title: title)
-    //                    }
-    //                    completion(SUWorkspace(meta: SUWorkspaceMeta(id: id), title: title, documents: documents))
-    //                }
-    //            }
-    //        listeners[id] = listener
-    //    }
-
     public func workspace(with id: String) async throws -> SUWorkspace {
         let workspaceSnapshot = try await workspaceRef(id: id).getDocument()
 
@@ -372,7 +363,8 @@ extension FireRepository: Repository {
                                         id: id
                                     ),
                                     username: username,
-                                    email: email
+                                    email: email,
+                                    invites: []
                                 ),
                                 permission: SUWorkspacePermission(rawValue: permission)!
                             )
@@ -385,6 +377,49 @@ extension FireRepository: Repository {
                 }
             }
         listeners[workspaceId] = listener
+    }
+
+    public func addMember(email: String, workspaceId: String) async throws {
+        guard let userRef = try await userRef(email: email) else { throw FetchError.cantLoadEntity }
+
+        try await userRef
+            .updateData([
+                "invites" : FieldValue.arrayUnion([workspaceId])
+            ])
+    }
+
+    public func startListenInvites(
+        userId: String,
+        callback: @escaping ([SUShallowWorkspace]) -> Void
+    ) async throws {
+        guard let invites = try await userRef(id: userId).getDocument().get("invites") as? [String] else { throw FetchError.cantLoadList }
+
+        let listener = workspaces()
+            .whereField("id", in: invites)
+            .addSnapshotListener { snapshot, error in
+                guard let workspaces = snapshot?.documents else { return }
+                Task {
+                    let result: [SUShallowWorkspace] = await workspaces.asyncCompactMap { workspace in
+
+                        guard let title = workspace.get("title") as? String else { return nil }
+                        guard let emoji = workspace.get("emoji") as? String else { return nil }
+                        guard let documentsCount = workspace.get("documentsCount") as? Int else { return nil }
+                        guard let membersCount = workspace.get("membersCount") as? Int else { return nil }
+
+                        return SUShallowWorkspace(
+                            meta: SUWorkspaceMeta(
+                                id: workspace.documentID
+                            ),
+                            title: title,
+                            emoji: emoji,
+                            documentsCount: documentsCount,
+                            membersCount: membersCount
+                        )
+                    }
+                    callback(result)
+                }
+            }
+        listeners[userId] = listener
     }
 
     // MARK: - Document
@@ -539,7 +574,8 @@ extension FireRepository: Repository {
                 id: id
             ),
             username: username,
-            email: email
+            email: email,
+            invites: []
         )
     }
 
@@ -558,7 +594,7 @@ extension FireRepository: Repository {
             .addSnapshotListener { snapshot, error in
                 guard let username = snapshot?.get("username") as? String else { return }
                 guard let email = snapshot?.get("email") as? String else { return }
-                callback(SUUser(meta: SUUserMeta(id: id), username: username, email: email))
+                callback(SUUser(meta: SUUserMeta(id: id), username: username, email: email, invites: []))
             }
         listeners[id] = listener
     }

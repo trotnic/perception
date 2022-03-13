@@ -24,18 +24,24 @@ public struct SUUser {
     public let meta: SUUserMeta
     public let username: String
     public let email: String
+    public let invites: [SUMemberInvite]
 
     public init(
         meta: SUUserMeta,
         username: String,
-        email: String
+        email: String,
+        invites: [SUMemberInvite]
     ) {
         self.meta = meta
         self.username = username
         self.email = email
+        self.invites = invites
     }
 }
 
 public extension SUUser {
-    static let empty = SUUser(meta: .empty, username: .empty, email: .empty)
+    static let empty = SUUser(meta: .empty,
+                              username: .empty,
+                              email: .empty,
+                              invites: [])
 }
