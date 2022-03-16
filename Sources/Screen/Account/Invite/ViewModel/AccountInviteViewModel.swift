@@ -53,6 +53,20 @@ public extension AccountInviteViewModel {
         public let badges: [Badge]
         public let confirmAction: () -> Void
         public let rejectAction: () -> Void
+
+        init(
+            title: String,
+            emoji: String,
+            badges: [Badge],
+            confirmAction: @autoclosure @escaping () -> Void,
+            rejectAction: @autoclosure @escaping () -> Void
+        ) {
+            self.title = title
+            self.emoji = emoji
+            self.badges = badges
+            self.confirmAction = confirmAction
+            self.rejectAction = rejectAction
+        }
     }
 
     struct Badge {
@@ -72,20 +86,29 @@ private extension AccountInviteViewModel {
     func setupBindings() {
         accountManager
             .invites
-            .map { workspaces in
+            .map { [unowned self] workspaces in
                 workspaces.map { workspace in
                     ListItem(
                         title: workspace.title,
                         emoji: workspace.emoji,
                         badges: [
+                            // TODO: Plural formatting
                             Badge(title: "\(workspace.documentsCount) documents", type: .documents),
                             Badge(title: "\(workspace.membersCount) members", type: .members),
                         ],
-                        confirmAction: {},
-                        rejectAction: {}
+                        confirmAction: self.confirmAction(workspaceId: workspace.meta.id),
+                        rejectAction: self.rejectAction(workspaceId: workspace.meta.id)
                     )
                 }
             }
             .assign(to: &$items)
+    }
+
+    func confirmAction(workspaceId: String) {
+        accountManager.confirmInvite(userId: userMeta.id, workspaceId: workspaceId)
+    }
+
+    func rejectAction(workspaceId: String) {
+        accountManager.rejectInvite(userId: userMeta.id, workspaceId: workspaceId)
     }
 }

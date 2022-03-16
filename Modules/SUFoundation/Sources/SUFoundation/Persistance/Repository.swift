@@ -9,7 +9,7 @@
 
 public protocol Repository {
 
-    func startListenSpace(userId: String, callback: @escaping ([SUShallowWorkspace]) -> Void)
+    func startListenSpace(userId: String, callback: @escaping ([SUShallowWorkspace]) -> Void) async throws
     func workspaces(for userId: String) async throws -> [SUShallowWorkspace]
 //    func listenWorkspace(with id: String, completion: @escaping (SUWorkspace) -> Void)
 
@@ -32,8 +32,11 @@ public protocol Repository {
     func deleteWorkspace(id: String, userId: String) async throws
 
     func members(workspaceId: String, callback: @escaping ([SUWorkspaceMember]) -> Void)
-    func addMember(email: String, workspaceId: String) async throws
+    func sendInvite(email: String, workspaceId: String) async throws
+
     func startListenInvites(userId: String, callback: @escaping ([SUShallowWorkspace]) -> Void) async throws
+    func confirmInvite(userId: String, workspaceId: String)
+    func rejectInvite(userId: String, workspaceId: String)
 
     func user(with id: String) async throws -> SUUser
     func updateUser(with id: String, name: String) async throws

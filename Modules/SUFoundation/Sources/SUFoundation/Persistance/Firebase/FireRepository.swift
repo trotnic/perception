@@ -133,9 +133,11 @@ extension FireRepository: Repository {
     public func startListenSpace(
         userId: String,
         callback: @escaping ([SUShallowWorkspace]) -> Void
-    ) {
+    ) async throws {
+        guard let userWorkspaces = try await userRef(id: userId).getDocument().get("workspaces") as? Array<String> else { throw FetchError.cantLoadList }
+
         let listener = workspaces()
-            .whereField("ownerId", isEqualTo: userId)
+            .whereField("id", in: userWorkspaces)
             .addSnapshotListener { snapshot, error in
                 guard let workspaces = snapshot?.documents else { return }
                 Task {
@@ -379,7 +381,9 @@ extension FireRepository: Repository {
         listeners[workspaceId] = listener
     }
 
-    public func addMember(email: String, workspaceId: String) async throws {
+    // MARK: - Invites
+
+    public func sendInvite(email: String, workspaceId: String) async throws {
         guard let userRef = try await userRef(email: email) else { throw FetchError.cantLoadEntity }
 
         try await userRef
@@ -425,6 +429,36 @@ extension FireRepository: Repository {
                 }
             }
         listeners[userId] = listener
+    }
+
+    public func confirmInvite(
+        userId: String,
+        workspaceId: String
+    ) {
+        let userRef = userRef(id: userId)
+        let workspaceRef = workspaceRef(id: workspaceId)
+        userRef.updateData([
+            "invites" : FieldValue.arrayRemove([workspaceId]),
+            "workspaces" : FieldValue.arrayUnion([workspaceId])
+        ])
+        workspaceRef.updateData([
+            "members" : FieldValue.arrayUnion([
+                [
+                    "id" : userId,
+                    "permission" : 1
+                ]
+            ])
+        ])
+    }
+
+    public func rejectInvite(
+        userId: String,
+        workspaceId: String
+    ) {
+        let userRef = userRef(id: userId)
+        userRef.updateData([
+            "invites" : FieldValue.arrayRemove([workspaceId])
+        ])
     }
 
     // MARK: - Document

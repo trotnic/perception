@@ -30,10 +30,26 @@ extension AccountManager: SUManagerAccount {
                 try await repository.startListenInvites(userId: userId)
                 { [weak self] workspaces in
                     guard let self = self else { return }
-                    self.invites.value = workspaces
+                    Task {
+                        do {
+                            await MainActor.run {
+                                self.invites.value = workspaces
+                            }
+                        } catch {
+                            
+                        }
+                    }
                 }
             } catch {
             }
         }
+    }
+
+    public func confirmInvite(userId: String, workspaceId: String) {
+        repository.confirmInvite(userId: userId, workspaceId: workspaceId)
+    }
+
+    public func rejectInvite(userId: String, workspaceId: String) {
+        repository.rejectInvite(userId: userId, workspaceId: workspaceId)
     }
 }

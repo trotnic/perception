@@ -23,6 +23,6 @@ public final class InviteManager {
 extension InviteManager: SUManagerInvite {
 
     public func inviteUser(with email: String, in workspaceId: String) async throws {
-        try await repository.addMember(email: email, workspaceId: workspaceId)
+        try await repository.sendInvite(email: email, workspaceId: workspaceId)
     }
 }

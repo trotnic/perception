@@ -27,10 +27,16 @@ public final class SpaceManager: SUManagerSpace {
 public extension SpaceManager {
 
     func observe(for userId: String) {
-        repository
-            .startListenSpace(userId: userId) { workspaces in
-                self.workspaces.value = workspaces
+        Task {
+            do {
+                try await repository
+                    .startListenSpace(userId: userId) { workspaces in
+                        self.workspaces.value = workspaces
+                    }
+            } catch {
+                
             }
+        }
     }
 
     func loadWorkspaces(for userId: String) async throws -> [SUShallowWorkspace] {

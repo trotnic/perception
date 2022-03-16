@@ -14,6 +14,8 @@ public protocol SUManagerAccount {
     var invites: CurrentValueSubject<[SUShallowWorkspace], Never> { get }
 
     func observeInvites(for userId: String)
+    func confirmInvite(userId: String, workspaceId: String)
+    func rejectInvite(userId: String, workspaceId: String)
 }
 
 public struct SUManagerAccountMock {
@@ -34,4 +36,7 @@ extension SUManagerAccountMock: SUManagerAccount {
     public func observeInvites(for userId: String) {
         invites.value = workspacesCallback()
     }
+
+    public func confirmInvite(userId: String, workspaceId: String) {}
+    public func rejectInvite(userId: String, workspaceId: String) {}
 }
