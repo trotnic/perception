@@ -27,9 +27,9 @@ extension AccountScreen: View {
                 .ignoresSafeArea()
             VStack(spacing: 16.0) {
                 if isEditing {
-                    editingBlock(size: proxy.size)
+                    EditingBlock(size: proxy.size)
                 } else {
-                    generalBlock(size: proxy.size)
+                    GeneralBlock(size: proxy.size)
                 }
             }
             .foregroundColor(SUColorStandartPalette.text)
@@ -40,26 +40,17 @@ extension AccountScreen: View {
 
 private extension AccountScreen {
 
-    @ViewBuilder func editingBlock(size: CGSize) -> some View {
+    func ProfileImage() -> some View {
+        Circle()
+            .frame(width: 120.0, height: 120.0)
+    }
+
+    @ViewBuilder func EditingBlock(size: CGSize) -> some View {
         VStack(spacing: 32.0) {
-            Circle()
-                .frame(width: 120.0, height: 120.0)
-
-            Sheet(height: size.height * 0.6108374384)
+            ProfileImage()
+            Sheet()
                 .padding(.horizontal, 16.0)
-
-            Button {
-                viewModel.saveAction()
-            } label: {
-                Text("Save")
-                    .font(.system(size: 20.0).weight(.bold))
-                    .foregroundColor(SUColorStandartPalette.text)
-                    .frame(maxWidth: size.width - 32)
-                    .frame(height: 56)
-                    .background(SUColorStandartPalette.tint)
-                    .cornerRadius(20.0)
-            }
-            .matchedGeometryEffect(id: "bottom_button", in: namespace)
+            SaveButton(size: size)
         }
         .frame(maxWidth: .infinity)
         .onTapGesture {
@@ -69,62 +60,89 @@ private extension AccountScreen {
         }
     }
 
-    @ViewBuilder func generalBlock(size: CGSize) -> some View {
+    @ViewBuilder func GeneralBlock(size: CGSize) -> some View {
         ZStack {
             VStack {
-                SUButtonCircular(icon: "chevron.left", action: viewModel.backAction)
+                SUButtonCircular(
+                    icon: "chevron.left",
+                    action: viewModel.backAction
+                )
                     .frame(width: 36.0, height: 36.0)
             }
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.top, 16)
-        VStack(spacing: 32.0) {
-            Circle()
-                .frame(width: 120.0, height: 120.0)
-            VStack(spacing: 40.0) {
-                VStack(spacing: 24.0) {
-                    VStack(spacing: 16.0) {
-                        Text(viewModel.username)
-                            .font(.system(size: 36.0))
-                        Text(viewModel.email)
-                            .font(.system(size: 14.0))
-                    }
-                    SUButtonStroke(text: "Edit profile") {
-                        withAnimation {
-                            isEditing = true
-                        }
-                    }
-                }
-            }
+        VStack(spacing: 16.0) {
+            ProfileImage()
+            InfoBlock()
             Spacer()
-            Button {
-                viewModel.logoutAction()
-            } label: {
-                Text("Log out")
-                    .font(.system(size: 20.0).weight(.bold))
-                    .foregroundColor(SUColorStandartPalette.text)
-                    .frame(maxWidth: size.width - 32)
-                    .frame(height: 56)
-                    .background(SUColorStandartPalette.destructive)
-                    .cornerRadius(20.0)
-            }
-            .matchedGeometryEffect(id: "bottom_button", in: namespace)
+            LogOutButton(size: size)
         }
         .padding(.horizontal, 16.0)
     }
 
-    func Sheet(height: CGFloat) -> some View {
+    func InfoBlock() -> some View {
+        VStack(spacing: 24.0) {
+            VStack(spacing: 24.0) {
+                Text(viewModel.username)
+                    .font(.system(size: 36.0))
+                SUButtonStroke(text: "Edit profile") {
+                    withAnimation {
+                        isEditing = true
+                    }
+                }
+            }
+            ScrollView {
+                VStack(spacing: 24.0) {
+                    VStack(alignment: .leading, spacing: 12.0) {
+                        Text("Info")
+                            .font(.system(size: 16.0).bold())
+                        VStack(spacing: 16.0) {
+                            Text(viewModel.email)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(16.0)
+                                .background(SUColorStandartPalette.tile)
+                                .cornerRadius(16.0)
+                            Text(viewModel.username)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(16.0)
+                                .background(SUColorStandartPalette.tile)
+                                .cornerRadius(16.0)
+                        }
+                    }
+                    VStack(alignment: .leading, spacing: 12.0) {
+                        Text("Invites")
+                            .font(.system(size: 16.0).bold())
+                        VStack(spacing: 16.0) {
+                            Button {
+                                viewModel.invitesAction()
+                            } label: {
+                                Text("Active invites")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(16.0)
+                                    .background(SUColorStandartPalette.tile)
+                                    .cornerRadius(16.0)
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    func Sheet() -> some View {
         ZStack {
             VStack(spacing: .zero) {
                 HStack {
-                    SUButtonCircular(icon: "xmark", action: {
+                    SUButtonCircular(icon: "xmark") {
                         withAnimation {
                             isEditing = false
                         }
-                    })
-                        .frame(width: 36.0, height: 36.0)
-                        .padding(.vertical, 20.0)
+                    }
+                    .frame(width: 36.0, height: 36.0)
+                    .padding(.vertical, 20.0)
                     Spacer()
                     VStack {
                         RoundedRectangle(cornerRadius: 10.0)
@@ -134,7 +152,6 @@ private extension AccountScreen {
                             .font(.system(size: 18.0))
                             .foregroundColor(SUColorStandartPalette.text)
                     }
-
                     Spacer()
                     SUButtonStroke(text: "Reset") {
                         viewModel.resetAction()
@@ -145,16 +162,22 @@ private extension AccountScreen {
                 ScrollView {
                     VStack(spacing: 24.0) {
                         VStack(alignment: .leading, spacing: 16.0) {
-                            Text("Name")
+                            Text("Username")
                                 .font(.system(size: 16.0, weight: .bold))
                                 .foregroundColor(SUColorStandartPalette.secondary1)
                             SUTextFieldCapsule(
                                 text: $viewModel.username,
-                                placeholder: "Start typing"
+                                placeholder: "Username"
+                            )
+                            Text("Position}")
+                                .font(.system(size: 16.0, weight: .bold))
+                                .foregroundColor(SUColorStandartPalette.secondary1)
+                            SUTextFieldCapsule(
+                                text: $viewModel.position,
+                                placeholder: "Position"
                             )
                         }
                         .padding(.horizontal, 16.0)
-                        Spacer()
                     }
                 }
                 .padding(.vertical, 20.0)
@@ -163,13 +186,42 @@ private extension AccountScreen {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: height)
         .background(SUColorStandartPalette.background)
         .cornerStroke(
             20.0,
             corners: .allCorners,
             color: SUColorStandartPalette.tile
         )
+    }
+
+    func SaveButton(size: CGSize) -> some View {
+        Button {
+            viewModel.saveAction()
+        } label: {
+            Text("Save")
+                .font(.system(size: 20.0).weight(.bold))
+                .foregroundColor(SUColorStandartPalette.text)
+                .frame(maxWidth: size.width - 32)
+                .frame(height: 56)
+                .background(SUColorStandartPalette.tint)
+                .cornerRadius(20.0)
+        }
+        .matchedGeometryEffect(id: "bottom_button", in: namespace)
+    }
+
+    func LogOutButton(size: CGSize) -> some View {
+        Button {
+            viewModel.logoutAction()
+        } label: {
+            Text("Log out")
+                .font(.system(size: 20.0).weight(.bold))
+                .foregroundColor(SUColorStandartPalette.text)
+                .frame(maxWidth: size.width - 32)
+                .frame(height: 56)
+                .background(SUColorStandartPalette.destructive)
+                .cornerRadius(20.0)
+        }
+        .matchedGeometryEffect(id: "bottom_button", in: namespace)
     }
 }
 

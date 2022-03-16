@@ -28,4 +28,5 @@ public final class SUEnvironment: ObservableObject {
     public var documentManager: DocumentManager { factory.documentManager }
     public var memberManager: MemberManager { factory.memberManager }
     public var inviteManager: InviteManager { factory.inviteManager }
+    public var accountManager: AccountManager { factory.accountManager }
 }

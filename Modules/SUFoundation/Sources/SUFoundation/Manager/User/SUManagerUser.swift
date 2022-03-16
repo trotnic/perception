@@ -63,5 +63,7 @@ extension SUManagerUserPrimeMock: SUManagerUserPrime {
 
     public func fetch(id: String) async throws -> SUUser { userCallback() }
     public func update(id: String, name: String) async throws {}
-    public func setup(id: String) {}
+    public func setup(id: String) {
+        user.value = userCallback()
+    }
 }

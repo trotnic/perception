@@ -394,6 +394,11 @@ extension FireRepository: Repository {
     ) async throws {
         guard let invites = try await userRef(id: userId).getDocument().get("invites") as? [String] else { throw FetchError.cantLoadList }
 
+        guard !invites.isEmpty else {
+            callback([])
+            return
+        }
+
         let listener = workspaces()
             .whereField("id", in: invites)
             .addSnapshotListener { snapshot, error in

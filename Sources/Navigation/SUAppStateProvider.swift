@@ -24,6 +24,7 @@ public enum SUAppScreen {
     case search
     case members(SUWorkspaceMeta)
     case invite(SUWorkspaceMeta)
+    case invites(SUUserMeta)
 }
 
 public enum SUAppIntention {

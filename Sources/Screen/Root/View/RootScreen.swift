@@ -137,18 +137,7 @@ extension RootScreen: View {
                 )
             }
             .navigationTransition()
-            Route("account/:uId", validator: {
-                .init(id: $0.parameters["uId"]!)
-            }) { (meta: SUUserMeta) in
-                AccountScreen(
-                    viewModel: AccountViewModel(
-                        appState: environment.appState,
-                        userManager: environment.userManager,
-                        userMeta: meta
-                    )
-                )
-            }
-            .navigationTransition()
+            Account()
             Route("search") {
                 SearchScreen(
                     viewModel: SearchViewModel(
@@ -160,6 +149,33 @@ extension RootScreen: View {
             }
         }
         .onAppear(perform: viewModel.handleUserAuthenticationState)
+    }
+
+    @ViewBuilder func Account() -> some View {
+        Route("account/:uId", validator: {
+            .init(id: $0.parameters["uId"]!)
+        }) { (meta: SUUserMeta) in
+            AccountScreen(
+                viewModel: AccountViewModel(
+                    appState: environment.appState,
+                    userManager: environment.userManager,
+                    userMeta: meta
+                )
+            )
+        }
+        .navigationTransition()
+        Route("account/:uId/invites", validator: {
+            .init(id: $0.parameters["uId"]!)
+        }) { (meta: SUUserMeta) in
+            AccountInviteScreen(
+                viewModel: AccountInviteViewModel(
+                    appState: environment.appState,
+                    accountManager: environment.accountManager,
+                    userMeta: meta
+                )
+            )
+        }
+        .navigationTransition()
     }
 }
 

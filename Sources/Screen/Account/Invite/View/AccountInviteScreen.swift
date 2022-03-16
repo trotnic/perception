@@ -27,7 +27,7 @@ extension AccountInviteScreen: View {
                         VStack {
                             SUButtonCircular(
                                 icon: "chevron.left",
-                                action: {}
+                                action: viewModel.backAction
                             )
                                 .frame(width: 36.0, height: 36.0)
                         }
@@ -46,13 +46,6 @@ extension AccountInviteScreen: View {
                     }
                     .frame(maxHeight: .infinity)
                 }
-//                .overlay {
-//                    HStack {
-//                        toolbar
-//                    }
-//                    .frame(maxHeight: .infinity, alignment: .bottom)
-//                    .padding(.bottom, 10.0)
-//                }
             }
         }
         .onAppear(perform: viewModel.loadAction)
@@ -69,18 +62,20 @@ private extension AccountInviteScreen {
             spacing: 24.0
         ) {
             ForEach(viewModel.items) { item in
-                SUListTileWork(
-                    emoji: item.emoji,
-                    title: item.title,
-                    icon: "chevron.right",
-                    badges: item.badges.map {
-                        SUListTileWork.Badge(
-                            title: $0.title,
-                            icon: $0.type.icon,
-                            color: $0.type.color
-                        )
-                    },
-                    action: {}
+                SUListTileInvite(
+                    content: .init(
+                        title: item.title,
+                        emoji: item.emoji,
+                        badges: item.badges.map { badge in
+                            .init(
+                                title: badge.title,
+                                icon: badge.type.icon,
+                                color: badge.type.color
+                            )
+                        }
+                    ),
+                    confirmAction: item.confirmAction,
+                    rejectAction: item.rejectAction
                 )
             }
         }

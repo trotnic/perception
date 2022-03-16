@@ -12,8 +12,9 @@ import SUFoundation
 
 public final class AccountViewModel: ObservableObject {
 
-    @Published public var username: String = ""
-    @Published public private(set) var email: String = ""
+    @Published public var username: String = .empty
+    @Published public var position: String = .empty
+    @Published public private(set) var email: String = .empty
 
     private let appState: SUAppStateProvider
     private let userManager: SUManagerUserPrime
@@ -37,6 +38,10 @@ public extension AccountViewModel {
 
     func backAction() {
         appState.change(route: .back)
+    }
+
+    func invitesAction() {
+        appState.change(route: .invites(userMeta))
     }
 
     func logoutAction() {
