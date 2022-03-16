@@ -39,7 +39,7 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
         title: @escaping () -> String = { .empty },
         documents: @escaping () -> [SUShallowDocument] = { [] },
         members: @escaping () -> [SUShallowWorkspaceMember] = { [] },
-        emoji: @escaping () -> String = { "🔥" }
+        emoji: @escaping () -> String = { "" }
     ) {
         self.metaCallback = meta
         self.ownerIdCallback = ownerId

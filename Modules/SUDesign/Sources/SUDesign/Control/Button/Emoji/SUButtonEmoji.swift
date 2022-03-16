@@ -39,6 +39,7 @@ extension SUButtonEmoji: View {
                 .opacity(0.01)
             if text.isEmpty {
                 Image(systemName: "pencil.and.outline")
+                    .foregroundColor(SUColorStandartPalette.secondary2)
             } else {
                 Text(text)
             }

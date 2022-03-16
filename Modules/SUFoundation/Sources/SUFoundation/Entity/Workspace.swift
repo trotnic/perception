@@ -89,6 +89,14 @@ public extension SUWorkspace {
 public struct SUShallowWorkspaceMember {
     public let id: String
     public let permission: Int
+
+    public init(
+        id: String,
+        permission: Int
+    ) {
+        self.id = id
+        self.permission = permission
+    }
 }
 
 public struct SUWorkspaceMember {

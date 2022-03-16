@@ -46,7 +46,7 @@ extension WorkspaceScreen: View {
                 .padding(.top, 16)
                 ScrollView {
                     VStack(spacing: 40) {
-                        topTile
+                        TopTile()
                         listItems
                     }
                     .padding(16)
@@ -67,15 +67,17 @@ extension WorkspaceScreen: View {
 }
 
 private extension WorkspaceScreen {
-    
-    var topTile: some View {
+
+    func TopTile() -> some View {
         ZStack {
             SUColorStandartPalette.tile
             VStack(alignment: .leading, spacing: 16) {
-                SUButtonEmoji(text: $workspaceViewModel.emoji, commit: {})
-                    .focused($emojiButtonFocus)
-                TextField("", text: $workspaceViewModel.workspaceTitle)
-                    .font(.custom("Comfortaa", size: 18.0).weight(.bold))
+                HStack {
+                    SUButtonEmoji(text: $workspaceViewModel.emoji, commit: {})
+                        .focused($emojiButtonFocus)
+                    TextField("", text: $workspaceViewModel.workspaceTitle)
+                        .font(.custom("Comfortaa", size: 18.0).weight(.bold))
+                }
                 RoundedRectangle(cornerRadius: 1)
                     .fill(.white.opacity(0.2))
                     .frame(maxWidth: .infinity, minHeight: 1, maxHeight: 1)
@@ -211,6 +213,13 @@ struct WorkspaceScreen_Previews: PreviewProvider {
                     title: "Document #1",
                     emoji: "❤️"
                 ),
+            ]
+        }, members: {
+            [
+                SUShallowWorkspaceMember(
+                    id: .empty,
+                    permission: 0
+                )
             ]
         }),
         sessionManager: SUManagerUserPrimeMock(),
