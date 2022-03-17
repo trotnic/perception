@@ -47,7 +47,7 @@ extension WorkspaceScreen: View {
                 ScrollView {
                     VStack(spacing: 40) {
                         TopTile()
-                        listItems
+                        ListItems()
                     }
                     .padding(16)
                 }
@@ -57,7 +57,7 @@ extension WorkspaceScreen: View {
             }
             .overlay {
                 VStack {
-                    toolbar
+                    Toolbar()
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, 10.0)
@@ -75,7 +75,7 @@ private extension WorkspaceScreen {
                 HStack {
                     SUButtonEmoji(text: $workspaceViewModel.emoji, commit: {})
                         .focused($emojiButtonFocus)
-                    TextField("", text: $workspaceViewModel.workspaceTitle)
+                    TextField("", text: $workspaceViewModel.title)
                         .font(.custom("Comfortaa", size: 18.0).weight(.bold))
                 }
                 RoundedRectangle(cornerRadius: 1)
@@ -119,23 +119,19 @@ private extension WorkspaceScreen {
         }
     }
 
-    var toolbar: some View {
+    func Toolbar() -> some View {
         SUToolbar(
             defaultTwins: {
-                [
-                    SUToolbar.Item.Twin(
-                        icon: "doc",
-                        title: "Create document",
-                        type: .actionNext,
-                        action: workspaceViewModel.createAction
-                    ),
-                    SUToolbar.Item.Twin(
-                        icon: "trash",
-                        title: "Delete workspace",
-                        type: .action,
-                        action: workspaceViewModel.deleteAction
-                    )
-                ]
+                workspaceViewModel
+                    .actions
+                    .map {
+                        SUToolbar.Item.Twin(
+                            icon: $0.icon,
+                            title: $0.title,
+                            type: $0.rowType,
+                            action: $0.action
+                        )
+                    }
             },
             leftItems: {
                 [
@@ -170,7 +166,7 @@ private extension WorkspaceScreen {
         )
     }
 
-    var listItems: some View {
+    func ListItems() -> some View {
         LazyVGrid(columns: [
             GridItem(.flexible(minimum: .zero, maximum: .infinity))
         ], spacing: 24) {
@@ -188,12 +184,44 @@ private extension WorkspaceScreen {
     }
 }
 
+extension WorkspaceViewModel.ActionItem {
+
+    var icon: String {
+        switch self.type {
+        case .create:
+            return "doc"
+        case .delete:
+            return "trash"
+        }
+    }
+
+    var title: String {
+        switch self.type {
+        case .create:
+            return "Create document"
+        case .delete:
+            return "Delete workspace"
+        }
+    }
+
+    var rowType: SUToolbar.Row  {
+        switch self.type {
+        case .create:
+            return .actionNext
+        case .delete:
+            return .action
+        }
+    }
+}
+
 extension View {
     func debug() -> some View {
         dump(self)
         return self
     }
 }
+
+// MARK: - Preview
 
 struct WorkspaceScreen_Previews: PreviewProvider {
 

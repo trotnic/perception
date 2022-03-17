@@ -447,7 +447,8 @@ extension FireRepository: Repository {
                     "id" : userId,
                     "permission" : 1
                 ]
-            ])
+            ]),
+            "membersCount": FieldValue.increment(Int64(1))
         ])
     }
 

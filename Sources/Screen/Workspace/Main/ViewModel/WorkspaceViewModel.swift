@@ -12,12 +12,14 @@ import SUFoundation
 
 public final class WorkspaceViewModel: ObservableObject {
 
-    @Published public var workspaceTitle: String = .empty
+    @Published public var title: String = .empty
     @Published public var emoji: String = .empty
 
     @Published public private(set) var membersCount: Int = .zero
     @Published public private(set) var documentsCount: Int = .zero
+
     @Published public private(set) var viewItems: [ListItem] = []
+    @Published public private(set) var actions: [ActionItem] = []
 
     private let appState: SUAppStateProvider
     private let workspaceManager: SUManagerWorkspace
@@ -41,7 +43,7 @@ public final class WorkspaceViewModel: ObservableObject {
     }
 }
 
-// MARK: - Public interface
+// MARK: - Public actions
 
 public extension WorkspaceViewModel {
 
@@ -49,23 +51,12 @@ public extension WorkspaceViewModel {
         workspaceManager.observe(workspaceId: workspaceMeta.id)
     }
 
-    func createAction() {
-        appState.change(route: .create)
-    }
-
     func backAction() {
         appState.change(route: .back)
     }
-
-    func deleteAction() {
-        Task {
-            try await workspaceManager.deleteWorkspace(id: workspaceMeta.id, userId: sessionManager.userId)
-            await MainActor.run {
-                appState.change(route: .space)
-            }
-        }
-    }
 }
+
+// MARK: - Public types
 
 public extension WorkspaceViewModel {
 
@@ -73,6 +64,27 @@ public extension WorkspaceViewModel {
         public let id = UUID()
         public let title: String
         public let emoji: String
+        public let action: () -> Void
+
+        init(
+            title: String,
+            emoji: String,
+            action: @autoclosure @escaping () -> Void
+        ) {
+            self.title = title
+            self.emoji = emoji
+            self.action = action
+        }
+    }
+
+    struct ActionItem: Identifiable {
+        public enum ActionType {
+            case create
+            case delete
+        }
+
+        public let id = UUID()
+        public let type: ActionType
         public let action: () -> Void
     }
 }
@@ -86,7 +98,7 @@ private extension WorkspaceViewModel {
             .workspace
             .receive(on: DispatchQueue.main)
             .sink { [self] workspace in
-                workspaceTitle = workspace.title
+                title = workspace.title
                 emoji = workspace.emoji
                 membersCount = workspace.members.count
                 documentsCount = workspace.documents.count
@@ -94,21 +106,23 @@ private extension WorkspaceViewModel {
                     ListItem(
                         title: document.title,
                         emoji: document.emoji,
-                        action: {
-                            selectItem(with: document.meta.id)
-                        }
+                        action: self.selectItem(with: document.meta.id)
                     )
                 }
+                configureView()
             }
             .store(in: &disposeBag)
 
-        $workspaceTitle
+        $title
             .drop(while: { $0.isEmpty })
             .debounce(for: 1.0, scheduler: DispatchQueue.main)
             .sink { [self] value in
                 Task {
                     do {
-                        try await workspaceManager.updateWorkspace(id: workspaceMeta.id, title: value)
+                        try await workspaceManager.updateWorkspace(
+                            id: workspaceMeta.id,
+                            title: value
+                        )
                     } catch {
                         
                     }
@@ -122,7 +136,10 @@ private extension WorkspaceViewModel {
             .sink { [self] value in
                 Task {
                     do {
-                        try await workspaceManager.updateWorkspace(id: workspaceMeta.id, emoji: value)
+                        try await workspaceManager.updateWorkspace(
+                            id: workspaceMeta.id,
+                            emoji: value
+                        )
                     } catch {
                         
                     }
@@ -131,7 +148,50 @@ private extension WorkspaceViewModel {
             .store(in: &disposeBag)
     }
 
+    func configureView() {
+        var actions: [ActionItem] = [
+            ActionItem(
+                type: .create,
+                action: createAction
+            )
+        ]
+        if workspaceManager.workspace.value.ownerId == sessionManager.userId {
+            actions.append(
+                ActionItem(
+                    type: .delete,
+                    action: deleteAction
+                )
+            )
+        }
+        self.actions = actions
+    }
+}
+
+// MARK: - Private actions
+
+private extension WorkspaceViewModel {
+
     func selectItem(with id: String) {
-        appState.change(route: .read(.document(SUDocumentMeta(id: id, workspaceId: workspaceMeta.id))))
+        let documentMeta = SUDocumentMeta(
+            id: id,
+            workspaceId: workspaceMeta.id
+        )
+        appState.change(route: .read(.document(documentMeta)))
+    }
+
+    func deleteAction() {
+        Task {
+            try await workspaceManager.deleteWorkspace(
+                id: workspaceMeta.id,
+                userId: sessionManager.userId
+            )
+            await MainActor.run {
+                appState.change(route: .space)
+            }
+        }
+    }
+
+    func createAction() {
+        appState.change(route: .create)
     }
 }
