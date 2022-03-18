@@ -18,6 +18,7 @@ struct WorkspaceScreen {
     @StateObject var membersViewModel: ToolbarMembersViewModel
 
     @FocusState private var emojiButtonFocus: Bool
+    @State private var isToolbarExpanded: Bool = false
 }
 
 extension WorkspaceScreen: View {
@@ -55,12 +56,18 @@ extension WorkspaceScreen: View {
                     emojiButtonFocus = false
                 }
             }
+            .blur(radius: isToolbarExpanded ? 6.0 : 0.0)
             .overlay {
-                VStack {
-                    Toolbar()
+                ZStack {
+                    SUColorStandartPalette.background
+                        .ignoresSafeArea()
+                        .opacity(isToolbarExpanded ? 0.2 : 0.0)
+                    HStack {
+                        Toolbar()
+                    }
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .padding(.bottom, 10.0)
                 }
-                .frame(maxHeight: .infinity, alignment: .bottom)
-                .padding(.bottom, 10.0)
             }
         }
     }
@@ -121,6 +128,7 @@ private extension WorkspaceScreen {
 
     func Toolbar() -> some View {
         SUToolbar(
+            isExpanded: $isToolbarExpanded,
             defaultTwins: {
                 workspaceViewModel
                     .actions

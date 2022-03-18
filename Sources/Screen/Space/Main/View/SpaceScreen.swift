@@ -12,9 +12,12 @@ import SUDesign
 import SUFoundation
 
 struct SpaceScreen {
+
     @StateObject var spaceViewModel: SpaceViewModel
     @StateObject var settingsViewModel: ToolbarSettingsViewModel
     @StateObject var searchViewModel: ToolbarSearchViewModel
+
+    @State private var isToolbarExpanded: Bool = false
 }
 
 extension SpaceScreen: View {
@@ -40,12 +43,18 @@ extension SpaceScreen: View {
                     }
                     .frame(maxHeight: .infinity)
                 }
+                .blur(radius: isToolbarExpanded ? 6.0 : 0.0)
                 .overlay {
-                    HStack {
-                        toolbar
+                    ZStack {
+                        SUColorStandartPalette.background
+                            .ignoresSafeArea()
+                            .opacity(isToolbarExpanded ? 0.2 : 0.0)
+                        HStack {
+                            Toolbar()
+                        }
+                        .frame(maxHeight: .infinity, alignment: .bottom)
+                        .padding(.bottom, 10.0)
                     }
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, 10.0)
                 }
             }
         }
@@ -55,8 +64,9 @@ extension SpaceScreen: View {
 
 private extension SpaceScreen {
 
-    var toolbar: some View {
+    func Toolbar() -> some View {
         SUToolbar(
+            isExpanded: $isToolbarExpanded,
             defaultTwins: {
                 [
                     SUToolbar.Item.Twin(
@@ -69,6 +79,7 @@ private extension SpaceScreen {
             },
             leftItems: {
                 [
+                    // TODO: Consider to move this into viewModel mapping
                     SUToolbar.Item(
                         icon: "gear",
                         twins: [

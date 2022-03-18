@@ -555,14 +555,6 @@ extension FireRepository: Repository {
         )
     }
 
-//    public func observeDocument(with id: String) {
-//        documentRef(id: id)
-//            .addSnapshotListener { snapshot, error in
-//                guard let snapshot = snapshot else { return }
-//                guard let data = snapshot.data() else { return }
-//            }
-//    }
-
     public func updateDocument(with id: String, title: String) async throws {
         try await documentRef(id: id)
             .updateData([

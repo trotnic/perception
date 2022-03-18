@@ -57,6 +57,7 @@ public extension SpaceCreateViewModel {
 
 private extension SpaceCreateViewModel {
 
+    // TODO: 25 characters check
     func setupBindings() {
         $name
             .map(\.isEmpty)

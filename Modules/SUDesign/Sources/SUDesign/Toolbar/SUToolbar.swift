@@ -15,6 +15,7 @@ public struct SUToolbar {
         case action
     }
 
+    //swiftlint:disable nesting
     public struct Item: Identifiable {
         public struct Twin: Identifiable {
             public let id = UUID()
@@ -48,21 +49,24 @@ public struct SUToolbar {
             self.twins = twins
         }
     }
+    //swiftlint:enable nesting
 
     @Namespace private var namespace
 
     @State private var selectedTwins: [Item.Twin] = []
-    @State private var isExpanded: Bool = false
+    @Binding private var isExpanded: Bool
 
     private let defaultTwins: [Item.Twin]
     private let leftItems: [Item]
     private let rightItems: [Item]
 
     public init(
+        isExpanded: Binding<Bool>,
         defaultTwins: () -> [Item.Twin] = { [ ] },
         leftItems: () -> [Item] = { [] },
         rightItems: () -> [Item] = { [] }
     ) {
+        _isExpanded = isExpanded
         self.defaultTwins = defaultTwins()
         self.leftItems = leftItems()
         self.rightItems = rightItems()
@@ -224,6 +228,7 @@ struct SUToolbar_Previews: PreviewProvider {
             VStack {
                 Spacer()
                 SUToolbar(
+                    isExpanded: .constant(true),
                     defaultTwins: {
                         [
                             SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},

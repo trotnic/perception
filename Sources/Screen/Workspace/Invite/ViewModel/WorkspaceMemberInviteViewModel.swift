@@ -47,6 +47,7 @@ public extension WorkspaceMemberInviteViewModel {
 
 private extension WorkspaceMemberInviteViewModel {
 
+    // TODO: 25 characters check
     func setupBindings() {
         $email
             .map(\.isEmpty)

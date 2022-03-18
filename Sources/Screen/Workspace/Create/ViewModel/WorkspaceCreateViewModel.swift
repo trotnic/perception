@@ -52,6 +52,7 @@ public extension WorkspaceCreateViewModel {
 
 private extension WorkspaceCreateViewModel {
 
+    // TODO: 25 characters check
     func setupBindings() {
         $name
             .map(\.isEmpty)

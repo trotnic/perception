@@ -14,6 +14,8 @@ struct DocumentScreen {
 
     @StateObject var documentViewModel: DocumentViewModel
     @StateObject var settingsViewModel: ToolbarSettingsViewModel
+
+    @State private var isToolbarExpanded: Bool = false
 }
 
 extension DocumentScreen: View {
@@ -61,9 +63,10 @@ extension DocumentScreen: View {
                 }
                 .foregroundColor(SUColorStandartPalette.text)
             }
+            .blur(radius: isToolbarExpanded ? 6.0 : 0.0)
             .overlay {
                 HStack(alignment: .bottom) {
-                    toolbar
+                    Toolbar()
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, 10.0)
@@ -76,8 +79,9 @@ extension DocumentScreen: View {
 
 private extension DocumentScreen {
 
-    var toolbar: some View {
+    func Toolbar() -> some View {
         SUToolbar(
+            isExpanded: $isToolbarExpanded,
             defaultTwins: {
                 [
                     SUToolbar.Item.Twin(
@@ -106,6 +110,8 @@ private extension DocumentScreen {
         )
     }
 }
+
+// MARK: - Preview
 
 struct DocumentScreen_Previews: PreviewProvider {
     static let documentViewModel = DocumentViewModel(
