@@ -60,6 +60,7 @@ private extension SpaceCreateViewModel {
     func setupBindings() {
         $name
             .map(\.isEmpty)
+            .removeDuplicates()
             .map(!)
             .assign(to: &$isCreateButtonActive)
     }

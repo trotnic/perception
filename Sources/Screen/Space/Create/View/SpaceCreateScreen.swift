@@ -54,7 +54,7 @@ extension SpaceCreateScreen: View {
                                 ),
                                 action: viewModel.createAction
                             )
-                            .animation(.easeInOut(duration: 0.12), value: viewModel.name)
+                            .animation(.easeInOut(duration: 0.12), value: viewModel.isCreateButtonActive)
                         }
                         Text("The name must contain no more than 25 characters")
                             .foregroundColor(SUColorStandartPalette.secondary1)

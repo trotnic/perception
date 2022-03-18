@@ -55,6 +55,7 @@ private extension WorkspaceCreateViewModel {
     func setupBindings() {
         $name
             .map(\.isEmpty)
+            .removeDuplicates()
             .map(!)
             .assign(to: &$isCreateButtonActive)
     }

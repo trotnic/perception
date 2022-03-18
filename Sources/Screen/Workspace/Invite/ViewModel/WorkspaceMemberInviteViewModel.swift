@@ -13,6 +13,7 @@ import SUFoundation
 public final class WorkspaceMemberInviteViewModel: ObservableObject {
 
     @Published public var email: String = .empty
+    @Published public var isInviteButtonActive: Bool = false
 
     private let appState: SUAppStateProvider
     private let inviteManager: SUManagerInvite
@@ -26,6 +27,8 @@ public final class WorkspaceMemberInviteViewModel: ObservableObject {
         self.appState = appState
         self.inviteManager = inviteManager
         self.workspaceMeta = workspaceMeta
+
+        setupBindings()
     }
 }
 
@@ -39,5 +42,16 @@ public extension WorkspaceMemberInviteViewModel {
                 
             }
         }
+    }
+}
+
+private extension WorkspaceMemberInviteViewModel {
+
+    func setupBindings() {
+        $email
+            .map(\.isEmpty)
+            .removeDuplicates()
+            .map(!)
+            .assign(to: &$isInviteButtonActive)
     }
 }
