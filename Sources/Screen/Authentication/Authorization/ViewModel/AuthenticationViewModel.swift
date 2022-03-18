@@ -15,7 +15,7 @@ public final class AuthenticationViewModel: ObservableObject {
     @Published public var email: String = .empty
     @Published public var password: String = .empty
     @Published public var errorText: String = .empty
-    @Published public private(set) var isSignButtonActive: Bool = false
+    @Published public var isSignButtonActive: Bool = false
 
     private var disposeBag = Set<AnyCancellable>()
 

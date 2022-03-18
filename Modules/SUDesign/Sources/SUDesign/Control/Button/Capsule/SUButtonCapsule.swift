@@ -10,17 +10,19 @@ import SwiftUI
 
 public struct SUButtonCapsule {
 
-    private var isActive: Bool
+    @Binding private var isActive: Bool
 
     private let title: String
     private let size: CGSize
     private let action: () -> Void
 
-    public init(isActive: Bool,
-                title: String,
-                size: CGSize,
-                action: @escaping () -> Void) {
-        self.isActive = isActive
+    public init(
+        isActive: Binding<Bool>,
+        title: String,
+        size: CGSize,
+        action: @escaping () -> Void
+    ) {
+        _isActive = isActive
         self.title = title
         self.size = size
         self.action = action
@@ -49,7 +51,7 @@ private struct SUButtonCapsule_Previews: PreviewProvider {
         GeometryReader { proxy in
             VStack(alignment: .center) {
                 SUButtonCapsule(
-                    isActive: true,
+                    isActive: .constant(true),
                     title: "Click Me!",
                     size: CGSize(
                         width: proxy.size.width - 48.0,

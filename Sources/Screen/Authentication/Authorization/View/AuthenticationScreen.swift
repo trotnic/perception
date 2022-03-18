@@ -56,7 +56,7 @@ extension AuthenticationScreen: View {
                                 .frame(height: 16.0)
                         }
                         SUButtonCapsule(
-                            isActive: viewModel.isSignButtonActive,
+                            isActive: $viewModel.isSignButtonActive,
                             title: state == .signIn ? "Sign In" : "Sign Up",
                             size: CGSize(width: proxy.size.width - 40.0, height: 56.0)
                         ) {

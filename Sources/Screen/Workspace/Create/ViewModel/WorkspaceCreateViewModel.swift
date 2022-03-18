@@ -11,7 +11,8 @@ import SUFoundation
 
 public final class WorkspaceCreateViewModel: ObservableObject {
 
-    @Published var itemName: String = ""
+    @Published public var name: String = .empty
+    @Published public var isCreateButtonActive: Bool = false
 
     private let appState: SUAppStateProvider
     private let workspaceManager: SUManagerWorkspace
@@ -28,6 +29,8 @@ public final class WorkspaceCreateViewModel: ObservableObject {
         self.workspaceManager = workspaceManager
         self.sessionManager = sessionManager
         self.workspaceMeta = workspaceMeta
+
+        setupBindings()
     }
 }
 
@@ -39,10 +42,20 @@ public extension WorkspaceCreateViewModel {
 
     func createAction() {
         Task {
-            let documentId = try await workspaceManager.createDocument(title: itemName,
+            let documentId = try await workspaceManager.createDocument(title: name,
                                                                        workspaceId: workspaceMeta.id,
                                                                        userId: sessionManager.userId)
             appState.change(route: .read(.document(SUDocumentMeta(id: documentId, workspaceId: workspaceMeta.id))))
         }
+    }
+}
+
+private extension WorkspaceCreateViewModel {
+
+    func setupBindings() {
+        $name
+            .map(\.isEmpty)
+            .map(!)
+            .assign(to: &$isCreateButtonActive)
     }
 }

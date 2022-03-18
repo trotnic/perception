@@ -12,7 +12,8 @@ import SUFoundation
 
 public final class SpaceCreateViewModel: ObservableObject {
 
-    @Published var workspaceName: String = ""
+    @Published var name: String = .empty
+    @Published var isCreateButtonActive: Bool = false
 
     private let appState: SUAppStateProvider
     private let spaceManager: SUManagerSpace
@@ -26,6 +27,8 @@ public final class SpaceCreateViewModel: ObservableObject {
         self.appState = appState
         self.spaceManager = spaceManager
         self.sessionManager = sessionManager
+
+        setupBindings()
     }
 }
 
@@ -33,9 +36,12 @@ public final class SpaceCreateViewModel: ObservableObject {
 
 public extension SpaceCreateViewModel {
 
-    func createWorkspace() {
+    func createAction() {
         Task {
-            let workspaceId = try await spaceManager.createWorkspace(name: workspaceName, userId: sessionManager.userId)
+            let workspaceId = try await spaceManager.createWorkspace(
+                name: name,
+                userId: sessionManager.userId
+            )
             await MainActor.run {
                 appState.change(route: .read(.workspace(SUWorkspaceMeta(id: workspaceId))))
             }
@@ -50,5 +56,11 @@ public extension SpaceCreateViewModel {
 // MARK: - Private interface
 
 private extension SpaceCreateViewModel {
-    
+
+    func setupBindings() {
+        $name
+            .map(\.isEmpty)
+            .map(!)
+            .assign(to: &$isCreateButtonActive)
+    }
 }
