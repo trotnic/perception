@@ -56,7 +56,7 @@ extension WorkspaceScreen: View {
                     emojiButtonFocus = false
                 }
             }
-            .blur(radius: isToolbarExpanded ? 6.0 : 0.0)
+            .blur(radius: isToolbarExpanded ? 2.0 : 0.0)
             .overlay {
                 ZStack {
                     SUColorStandartPalette.background

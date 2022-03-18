@@ -63,7 +63,7 @@ extension DocumentScreen: View {
                 }
                 .foregroundColor(SUColorStandartPalette.text)
             }
-            .blur(radius: isToolbarExpanded ? 6.0 : 0.0)
+            .blur(radius: isToolbarExpanded ? 2.0 : 0.0)
             .overlay {
                 HStack(alignment: .bottom) {
                     Toolbar()
