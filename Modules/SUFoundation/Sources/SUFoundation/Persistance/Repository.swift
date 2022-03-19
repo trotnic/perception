@@ -6,6 +6,7 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Foundation
 
 public protocol Repository {
 
@@ -40,6 +41,7 @@ public protocol Repository {
 
     func user(with id: String) async throws -> SUUser
     func updateUser(with id: String, name: String) async throws
+    func uploadImage(data: Data, userId: String)
 
     func startListenUser(with id: String, callback: @escaping (SUUser) -> Void)
     func stopListen(with id: String)

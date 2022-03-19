@@ -67,4 +67,8 @@ extension UserManager: SUManagerUser {
     public func update(id: String, name: String) async throws {
         try await repository.updateUser(with: id, name: name)
     }
+
+    public func uploadImage(data: Data, userId: String) {
+        repository.uploadImage(data: data, userId: userId)
+    }
 }

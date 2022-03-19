@@ -12,6 +12,8 @@ import SUFoundation
 
 public final class AccountViewModel: ObservableObject {
 
+    @Published public var imagePath: String?
+    @Published public var image: Data?
     @Published public var username: String = .empty
     @Published public var position: String = .empty
     @Published public private(set) var email: String = .empty
@@ -33,6 +35,8 @@ public final class AccountViewModel: ObservableObject {
         setupBindings()
     }
 }
+
+// MARK: - Public interface
 
 public extension AccountViewModel {
 
@@ -67,10 +71,12 @@ public extension AccountViewModel {
         username = userManager.user.value.username
     }
 
-    func load() {
+    func loadAction() {
         userManager.setup(id: userMeta.id)
     }
 }
+
+// MARK: - Private interface
 
 private extension AccountViewModel {
 
@@ -81,7 +87,29 @@ private extension AccountViewModel {
             .sink { user in
                 self.username = user.username
                 self.email = user.email
+                self.imagePath = user.avatarPath
             }
             .store(in: &disposeBag)
+
+        $image
+            .removeDuplicates()
+            .drop(while: { $0 == nil })
+            .sink { output in
+                if let data = output {
+                    self.userManager.uploadImage(data: data, userId: self.userMeta.id)
+                }
+            }
+            .store(in: &disposeBag)
+    }
+}
+
+extension Optional {
+    var isEmpty: Bool {
+        switch self {
+        case .none:
+            return true
+        case .some:
+            return false
+        }
     }
 }

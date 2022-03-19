@@ -47,10 +47,15 @@ public final class FireRepository {
     }
 
     private let firestore: Firestore
+    private let storage: Storage
     private var listeners: [String : ListenerRegistration] = [:]
 
-    public init(firestore: Firestore) {
+    public init(
+        firestore: Firestore,
+        storage: Storage
+    ) {
         self.firestore = firestore
+        self.storage = storage
     }
 
     deinit {
@@ -358,6 +363,7 @@ extension FireRepository: Repository {
 
                             guard let username = userRef.get("username") as? String else { return nil }
                             guard let email = userRef.get("email") as? String else { return nil }
+                            let avatarPath = userRef.get("avatarPath") as? String
 
                             return SUWorkspaceMember(
                                 user: SUUser(
@@ -366,7 +372,8 @@ extension FireRepository: Repository {
                                     ),
                                     username: username,
                                     email: email,
-                                    invites: []
+                                    invites: [],
+                                    avatarPath: avatarPath
                                 ),
                                 permission: SUWorkspacePermission(rawValue: permission)!
                             )
@@ -600,6 +607,7 @@ extension FireRepository: Repository {
 
         guard let username = user.get("username") as? String else { throw FetchError.cantLoadEntity }
         guard let email = user.get("email") as? String else { throw FetchError.cantLoadEntity }
+        let avatarPath = user.get("avatarPath") as? String
 
         return SUUser(
             meta: SUUserMeta(
@@ -607,7 +615,8 @@ extension FireRepository: Repository {
             ),
             username: username,
             email: email,
-            invites: []
+            invites: [],
+            avatarPath: avatarPath
         )
     }
 
@@ -626,9 +635,35 @@ extension FireRepository: Repository {
             .addSnapshotListener { snapshot, error in
                 guard let username = snapshot?.get("username") as? String else { return }
                 guard let email = snapshot?.get("email") as? String else { return }
-                callback(SUUser(meta: SUUserMeta(id: id), username: username, email: email, invites: []))
+                let avatarPath = snapshot?.get("avatarPath") as? String
+                callback(SUUser(meta: SUUserMeta(id: id), username: username, email: email, invites: [], avatarPath: avatarPath))
             }
         listeners[id] = listener
+    }
+
+    public func uploadImage(data: Data, userId: String) {
+        let fileRef = storage.reference()
+            .child("avatars/\(userId).jpg")
+        fileRef.putData(data, metadata: nil) { (metadata, error) in
+          guard let metadata = metadata else {
+            // Uh-oh, an error occurred!
+            return
+          }
+          // Metadata contains file metadata such as size, content-type.
+          let size = metadata.size
+          // You can also access to download URL after upload.
+          fileRef.downloadURL { (url, error) in
+            guard let downloadURL = url else {
+              // Uh-oh, an error occurred!
+              return
+            }
+              self.userRef(id: userId)
+                  .updateData([
+                    "avatarPath": downloadURL.absoluteString
+                  ])
+//              print(downloadURL)
+          }
+        }.enqueue()
     }
 
     public func stopListen(with id: String) {

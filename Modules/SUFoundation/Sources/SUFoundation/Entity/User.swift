@@ -25,17 +25,20 @@ public struct SUUser {
     public let username: String
     public let email: String
     public let invites: [SUMemberInvite]
+    public let avatarPath: String?
 
     public init(
         meta: SUUserMeta,
         username: String,
         email: String,
-        invites: [SUMemberInvite]
+        invites: [SUMemberInvite],
+        avatarPath: String?
     ) {
         self.meta = meta
         self.username = username
         self.email = email
         self.invites = invites
+        self.avatarPath = avatarPath
     }
 }
 
@@ -43,5 +46,6 @@ public extension SUUser {
     static let empty = SUUser(meta: .empty,
                               username: .empty,
                               email: .empty,
-                              invites: [])
+                              invites: [],
+                              avatarPath: nil)
 }

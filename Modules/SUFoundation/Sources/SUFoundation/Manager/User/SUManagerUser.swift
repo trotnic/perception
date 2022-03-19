@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 
 public typealias SUManagerUserPrime = SUManagerUser & SUManagerSession
 
@@ -29,6 +30,7 @@ public protocol SUManagerUser {
     func fetch(id: String) async throws -> SUUser
     func update(id: String, name: String) async throws
     func setup(id: String)
+    func uploadImage(data: Data, userId: String)
 }
 
 // MARK: - Mocks
@@ -65,5 +67,8 @@ extension SUManagerUserPrimeMock: SUManagerUserPrime {
     public func update(id: String, name: String) async throws {}
     public func setup(id: String) {
         user.value = userCallback()
+    }
+    public func uploadImage(data: Data, userId: String) {
+        
     }
 }

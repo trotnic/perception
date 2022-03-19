@@ -17,10 +17,11 @@ public final class SUDepFactory {
 
     private lazy var app: FirebaseApp = .app(name: Constants.appName)!
     private lazy var firestore: Firestore = .firestore(app: app)
+    private lazy var storage: Storage = .storage(app: app)
     private lazy var auth: Auth = .auth(app: app)
 
     private lazy var _userSession: UserSession = .init(auth: auth)
-    private lazy var _repository: FireRepository = .init(firestore: firestore)
+    private lazy var _repository: FireRepository = .init(firestore: firestore, storage: storage)
 
     public init() {
         FirebaseApp.configure(name: Constants.appName, options: .defaultOptions()!)

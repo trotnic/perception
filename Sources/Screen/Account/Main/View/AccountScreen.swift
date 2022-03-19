@@ -6,6 +6,7 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import PhotosUI
 import SwiftUI
 import SUDesign
 import SUFoundation
@@ -16,7 +17,10 @@ struct AccountScreen {
     @State private var isEditing = false
 
     @FocusState private var nameIsFocused: Bool
-    @Namespace var namespace
+    @Namespace private var namespace
+
+    @State private var showSheet = false
+    @State private var image: UIImage?
 }
 
 extension AccountScreen: View {
@@ -26,6 +30,24 @@ extension AccountScreen: View {
             SUColorStandartPalette.background
                 .ignoresSafeArea()
             VStack(spacing: 16.0) {
+                ZStack {
+                    VStack {
+                        SUButtonCircular(
+                            icon: "chevron.left",
+                            action: viewModel.backAction
+                        )
+                            .frame(width: 36.0, height: 36.0)
+                    }
+                    .padding(.leading, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack {
+                        Text("Profile")
+                            .font(.custom("Comfortaa", size: 20).bold())
+                            .foregroundColor(SUColorStandartPalette.text)
+                    }
+                }
+                .padding(.top, 16)
+                ProfileImage()
                 if isEditing {
                     EditingBlock(size: proxy.size)
                 } else {
@@ -34,20 +56,82 @@ extension AccountScreen: View {
             }
             .foregroundColor(SUColorStandartPalette.text)
         }
-        .onAppear(perform: viewModel.load)
+        .onAppear(perform: viewModel.loadAction)
+        .sheet(isPresented: $showSheet) {
+            ImagePicker(image: .init(get: {
+                nil
+            }, set: { image in
+                let data = image?.pngData()
+                Task {
+                    await MainActor.run {
+                        viewModel.image = data
+                    }
+                }
+            }))
+        }
     }
 }
 
 private extension AccountScreen {
 
+    @ViewBuilder
     func ProfileImage() -> some View {
-        Circle()
-            .frame(width: 120.0, height: 120.0)
+        if viewModel.imagePath == nil {
+            Circle()
+                .fill(SUColorStandartPalette.tile)
+                .frame(width: 100.0, height: 100.0)
+                .overlay {
+                    Button {
+                        showSheet = true
+                    } label: {
+                        Image(systemName: "camera")
+                            .font(.system(size: 40.0).bold())
+                            .foregroundColor(SUColorStandartPalette.secondary3)
+                    }
+                    .disabled(!isEditing)
+                }
+        } else {
+            AsyncImage(url: URL(string: viewModel.imagePath!)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 100.0, height: 100.0)
+                    .clipShape(Circle())
+            } placeholder: {
+                Circle()
+                    .fill(SUColorStandartPalette.tile)
+                    .frame(width: 100.0, height: 100.0)
+                    .overlay {
+                        Button {
+                            showSheet = true
+                        } label: {
+                            Image(systemName: "camera")
+                                .font(.system(size: 40.0).bold())
+                                .foregroundColor(SUColorStandartPalette.secondary3)
+                        }
+                    }
+            }
+            .overlay {
+                if isEditing {
+                    Circle()
+                        .fill(SUColorStandartPalette.tile.opacity(0.8))
+                        .frame(width: 100.0, height: 100.0)
+                        .overlay {
+                            Button {
+                                showSheet = true
+                            } label: {
+                                Image(systemName: "camera")
+                                    .font(.system(size: 40.0).bold())
+                                    .foregroundColor(SUColorStandartPalette.secondary1)
+                            }
+                        }
+                }
+            }
+        }
     }
 
     @ViewBuilder func EditingBlock(size: CGSize) -> some View {
         VStack(spacing: 32.0) {
-            ProfileImage()
             Sheet()
                 .padding(.horizontal, 16.0)
             SaveButton(size: size)
@@ -61,20 +145,7 @@ private extension AccountScreen {
     }
 
     @ViewBuilder func GeneralBlock(size: CGSize) -> some View {
-        ZStack {
-            VStack {
-                SUButtonCircular(
-                    icon: "chevron.left",
-                    action: viewModel.backAction
-                )
-                    .frame(width: 36.0, height: 36.0)
-            }
-            .padding(.horizontal, 16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.top, 16)
         VStack(spacing: 16.0) {
-            ProfileImage()
             InfoBlock()
             Spacer()
             LogOutButton(size: size)
@@ -83,48 +154,46 @@ private extension AccountScreen {
     }
 
     func InfoBlock() -> some View {
-        VStack(spacing: 24.0) {
-            VStack(spacing: 24.0) {
+        VStack(spacing: 16.0) {
+            VStack(spacing: 12.0) {
                 Text(viewModel.username)
-                    .font(.system(size: 36.0))
+                    .font(.system(size: 28.0))
+                    .foregroundColor(SUColorStandartPalette.text)
+                Text(viewModel.email)
+                    .font(.system(size: 16.0))
+                    .foregroundColor(SUColorStandartPalette.secondary1)
                 SUButtonStroke(text: "Edit profile") {
                     withAnimation {
                         isEditing = true
                     }
                 }
             }
-            ScrollView {
-                VStack(spacing: 24.0) {
-                    VStack(alignment: .leading, spacing: 12.0) {
-                        Text("Info")
-                            .font(.system(size: 16.0).bold())
-                        VStack(spacing: 16.0) {
-                            Text(viewModel.email)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(16.0)
-                                .background(SUColorStandartPalette.tile)
-                                .cornerRadius(16.0)
-                            Text(viewModel.username)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(16.0)
-                                .background(SUColorStandartPalette.tile)
-                                .cornerRadius(16.0)
-                        }
+            VStack(spacing: 24.0) {
+                VStack(alignment: .leading, spacing: 12.0) {
+                    Text("Info")
+                        .font(.system(size: 16.0).bold())
+                        .foregroundColor(SUColorStandartPalette.secondary1)
+                    VStack(spacing: 16.0) {
+                        Text(viewModel.username)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(16.0)
+                            .background(SUColorStandartPalette.tile)
+                            .cornerRadius(16.0)
                     }
-                    VStack(alignment: .leading, spacing: 12.0) {
-                        Text("Invites")
-                            .font(.system(size: 16.0).bold())
-                        VStack(spacing: 16.0) {
-                            Button {
-                                viewModel.invitesAction()
-                            } label: {
-                                Text("Active invites")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(16.0)
-                                    .background(SUColorStandartPalette.tile)
-                                    .cornerRadius(16.0)
-                            }
-
+                }
+                VStack(alignment: .leading, spacing: 12.0) {
+                    Text("Invites")
+                        .font(.system(size: 16.0).bold())
+                        .foregroundColor(SUColorStandartPalette.secondary1)
+                    VStack(spacing: 16.0) {
+                        Button {
+                            viewModel.invitesAction()
+                        } label: {
+                            Text("Active invites")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(16.0)
+                                .background(SUColorStandartPalette.tile)
+                                .cornerRadius(16.0)
                         }
                     }
                 }
@@ -169,7 +238,7 @@ private extension AccountScreen {
                                 text: $viewModel.username,
                                 placeholder: "Username"
                             )
-                            Text("Position}")
+                            Text("Position")
                                 .font(.system(size: 16.0, weight: .bold))
                                 .foregroundColor(SUColorStandartPalette.secondary1)
                             SUTextFieldCapsule(
@@ -225,6 +294,46 @@ private extension AccountScreen {
     }
 }
 
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.filter = .images
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {
+
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            picker.dismiss(animated: true)
+
+            guard let provider = results.first?.itemProvider else { return }
+
+            if provider.canLoadObject(ofClass: UIImage.self) {
+                provider.loadObject(ofClass: UIImage.self) { image, _ in
+                    self.parent.image = image as? UIImage
+                }
+            }
+        }
+    }
+}
+
 struct AccountScreenSS_Previews: PreviewProvider {
 
     static let viewModel = AccountViewModel(
@@ -237,7 +346,8 @@ struct AccountScreenSS_Previews: PreviewProvider {
                     meta: .init(id: .empty),
                     username: "lol kekman",
                     email: "lol.kekman@gmail.com",
-                    invites: []
+                    invites: [],
+                    avatarPath: nil
                 )
             }
         ),
