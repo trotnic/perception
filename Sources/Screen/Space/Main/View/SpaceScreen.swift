@@ -35,13 +35,31 @@ extension SpaceScreen: View {
                     }
                     .padding(.top, 16.0)
                     .padding(.horizontal, 16.0)
-                    ScrollView {
-                        VStack(spacing: 40) {
-                            listItems
+                    Group {
+                        if spaceViewModel.isSpaceEmpty {
+                            VStack(alignment: .center, spacing: 32.0) {
+                                Text("You didn’t create any workspace yet 😿")
+                                    .font(.system(size: 22.0).bold())
+                                    .frame(maxWidth: proxy.size.width - 60.0)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(SUColorStandartPalette.secondary1)
+                                SUButtonCapsule(
+                                    isActive: .constant(true),
+                                    title: "Create new workspace",
+                                    size: CGSize(width: proxy.size.width - 32.0, height: 56.0),
+                                    action: spaceViewModel.createAction
+                                )
+                            }
+                        } else {
+                            ScrollView {
+                                VStack(spacing: 40) {
+                                    ListItems()
+                                }
+                                .padding(16)
+                            }
                         }
-                        .padding(16)
                     }
-                    .frame(maxHeight: .infinity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
                 .blur(radius: isToolbarExpanded ? 2.0 : 0.0)
                 .overlay {
@@ -58,7 +76,7 @@ extension SpaceScreen: View {
                 }
             }
         }
-        .onAppear(perform: spaceViewModel.load)
+        .onAppear(perform: spaceViewModel.loadAction)
     }
 }
 
@@ -107,7 +125,7 @@ private extension SpaceScreen {
         )
     }
 
-    var listItems: some View {
+    func ListItems() -> some View {
         LazyVGrid(
             columns: [
                 GridItem(.flexible(minimum: .zero, maximum: .infinity))
@@ -167,13 +185,13 @@ struct SpaceScreen_Previews: PreviewProvider {
         appState: SUAppStateProviderMock(),
         spaceManager: SUManagerSpaceMock(workspaces: {
             [
-                SUShallowWorkspace(
-                    meta: .empty,
-                    title: "Amazing Workspace!",
-                    emoji: "❤️",
-                    documentsCount: 1,
-                    membersCount: 1
-                )
+//                SUShallowWorkspace(
+//                    meta: .empty,
+//                    title: "Amazing Workspace!",
+//                    emoji: "❤️",
+//                    documentsCount: 1,
+//                    membersCount: 1
+//                )
             ]
         }),
         sessionManager: SUManagerUserPrimeMock()

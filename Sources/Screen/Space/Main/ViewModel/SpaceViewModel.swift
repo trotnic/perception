@@ -13,6 +13,7 @@ import SUFoundation
 public final class SpaceViewModel: ObservableObject {
 
     @Published public private(set) var items: [ListItem] = []
+    @Published public private(set) var isSpaceEmpty: Bool = false
 
     private var disposeBag = Set<AnyCancellable>()
 
@@ -37,7 +38,7 @@ public final class SpaceViewModel: ObservableObject {
 
 public extension SpaceViewModel {
 
-    func load() {
+    func loadAction() {
         spaceManager.observe(for: sessionManager.userId)
     }
 
@@ -90,6 +91,11 @@ private extension SpaceViewModel {
                 }
             }
             .assign(to: &$items)
+
+        $items
+            .map(\.isEmpty)
+            .removeDuplicates()
+            .assign(to: &$isSpaceEmpty)
     }
 
     func selectItem(with id: String) {
