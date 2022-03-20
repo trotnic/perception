@@ -96,7 +96,7 @@ public final class SUAppState: SUAppStateProvider {
             currentScreen = .read(content)
             screenStack.append(.read(content))
         case .search:
-            navigator.navigate("/search")
+            navigator.navigate("/space/search")
             currentScreen = .search
             screenStack.append(.search)
         case .members(let meta):

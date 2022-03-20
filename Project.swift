@@ -10,6 +10,7 @@ let project = Project(
     packages: [
         .remote(url: "https://github.com/vadymmarkov/Fakery.git", requirement: .upToNextMajor(from: .init(5, 1, 0))),
         .remote(url: "https://github.com/frzi/SwiftUIRouter.git", requirement: .upToNextMajor(from: .init(1, 3, 1))),
+//        .remote(url: "https://github.com/trotnic/SwiftUIRouter.git", requirement: .branch("main")),
         .package(path: "Modules/SUDesign"),
         .package(path: "Modules/SUFoundation"),
     ],
