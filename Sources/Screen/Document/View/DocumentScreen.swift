@@ -20,6 +20,7 @@ struct DocumentScreen {
 
     @State private var navbarFrame: CGRect = .zero
     @State private var tileFrame: CGRect = .zero
+    @State private var toolbarFrame: CGRect = .zero
 }
 
 extension DocumentScreen: View {
@@ -85,6 +86,8 @@ extension DocumentScreen: View {
                             .padding(.vertical, 16.0)
                             .frame(width: proxy.size.width - 40.0)
                             .focused($textCanvasFocus)
+                        Color.clear
+                            .padding(.bottom, toolbarFrame.height)
                     }
                     .foregroundColor(SUColorStandartPalette.text)
                     .overlay {
@@ -116,6 +119,16 @@ extension DocumentScreen: View {
             .overlay {
                 HStack(alignment: .bottom) {
                     Toolbar()
+                        .background {
+                            GeometryReader { proxy in
+                                SUColorStandartPalette.background
+                                    .frame(height: proxy.size.height * 2.0)
+                                    .offset(y: -12.0)
+                                    .blur(radius: 6.0)
+                                    .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
+                                    .onPreferenceChange(SUFrameKey.self) { toolbarFrame = $0 }
+                            }
+                        }
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, 10.0)

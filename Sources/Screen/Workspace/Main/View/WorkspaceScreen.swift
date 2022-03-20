@@ -22,6 +22,7 @@ struct WorkspaceScreen {
 
     @State private var navbarFrame: CGRect = .zero
     @State private var tileFrame: CGRect = .zero
+    @State private var toolbarFrame: CGRect = .zero
 }
 
 extension WorkspaceScreen: View {
@@ -68,6 +69,8 @@ extension WorkspaceScreen: View {
                             ListItems()
                         }
                         .padding(16)
+                        Color.clear
+                            .padding(.bottom, toolbarFrame.height)
                     }
                     .overlay {
                         VStack {
@@ -100,6 +103,16 @@ extension WorkspaceScreen: View {
                         .opacity(isToolbarExpanded ? 0.2 : 0.0)
                     HStack {
                         Toolbar()
+                            .background {
+                                GeometryReader { proxy in
+                                    SUColorStandartPalette.background
+                                        .frame(height: proxy.size.height * 2.0)
+                                        .offset(y: -12.0)
+                                        .blur(radius: 6.0)
+                                        .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
+                                        .onPreferenceChange(SUFrameKey.self) { toolbarFrame = $0 }
+                                }
+                            }
                     }
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .padding(.bottom, 10.0)
