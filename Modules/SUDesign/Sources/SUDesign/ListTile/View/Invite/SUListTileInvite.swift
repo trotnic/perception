@@ -55,7 +55,7 @@ private extension SUListTileInvite {
                                 Image(systemName: badge.icon)
                                     .frame(width: 24.0, height: 24.0)
                                 Text(badge.title)
-                                    .font(.system(size: 14.0))
+                                    .font(.custom("Cofmortaa", size: 14.0))
                                     .padding(.vertical, 5.0)
                                     .padding(.horizontal, 10.0)
                                     .background(badge.color.opacity(0.2))

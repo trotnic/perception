@@ -31,7 +31,7 @@ extension SUTextFieldCapsule: View {
         TextField("", text: _text)
             .placeholder(when: text.isEmpty) {
                 Text(placeholder)
-                    .font(.system(size: 14.0))
+                    .font(.custom("Cofmortaa", size: 14.0))
                     .foregroundColor(SUColorStandartPalette.secondary1)
             }
             .padding(.leading, paddings.left)

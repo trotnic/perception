@@ -27,7 +27,7 @@ extension SUButtonStroke: View {
     public var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.system(size: 14.0))
+                .font(.custom("Cofmortaa", size: 14.0))
                 .foregroundColor(SUColorStandartPalette.text)
         }
         .buttonStyle(SUButtonStrokeStyle())

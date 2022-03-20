@@ -40,7 +40,7 @@ extension SUListTileMember: View {
                             spacing: 8.0
                         ) {
                             Text(content.title)
-                                .font(.system(size: 18.0, weight: .semibold))
+                                .font(.custom("Cofmortaa", size: 18.0).weight(.semibold))
                             ForEach(content.badges) { badge in
                                 HStack {
                                     Image(systemName: badge.icon)
@@ -52,7 +52,7 @@ extension SUListTileMember: View {
                                         .cornerRadius(20.0)
                                         .lineLimit(1)
                                 }
-                                .font(.system(size: 14.0, weight: .semibold))
+                                .font(.custom("Cofmortaa", size: 14.0).weight(.semibold))
                             }
                         }
                     }

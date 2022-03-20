@@ -56,7 +56,7 @@ extension WorkspaceMemberInviteScreen: View {
                         .animation(.easeInOut(duration: 0.12), value: viewModel.isInviteButtonActive)
                         Text("A user will receive an invitation to your current workspace")
                             .foregroundColor(SUColorStandartPalette.secondary1)
-                            .font(.system(size: 22.0).bold())
+                            .font(.custom("Cofmortaa", size: 22.0).bold())
                             .frame(maxWidth: proxy.size.width - 60.0)
                             .multilineTextAlignment(.center)
                     }

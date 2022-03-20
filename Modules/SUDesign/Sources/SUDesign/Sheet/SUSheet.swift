@@ -41,7 +41,7 @@ extension SUSheet: View {
                             .fill(SUColorStandartPalette.secondary2)
                             .frame(width: 72.0, height: 4.0)
                         Text(title)
-                            .font(.system(size: 18.0))
+                            .font(.custom("Cofmortaa", size: 18.0))
                             .foregroundColor(SUColorStandartPalette.text)
                     }
 
@@ -69,7 +69,7 @@ extension SUSheet: View {
                         ForEach(content()) { item in
                             VStack(alignment: .leading, spacing: 16.0) {
                                 Text(item.title)
-                                    .font(.system(size: 16.0, weight: .bold))
+                                    .font(.custom("Cofmortaa", size: 16.0).bold())
                                     .foregroundColor(SUColorStandartPalette.secondary1)
                                 SUTextFieldCapsule(
                                     text: item.text,

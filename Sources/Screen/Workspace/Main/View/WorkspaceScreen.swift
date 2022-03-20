@@ -19,6 +19,9 @@ struct WorkspaceScreen {
 
     @FocusState private var emojiButtonFocus: Bool
     @State private var isToolbarExpanded: Bool = false
+
+    @State private var navbarFrame: CGRect = .zero
+    @State private var tileFrame: CGRect = .zero
 }
 
 extension WorkspaceScreen: View {
@@ -38,19 +41,52 @@ extension WorkspaceScreen: View {
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    VStack {
+                    VStack(spacing: 2.0) {
                         Text("Workspace")
-                            .font(.custom("Comfortaa", size: 20).weight(.bold))
+                            .font(.custom("Comfortaa", size: 16.0).weight(.bold))
                             .foregroundColor(SUColorStandartPalette.text)
+                        if tileFrame.origin.y < navbarFrame.origin.y {
+                            Text(workspaceViewModel.title)
+                                .font(.custom("Comfortaa", size: 12.0).weight(.bold))
+                                .foregroundColor(SUColorStandartPalette.text)
+                        }
                     }
+                    .animation(.easeInOut(duration: 0.12), value: tileFrame.origin.y < navbarFrame.origin.y)
                 }
                 .padding(.top, 16)
-                ScrollView {
-                    VStack(spacing: 40) {
-                        TopTile()
-                        ListItems()
+                GeometryReader { scrollProxy in
+                    ScrollView {
+                        VStack(spacing: 40) {
+                            TopTile()
+                                .background {
+                                    GeometryReader { proxy in
+                                        Color.clear
+                                            .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
+                                            .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
+                                    }
+                                }
+                            ListItems()
+                        }
+                        .padding(16)
                     }
-                    .padding(16)
+                    .overlay {
+                        VStack {
+                            if tileFrame.origin.y < navbarFrame.origin.y {
+                                VStack {
+                                    Rectangle()
+                                        .fill(SUColorStandartPalette.secondary3)
+                                        .frame(height: 1.0)
+                                        .frame(maxWidth: .infinity)
+                                    Spacer()
+                                }
+                            }
+                        }
+                    }
+                    .overlay {
+                        Color.clear
+                        .preference(key: SUFrameKey.self, value: scrollProxy.frame(in: .global))
+                        .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
+                    }
                 }
                 .onTapGesture {
                     emojiButtonFocus = false

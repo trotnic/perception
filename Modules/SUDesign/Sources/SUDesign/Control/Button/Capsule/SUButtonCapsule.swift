@@ -34,7 +34,7 @@ extension SUButtonCapsule: View {
     public var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 20.0, weight: .medium, design: .rounded))
+                .font(.custom("Cofmortaa", size: 20.0).weight(.medium))
         }
         .buttonStyle(
             SUButtonCapsuleStyle(

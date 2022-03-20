@@ -20,7 +20,7 @@ struct SUNavigationBar: View {
                 .background(.ultraThinMaterial)
                 .blur(radius: 1)
             Text(title)
-                .font(.system(size: 26).weight(.bold))
+                .font(.custom("Cofmortaa", size: 26.0).bold())
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 20)
 

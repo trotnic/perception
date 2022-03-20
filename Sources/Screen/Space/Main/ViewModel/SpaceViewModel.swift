@@ -51,6 +51,7 @@ public extension SpaceViewModel {
 
     struct ListItem: Identifiable {
         public let id = UUID()
+        public let index: Int
         public let title: String
         public let emoji: String
         public let badges: [Badge]
@@ -78,15 +79,16 @@ private extension SpaceViewModel {
             .workspaces
             .receive(on: DispatchQueue.main)
             .map { workspaces in
-                workspaces.map { workspace in
+                workspaces.enumerated().map { item in
                     ListItem(
-                        title: workspace.title,
-                        emoji: workspace.emoji,
+                        index: item.offset,
+                        title: item.element.title,
+                        emoji: item.element.emoji,
                         badges: [
-                            Badge(title: "\(workspace.membersCount) members", type: .members),
-                            Badge(title: "\(workspace.documentsCount) documents", type: .documents)
+                            Badge(title: "\(item.element.membersCount) members", type: .members),
+                            Badge(title: "\(item.element.documentsCount) documents", type: .documents)
                         ],
-                        action: { self.selectItem(with: workspace.meta.id) }
+                        action: { self.selectItem(with: item.element.meta.id) }
                     )
                 }
             }

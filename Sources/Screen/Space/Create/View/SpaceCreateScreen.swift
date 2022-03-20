@@ -58,7 +58,7 @@ extension SpaceCreateScreen: View {
                         }
                         Text("The name must contain no more than 25 characters")
                             .foregroundColor(SUColorStandartPalette.secondary1)
-                            .font(.system(size: 22.0).bold())
+                            .font(.custom("Cofmortaa", size: 22.0).bold())
                             .frame(maxWidth: proxy.size.width - 60.0)
                             .multilineTextAlignment(.center)
                     }

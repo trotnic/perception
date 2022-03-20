@@ -183,7 +183,7 @@ struct NavigationTransition: ViewModifier {
     @EnvironmentObject private var navigator: Navigator
     
     func body(content: Content) -> some View {
-        content
+        return content
             .animation(.easeInOut, value: navigator.path)
             .transition(
                 navigator.lastAction?.direction == .deeper || navigator.lastAction?.direction == .sideways

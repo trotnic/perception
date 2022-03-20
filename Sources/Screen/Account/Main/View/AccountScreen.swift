@@ -157,10 +157,10 @@ private extension AccountScreen {
         VStack(spacing: 16.0) {
             VStack(spacing: 12.0) {
                 Text(viewModel.username)
-                    .font(.system(size: 28.0))
+                    .font(.custom("Cofmortaa", size: 28.0))
                     .foregroundColor(SUColorStandartPalette.text)
                 Text(viewModel.email)
-                    .font(.system(size: 16.0))
+                    .font(.custom("Cofmortaa", size: 16.0))
                     .foregroundColor(SUColorStandartPalette.secondary1)
                 SUButtonStroke(text: "Edit profile") {
                     withAnimation {
@@ -171,7 +171,7 @@ private extension AccountScreen {
             VStack(spacing: 24.0) {
                 VStack(alignment: .leading, spacing: 12.0) {
                     Text("Info")
-                        .font(.system(size: 16.0).bold())
+                        .font(.custom("Cofmortaa", size: 16.0).bold())
                         .foregroundColor(SUColorStandartPalette.secondary1)
                     VStack(spacing: 16.0) {
                         Text(viewModel.username)
@@ -183,7 +183,7 @@ private extension AccountScreen {
                 }
                 VStack(alignment: .leading, spacing: 12.0) {
                     Text("Invites")
-                        .font(.system(size: 16.0).bold())
+                        .font(.custom("Cofmortaa", size: 16.0).bold())
                         .foregroundColor(SUColorStandartPalette.secondary1)
                     VStack(spacing: 16.0) {
                         Button {
@@ -218,7 +218,7 @@ private extension AccountScreen {
                             .fill(SUColorStandartPalette.secondary2)
                             .frame(width: 72.0, height: 4.0)
                         Text("Edit profile")
-                            .font(.system(size: 18.0))
+                            .font(.custom("Cofmortaa", size: 18.0))
                             .foregroundColor(SUColorStandartPalette.text)
                     }
                     Spacer()
@@ -232,14 +232,14 @@ private extension AccountScreen {
                     VStack(spacing: 24.0) {
                         VStack(alignment: .leading, spacing: 16.0) {
                             Text("Username")
-                                .font(.system(size: 16.0, weight: .bold))
+                                .font(.custom("Cofmortaa", size: 16.0).bold())
                                 .foregroundColor(SUColorStandartPalette.secondary1)
                             SUTextFieldCapsule(
                                 text: $viewModel.username,
                                 placeholder: "Username"
                             )
                             Text("Position")
-                                .font(.system(size: 16.0, weight: .bold))
+                                .font(.custom("Cofmortaa", size: 16.0).bold())
                                 .foregroundColor(SUColorStandartPalette.secondary1)
                             SUTextFieldCapsule(
                                 text: $viewModel.position,
@@ -268,7 +268,7 @@ private extension AccountScreen {
             viewModel.saveAction()
         } label: {
             Text("Save")
-                .font(.system(size: 20.0).weight(.bold))
+                .font(.custom("Cofmortaa", size: 20.0).bold())
                 .foregroundColor(SUColorStandartPalette.text)
                 .frame(maxWidth: size.width - 32)
                 .frame(height: 56)
@@ -283,7 +283,7 @@ private extension AccountScreen {
             viewModel.logoutAction()
         } label: {
             Text("Log out")
-                .font(.system(size: 20.0).weight(.bold))
+                .font(.custom("Cofmortaa", size: 20.0).bold())
                 .foregroundColor(SUColorStandartPalette.text)
                 .frame(maxWidth: size.width - 32)
                 .frame(height: 56)

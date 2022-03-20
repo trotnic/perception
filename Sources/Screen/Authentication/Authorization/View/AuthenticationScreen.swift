@@ -31,7 +31,7 @@ extension AuthenticationScreen: View {
             VStack(spacing: proxy.size.height * 0.274) {
                 VStack(alignment: .center, spacing: 64.0) {
                     Text(state == .signIn ? "Sign In" : "Sign Up")
-                        .font(.system(size: 36.0, weight: .medium, design: .rounded))
+                        .font(.custom("Cofmortaa", size: 36.0).weight(.medium))
                         .foregroundColor(SUColorStandartPalette.text)
                     VStack(spacing: 24.0) {
                         VStack(alignment: .leading, spacing: 8.0) {
@@ -49,7 +49,7 @@ extension AuthenticationScreen: View {
                             }
                             .textInputAutocapitalization(.never)
                             Text(viewModel.errorText)
-                                .font(.system(size: 14.0).bold())
+                                .font(.custom("Cofmortaa", size: 14.0).bold())
                                 .foregroundColor(SUColorStandartPalette.destructive)
                                 .padding(.leading, 8.0)
                                 .opacity(viewModel.errorText.isEmpty ? 0.0 : 1.0)

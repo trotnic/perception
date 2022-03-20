@@ -18,6 +18,8 @@ struct SpaceScreen {
     @StateObject var searchViewModel: ToolbarSearchViewModel
 
     @State private var isToolbarExpanded: Bool = false
+    @State private var navbarFrame: CGRect = .zero
+    @State private var tileFrame: CGRect = .zero
 }
 
 extension SpaceScreen: View {
@@ -39,7 +41,7 @@ extension SpaceScreen: View {
                         if spaceViewModel.isSpaceEmpty {
                             VStack(alignment: .center, spacing: 32.0) {
                                 Text("You didn’t create any workspace yet 😿")
-                                    .font(.system(size: 22.0).bold())
+                                    .font(.custom("Cofmortaa", size: 22.0).bold())
                                     .frame(maxWidth: proxy.size.width - 60.0)
                                     .multilineTextAlignment(.center)
                                     .foregroundColor(SUColorStandartPalette.secondary1)
@@ -51,11 +53,31 @@ extension SpaceScreen: View {
                                 )
                             }
                         } else {
-                            ScrollView {
-                                VStack(spacing: 40) {
-                                    ListItems()
+                            GeometryReader { scrollProxy in
+                                ScrollView {
+                                    VStack(spacing: 40) {
+                                        ListItems()
+                                    }
+                                    .padding(16)
                                 }
-                                .padding(16)
+                                .overlay {
+                                    VStack {
+                                        if tileFrame.origin.y < navbarFrame.origin.y {
+                                            VStack {
+                                                Rectangle()
+                                                    .fill(SUColorStandartPalette.secondary3)
+                                                    .frame(height: 1.0)
+                                                    .frame(maxWidth: .infinity)
+                                                Spacer()
+                                            }
+                                        }
+                                    }
+                                }
+                                .overlay {
+                                    Color.clear
+                                    .preference(key: SUFrameKey.self, value: scrollProxy.frame(in: .global))
+                                    .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
+                                }
                             }
                         }
                     }
@@ -146,6 +168,15 @@ private extension SpaceScreen {
                     },
                     action: item.action
                 )
+                .background {
+                    if item.index == 0 {
+                        GeometryReader { proxy in
+                            Color.clear
+                                .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
+                                .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
+                        }
+                    }
+                }
             }
         }
         .foregroundColor(SUColorStandartPalette.text)
@@ -185,13 +216,13 @@ struct SpaceScreen_Previews: PreviewProvider {
         appState: SUAppStateProviderMock(),
         spaceManager: SUManagerSpaceMock(workspaces: {
             [
-//                SUShallowWorkspace(
-//                    meta: .empty,
-//                    title: "Amazing Workspace!",
-//                    emoji: "❤️",
-//                    documentsCount: 1,
-//                    membersCount: 1
-//                )
+                SUShallowWorkspace(
+                    meta: .empty,
+                    title: "Amazing Workspace!",
+                    emoji: "❤️",
+                    documentsCount: 1,
+                    membersCount: 1
+                )
             ]
         }),
         sessionManager: SUManagerUserPrimeMock()
