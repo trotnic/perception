@@ -30,15 +30,18 @@ public struct SUShallowDocument {
     public let meta: SUDocumentMeta
     public let title: String
     public let emoji: String
+    public let dateCreated: Date
 
     public init(
         meta: SUDocumentMeta,
         title: String,
-        emoji: String
+        emoji: String,
+        dateCreated: Date
     ) {
         self.meta = meta
         self.title = title
         self.emoji = emoji
+        self.dateCreated = dateCreated
     }
 
     subscript(dynamicMember member: KeyPath<SUDocumentMeta, UUID>) -> UUID {

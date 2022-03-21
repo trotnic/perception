@@ -222,6 +222,7 @@ extension FireRepository: Repository {
                             
                             guard let title = document.get("title") as? String else { return nil }
                             guard let emoji = document.get("emoji") as? String else { return nil }
+                            guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
                             
                             return SUShallowDocument(
                                 meta: SUDocumentMeta(
@@ -229,7 +230,8 @@ extension FireRepository: Repository {
                                     workspaceId: workspaceId
                                 ),
                                 title: title,
-                                emoji: emoji
+                                emoji: emoji,
+                                dateCreated: dateCreated.dateValue()
                             )
                         }
                         let workspaceMembers: [SUShallowWorkspaceMember] = members.compactMap { memberDict in
@@ -277,6 +279,7 @@ extension FireRepository: Repository {
 
             guard let title = document.get("title") as? String else { return nil }
             guard let emoji = document.get("emoji") as? String else { return nil }
+            guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
 
             return SUShallowDocument(
                 meta: SUDocumentMeta(
@@ -284,7 +287,8 @@ extension FireRepository: Repository {
                     workspaceId: id
                 ),
                 title: title,
-                emoji: emoji
+                emoji: emoji,
+                dateCreated: dateCreated.dateValue()
             )
         }
         let workspaceMembers: [SUShallowWorkspaceMember] = members.compactMap { memberDict in
@@ -713,6 +717,7 @@ public extension FireRepository {
                 guard let workspaceId = document.get("workspaceId") as? String else { return nil }
                 guard let title = document.get("title") as? String else { return nil }
                 guard let emoji = document.get("emoji") as? String else { return nil }
+                guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
 
                 return SUShallowDocument(
                     meta: SUDocumentMeta(
@@ -720,7 +725,8 @@ public extension FireRepository {
                         workspaceId: workspaceId
                     ),
                     title: title,
-                    emoji: emoji
+                    emoji: emoji,
+                    dateCreated: dateCreated.dateValue()
                 )
             }
     }

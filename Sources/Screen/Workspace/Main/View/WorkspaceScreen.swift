@@ -232,7 +232,13 @@ private extension WorkspaceScreen {
                     emoji: item.emoji,
                     title: item.title,
                     icon: "chevron.right",
-                    badges: [],
+                    badges: item.badges.map {
+                        .init(
+                            title: $0.title,
+                            icon: $0.type.icon,
+                            color: $0.type.color
+                        )
+                    },
                     action: item.action
                 )
             }
@@ -278,6 +284,23 @@ extension View {
     }
 }
 
+extension WorkspaceViewModel.Badge.BadgeType {
+
+    var icon: String {
+        switch self {
+        case .dateCreated:
+            return "calendar.badge.plus"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .dateCreated:
+            return .green.opacity(0.8)
+        }
+    }
+}
+
 // MARK: - Preview
 
 struct WorkspaceScreen_Previews: PreviewProvider {
@@ -296,7 +319,8 @@ struct WorkspaceScreen_Previews: PreviewProvider {
                         workspaceId: "w1"
                     ),
                     title: "Document #1",
-                    emoji: "❤️"
+                    emoji: "❤️",
+                    dateCreated: Date.now
                 ),
             ]
         }, members: {

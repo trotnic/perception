@@ -64,17 +64,29 @@ public extension WorkspaceViewModel {
         public let id = UUID()
         public let title: String
         public let emoji: String
+        public let badges: [Badge]
         public let action: () -> Void
 
         init(
             title: String,
             emoji: String,
+            badges: [Badge],
             action: @autoclosure @escaping () -> Void
         ) {
             self.title = title
             self.emoji = emoji
+            self.badges = badges
             self.action = action
         }
+    }
+
+    struct Badge {
+        public enum BadgeType {
+            case dateCreated
+        }
+
+        public let title: String
+        public let type: BadgeType
     }
 
     struct ActionItem: Identifiable {
@@ -106,6 +118,12 @@ private extension WorkspaceViewModel {
                     ListItem(
                         title: document.title,
                         emoji: document.emoji,
+                        badges: [
+                            Badge(
+                                title: document.dateCreated.formatted(date: .numeric, time: .shortened),
+                                type: .dateCreated
+                            )
+                        ],
                         action: self.selectItem(with: document.meta.id)
                     )
                 }
@@ -141,7 +159,7 @@ private extension WorkspaceViewModel {
                             emoji: value
                         )
                     } catch {
-                        
+                        // TODO: Error Handling
                     }
                 }
             }
