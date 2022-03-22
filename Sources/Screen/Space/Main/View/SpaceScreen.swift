@@ -39,51 +39,17 @@ extension SpaceScreen: View {
                     .padding(.top, 16.0)
                     .padding(.horizontal, 16.0)
                     Group {
-                        if spaceViewModel.isSpaceEmpty {
-                            VStack(alignment: .center, spacing: 32.0) {
-                                Text("You didn’t create any workspace yet 😿")
-                                    .font(.custom("Cofmortaa", size: 22.0).bold())
-                                    .frame(maxWidth: proxy.size.width - 60.0)
-                                    .multilineTextAlignment(.center)
-                                    .foregroundColor(SUColorStandartPalette.secondary1)
-                                SUButtonCapsule(
-                                    isActive: .constant(true),
-                                    title: "Create new workspace",
-                                    size: CGSize(width: proxy.size.width - 32.0, height: 56.0),
-                                    action: spaceViewModel.createAction
-                                )
-                            }
+                        if spaceViewModel.isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .scaleEffect(2.0)
+                                .tint(SUColorStandartPalette.secondary2)
                         } else {
-                            GeometryReader { scrollProxy in
-                                ScrollView {
-                                    VStack(spacing: 40) {
-                                        ListItems()
-                                    }
-                                    .padding(16)
-                                    Color.clear
-                                        .padding(.bottom, toolbarFrame.height)
-                                }
-                                .overlay {
-                                    VStack {
-                                        if tileFrame.origin.y < navbarFrame.origin.y {
-                                            VStack {
-                                                Rectangle()
-                                                    .fill(SUColorStandartPalette.secondary3)
-                                                    .frame(height: 1.0)
-                                                    .frame(maxWidth: .infinity)
-                                                Spacer()
-                                            }
-                                        }
-                                    }
-                                }
-                                .overlay {
-                                    Color.clear
-                                    .preference(key: SUFrameKey.self, value: scrollProxy.frame(in: .global))
-                                    .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
-                                }
-                            }
+                            Content(proxy: proxy)
+                                .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                         }
                     }
+                    .animation(.easeInOut, value: spaceViewModel.isLoading)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
                 .blur(radius: isToolbarExpanded ? 2.0 : 0.0)
@@ -160,6 +126,55 @@ private extension SpaceScreen {
         )
     }
 
+    @ViewBuilder
+    func Content(proxy: GeometryProxy) -> some View {
+        if spaceViewModel.isSpaceEmpty {
+            VStack(alignment: .center, spacing: 32.0) {
+                Text("You didn’t create any workspace yet 😿")
+                    .font(.custom("Cofmortaa", size: 22.0).bold())
+                    .frame(maxWidth: proxy.size.width - 60.0)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(SUColorStandartPalette.secondary1)
+                SUButtonCapsule(
+                    isActive: .constant(true),
+                    title: "Create new workspace",
+                    size: CGSize(width: proxy.size.width - 32.0, height: 56.0),
+                    action: spaceViewModel.createAction
+                )
+            }
+        } else {
+            GeometryReader { scrollProxy in
+                ScrollView {
+                    VStack(spacing: 40) {
+                        ListItems()
+                    }
+                    .padding(16)
+                    Color.clear
+                        .padding(.bottom, toolbarFrame.height)
+                }
+                .overlay {
+                    VStack {
+                        if tileFrame.origin.y < navbarFrame.origin.y {
+                            VStack {
+                                Rectangle()
+                                    .fill(SUColorStandartPalette.secondary3)
+                                    .frame(height: 1.0)
+                                    .frame(maxWidth: .infinity)
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+                .overlay {
+                    Color.clear
+                        .preference(key: SUFrameKey.self, value: scrollProxy.frame(in: .global))
+                        .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
+                }
+            }
+            .animation(Animation.easeInOut, value: spaceViewModel.isSpaceEmpty)
+        }
+    }
+
     func ListItems() -> some View {
         LazyVGrid(
             columns: [
@@ -167,30 +182,38 @@ private extension SpaceScreen {
             ],
             spacing: 24.0
         ) {
-            ForEach(spaceViewModel.items) { item in
-                SUListTileWork(
-                    emoji: item.emoji,
-                    title: item.title,
-                    icon: "chevron.right",
-                    badges: item.badges.map {
-                        SUListTileWork.Badge(
-                            title: $0.title,
-                            icon: $0.type.icon,
-                            color: $0.type.color
-                        )
-                    },
-                    action: item.action
-                )
-                .background {
-                    if item.index == 0 {
-                        GeometryReader { proxy in
-                            Color.clear
-                                .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
-                                .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
+            ForEach(spaceViewModel.items, id: \.id) { item in
+//                if !spaceViewModel.items.isEmpty {
+                    SUListTileWork(
+                        emoji: item.emoji,
+                        title: item.title,
+                        icon: "chevron.right",
+                        badges: item.badges.map {
+                            SUListTileWork.Badge(
+                                title: $0.title,
+                                icon: $0.type.icon,
+                                color: $0.type.color
+                            )
+                        },
+                        action: item.action
+                    )
+//                    .transition(.scale)
+//                    .transition(AnyTransition.slide)
+//                    .animation(.easeInOut.delay(0.2 * Double(item.index)))
+                    .background {
+                        if item.index == 0 {
+                            GeometryReader { proxy in
+                                Color.clear
+                                    .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
+                                    .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
+                            }
                         }
                     }
-                }
+//                    .animation(.default.delay(0.12))
+//                }
             }
+//            .transition(.scale)
+//            .animation(.default.delay(0.12))
         }
         .foregroundColor(SUColorStandartPalette.text)
     }

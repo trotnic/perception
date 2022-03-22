@@ -12,8 +12,10 @@ import SUFoundation
 
 public final class SpaceViewModel: ObservableObject {
 
+    @Published public private(set) var isContentLoaded: Bool = false
     @Published public private(set) var items: [ListItem] = []
     @Published public private(set) var isSpaceEmpty: Bool = false
+    @Published public private(set) var isLoading: Bool = true
 
     private var disposeBag = Set<AnyCancellable>()
 
@@ -77,7 +79,14 @@ private extension SpaceViewModel {
     func setupBindings() {
         spaceManager
             .workspaces
-            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .handleEvents(receiveOutput: { _ in
+                Task {
+                    await MainActor.run {
+                        self.isLoading = true
+                    }
+                }
+            })
             .map { workspaces in
                 workspaces.enumerated().map { item in
                     ListItem(
@@ -92,6 +101,15 @@ private extension SpaceViewModel {
                     )
                 }
             }
+            .handleEvents(receiveOutput: { _ in
+                Task {
+                    try await Task.sleep(nanoseconds: 40000000)
+                    await MainActor.run {
+                        self.isLoading = false
+                    }
+                }
+            })
+            .receive(on: DispatchQueue.main)
             .assign(to: &$items)
 
         $items
