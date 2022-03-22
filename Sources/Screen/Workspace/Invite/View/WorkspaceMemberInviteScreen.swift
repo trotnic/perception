@@ -13,6 +13,7 @@ import SUFoundation
 public struct WorkspaceMemberInviteScreen {
 
     @StateObject var viewModel: WorkspaceMemberInviteViewModel
+
     @FocusState private var textFieldFocus
 }
 
@@ -28,7 +29,7 @@ extension WorkspaceMemberInviteScreen: View {
                         VStack {
                             SUButtonCircular(
                                 icon: "chevron.left",
-                                action: {}
+                                action: viewModel.backAction
                             )
                                 .frame(width: 36.0, height: 36.0)
                         }

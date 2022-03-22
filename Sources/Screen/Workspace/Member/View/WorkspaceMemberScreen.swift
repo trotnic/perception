@@ -13,6 +13,9 @@ import SwiftUI
 struct WorkspaceMemberScreen {
 
     @StateObject var viewModel: WorkspaceMemberViewModel
+
+    @State private var navbarFrame: CGRect = .zero
+    @State private var tileFrame: CGRect = .zero
 }
 
 extension WorkspaceMemberScreen: View {
@@ -48,36 +51,83 @@ extension WorkspaceMemberScreen: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .padding(.top, 16)
-                ScrollView {
-                    VStack(spacing: 40) {
-                        ForEach(viewModel.content) { content in
-                            SUListTileMember(
-                                content: SUListTileMember.Content(
-                                    title: content.title,
-                                    badges: content.badges.map { badge in
-                                        SUListTileMember.Badge(
-                                            title: badge.title,
-                                            icon: badge.type.icon,
-                                            color: badge.type.color
-                                        )
-                                    }
-                                ),
-                                action: {}
-                            )
+                GeometryReader { scrollProxy in
+                    ScrollView {
+                        VStack(spacing: 40) {
+                            ListItems()
+                        }
+                        .padding(16)
+                    }
+                    .overlay {
+                        VStack {
+                            if tileFrame.origin.y < navbarFrame.origin.y {
+                                VStack {
+                                    Rectangle()
+                                        .fill(SUColorStandartPalette.secondary3)
+                                        .frame(height: 1.0)
+                                        .frame(maxWidth: .infinity)
+                                    Spacer()
+                                }
+                            }
                         }
                     }
-                    .padding(16)
+                    .overlay {
+                        Color.clear
+                        .preference(key: SUFrameKey.self, value: scrollProxy.frame(in: .global))
+                        .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
+                    }
                 }
             }
-            .overlay {
-                VStack {
+            // TODO: Consider adding a toolbar
+//            .overlay {
+//                VStack {
 //                    toolbar
-                }
-                .frame(maxHeight: .infinity, alignment: .bottom)
-                .padding(.bottom, 10.0)
-            }
+//                }
+//                .frame(maxHeight: .infinity, alignment: .bottom)
+//                .padding(.bottom, 10.0)
+//            }
         }
         .onAppear(perform: viewModel.load)
+    }
+}
+
+// MARK: - Private interface
+
+private extension WorkspaceMemberScreen {
+
+    func ListItems() -> some View {
+        LazyVGrid(
+            columns: [
+                GridItem(.flexible(minimum: .zero, maximum: .infinity))
+            ],
+            spacing: 24.0
+        ) {
+            ForEach(viewModel.items) { item in
+                SUListTileMember(
+                    content: SUListTileMember.Content(
+                        title: item.title,
+                        imagePath: item.imagePath,
+                        badges: item.badges.map { badge in
+                            SUListTileMember.Badge(
+                                title: badge.title,
+                                icon: badge.type.icon,
+                                color: badge.type.color
+                            )
+                        }
+                    ),
+                    action: {}
+                )
+                .background {
+                    if item.index == 0 {
+                        GeometryReader { proxy in
+                            Color.clear
+                                .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
+                                .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

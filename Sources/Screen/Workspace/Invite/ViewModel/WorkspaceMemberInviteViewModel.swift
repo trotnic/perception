@@ -32,6 +32,8 @@ public final class WorkspaceMemberInviteViewModel: ObservableObject {
     }
 }
 
+// MARK: - Public actions
+
 public extension WorkspaceMemberInviteViewModel {
 
     func inviteAction() {
@@ -39,11 +41,17 @@ public extension WorkspaceMemberInviteViewModel {
             do {
                 try await inviteManager.inviteUser(with: email, in: workspaceMeta.id)
             } catch {
-                
+                // TODO: Error handling
             }
         }
     }
+
+    func backAction() {
+        appState.change(route: .back)
+    }
 }
+
+// MARK: - Private interface
 
 private extension WorkspaceMemberInviteViewModel {
 

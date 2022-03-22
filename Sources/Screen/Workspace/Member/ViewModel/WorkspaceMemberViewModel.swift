@@ -12,7 +12,7 @@ import SUFoundation
 
 public final class WorkspaceMemberViewModel: ObservableObject {
 
-    @Published public private(set) var content: [Content] = []
+    @Published public private(set) var items: [ListItem] = []
 
     private let appState: SUAppStateProvider
     private let memberManager: SUManagerMember
@@ -50,18 +50,12 @@ public extension WorkspaceMemberViewModel {
 
 public extension WorkspaceMemberViewModel {
 
-    struct Content: Identifiable {
+    struct ListItem: Identifiable {
         public let id = UUID()
+        public let index: Int
         public let title: String
+        public let imagePath: String?
         public let badges: [Badge]
-
-        public init(
-            title: String,
-            badges: [Badge]
-        ) {
-            self.title = title
-            self.badges = badges
-        }
     }
 
     struct Badge: Identifiable {
@@ -84,16 +78,24 @@ private extension WorkspaceMemberViewModel {
             .members
             .receive(on: DispatchQueue.main)
             .map { items in
-                items.map { item in
-                    Content(
-                        title: item.user.username,
+                items.enumerated().map { item in
+                    ListItem(
+                        index: item.offset,
+                        title: item.element.user.username,
+                        imagePath: item.element.user.avatarPath,
                         badges: [
-                            Badge(title: item.user.email, type: .role),
-                            Badge(title: item.permission.title, type: .permission)
+                            Badge(
+                                title: item.element.user.email,
+                                type: .role
+                            ),
+                            Badge(
+                                title: item.element.permission.title,
+                                type: .permission
+                            )
                         ]
                     )
                 }
             }
-            .assign(to: &$content)
+            .assign(to: &$items)
     }
 }

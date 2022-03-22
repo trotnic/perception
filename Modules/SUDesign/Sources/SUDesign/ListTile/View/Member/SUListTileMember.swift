@@ -32,9 +32,7 @@ extension SUListTileMember: View {
                     spacing: 12
                 ) {
                     HStack {
-                        Circle()
-                            .fill(.cyan)
-                            .frame(width: 72.0, height: 72.0)
+                        Avatar(imagePath: content.imagePath)
                         VStack(
                             alignment: .leading,
                             spacing: 8.0
@@ -58,8 +56,6 @@ extension SUListTileMember: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 24).weight(.regular))
             }
             .padding(16)
             .foregroundColor(SUColorStandartPalette.text)
@@ -83,13 +79,16 @@ public extension SUListTileMember {
 
     struct Content {
         public let title: String
+        public let imagePath: String?
         public let badges: [Badge]
 
         public init(
             title: String,
+            imagePath: String?,
             badges: [Badge]
         ) {
             self.title = title
+            self.imagePath = imagePath
             self.badges = badges
         }
     }
@@ -112,6 +111,40 @@ public extension SUListTileMember {
     }
 }
 
+// MARK: - Private interface
+
+private extension SUListTileMember {
+
+    // swiftlint:disable identifier_name
+    @ViewBuilder
+    func Avatar(imagePath: String?) -> some View {
+        if imagePath == nil {
+            AvatarPlaceholder()
+        } else {
+            AsyncImage(url: URL(string: imagePath!)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 72.0, height: 72.0)
+                    .clipShape(Circle())
+            } placeholder: {
+                AvatarPlaceholder()
+            }
+        }
+    }
+
+    func AvatarPlaceholder() -> some View {
+        Circle()
+            .fill(SUColorStandartPalette.tile)
+            .frame(width: 72.0, height: 72.0)
+            .overlay {
+                Image(systemName: "camera")
+                    .font(.system(size: 40.0).bold())
+                    .foregroundColor(SUColorStandartPalette.secondary3)
+            }
+    }
+}
+
 // MARK: - Preview
 
 struct SUListTileMember_Previews: PreviewProvider {
@@ -122,6 +155,7 @@ struct SUListTileMember_Previews: PreviewProvider {
             SUListTileMember(
                 content: SUListTileMember.Content(
                     title: "Uladzislau Volchyk",
+                    imagePath: "https://pbs.twimg.com/media/FHKBfu1WQAckBSF.jpg",
                     badges: [
                         SUListTileMember.Badge(
                             title: "Software Engineer",
