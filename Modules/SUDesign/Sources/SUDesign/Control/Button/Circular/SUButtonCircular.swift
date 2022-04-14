@@ -13,7 +13,10 @@ public struct SUButtonCircular {
     private let icon: String
     private let action: () -> Void
 
-    public init(icon: String, action: @escaping () -> Void) {
+    public init(
+        icon: String,
+        action: @escaping () -> Void
+    ) {
         self.icon = icon
         self.action = action
     }
@@ -21,7 +24,6 @@ public struct SUButtonCircular {
 
 extension SUButtonCircular: View {
 
-    /// https://stackoverflow.com/a/65096819/13450895
     public var body: some View {
         Button(action: action) {
             Image(systemName: icon)

@@ -6,6 +6,7 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+#if os(iOS)
 import UIKit
 import SwiftUI
 
@@ -125,3 +126,5 @@ struct SUEmojiTextField_Previews: PreviewProvider {
         }
     }
 }
+
+#endif

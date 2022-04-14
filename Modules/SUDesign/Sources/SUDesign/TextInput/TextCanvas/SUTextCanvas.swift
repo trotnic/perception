@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 
+#if os(iOS)
 //https://stackoverflow.com/a/58639072
 //https://stackoverflow.com/a/20269793
 private struct UITextViewWrapper: UIViewRepresentable {
@@ -107,3 +108,5 @@ struct SUTextCanvasPreviews: PreviewProvider {
         }
     }
 }
+
+#endif

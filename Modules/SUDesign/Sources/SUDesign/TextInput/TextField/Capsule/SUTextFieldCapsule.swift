@@ -7,6 +7,9 @@
 //
 
 import SwiftUI
+#if os(macOS)
+public typealias UIEdgeInsets = AppKit.NSEdgeInsets
+#endif
 
 public struct SUTextFieldCapsule {
 

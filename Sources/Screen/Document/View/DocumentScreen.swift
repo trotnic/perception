@@ -81,11 +81,12 @@ extension DocumentScreen: View {
                                     .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
                             }
                         }
-                        
+                        #if os(iOS)
                         SUTextCanvas(text: $documentViewModel.text)
                             .padding(.vertical, 16.0)
                             .frame(width: proxy.size.width - 40.0)
                             .focused($textCanvasFocus)
+                        #endif
                         Color.clear
                             .padding(.bottom, toolbarFrame.height)
                     }

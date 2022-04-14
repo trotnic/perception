@@ -20,7 +20,9 @@ struct AccountScreen {
     @Namespace private var namespace
 
     @State private var showSheet = false
+    #if os(iOS)
     @State private var image: UIImage?
+    #endif
 }
 
 extension AccountScreen: View {
@@ -58,6 +60,7 @@ extension AccountScreen: View {
         }
         .onAppear(perform: viewModel.loadAction)
         .sheet(isPresented: $showSheet) {
+            #if os(iOS)
             ImagePicker(image: .init(get: {
                 nil
             }, set: { image in
@@ -68,6 +71,7 @@ extension AccountScreen: View {
                     }
                 }
             }))
+            #endif
         }
     }
 }
@@ -294,6 +298,7 @@ private extension AccountScreen {
     }
 }
 
+#if os(iOS)
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
 
@@ -333,6 +338,7 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
     }
 }
+#endif
 
 struct AccountScreenSS_Previews: PreviewProvider {
 

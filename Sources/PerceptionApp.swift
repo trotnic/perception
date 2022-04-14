@@ -16,6 +16,9 @@ struct PerceptionApp: App {
                     )
                 )
             }
+            #if os(macOS)
+            .frame(width: 400, height: 750)
+            #endif
 		}
 	}
 }

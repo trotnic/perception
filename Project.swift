@@ -16,7 +16,7 @@ let project = Project(
     ],
     targets: [
         Target(
-            name: "Perception",
+            name: "Perception-iOS",
             platform: .iOS,
             product: .app,
             bundleId: "com.staruco.perception",
@@ -36,10 +36,36 @@ let project = Project(
                 .package(product: "SwiftUIRouter"),
                 .package(product: "SUDesign"),
                 .package(product: "SUFoundation"),
-            ],
-            coreDataModels: [
-                CoreDataModel(.relativeToCurrentFile("Sources/Model/Persistance/CoreData/Perception.xcdatamodeld"), currentVersion: "Perception")
             ]
+//            coreDataModels: [
+//                CoreDataModel(.relativeToCurrentFile("Sources/Model/Persistance/CoreData/Perception.xcdatamodeld"), currentVersion: "Perception")
+//            ]
+        ),
+        Target(
+            name: "Perception-macOS",
+            platform: .macOS,
+            product: .app,
+            bundleId: "com.staruco.perception",
+            deploymentTarget: .macOS(targetVersion: "12.0"),
+            infoPlist: .extendingDefault(with: infoPlist),
+            sources: [
+                "Sources/**",
+            ],
+            resources: [
+                "Resources/**",
+            ],
+            scripts: [
+                .post(script: "./Scripts/lint.sh", name: "SwiftLint")
+            ],
+            dependencies: [
+                .package(product: "Fakery"),
+                .package(product: "SwiftUIRouter"),
+                .package(product: "SUDesign"),
+                .package(product: "SUFoundation"),
+            ]
+//            coreDataModels: [
+//                CoreDataModel(.relativeToCurrentFile("Sources/Model/Persistance/CoreData/Perception.xcdatamodeld"), currentVersion: "Perception")
+//            ]
         ),
         Target(
             name: "PerceptionTests",
@@ -51,7 +77,7 @@ let project = Project(
                 "Tests/**"
             ],
             dependencies: [
-                .target(name: "Perception")
+                .target(name: "Perception-iOS")
             ]
         )
     ]

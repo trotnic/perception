@@ -29,6 +29,20 @@ extension RootScreen: View {
                 )
             }
             .navigationTransition()
+            Route("space/workspace/:wId/members", validator: {
+                .init(
+                    id: $0.parameters["wId"]!
+                )
+            }) { (meta: SUWorkspaceMeta) in
+                WorkspaceMemberScreen(
+                    viewModel: WorkspaceMemberViewModel(
+                        appState: environment.appState,
+                        memberManager: environment.memberManager,
+                        workspaceMeta: meta
+                    )
+                )
+            }
+            .navigationTransition()
             Route("space") {
                 SpaceScreen(
                     spaceViewModel: SpaceViewModel(
@@ -109,20 +123,7 @@ extension RootScreen: View {
                 )
             }
             .navigationTransition()
-            Route("space/workspace/:wId/members", validator: {
-                .init(
-                    id: $0.parameters["wId"]!
-                )
-            }) { (meta: SUWorkspaceMeta) in
-                WorkspaceMemberScreen(
-                    viewModel: WorkspaceMemberViewModel(
-                        appState: environment.appState,
-                        memberManager: environment.memberManager,
-                        workspaceMeta: meta
-                    )
-                )
-            }
-            .navigationTransition()
+            
             Route("space/workspace/:wId/members/invite", validator: {
                 .init(
                     id: $0.parameters["wId"]!

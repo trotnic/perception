@@ -25,6 +25,7 @@ struct NavigationCheck: View {
         .onTapGesture {
             showActionSheet = true
         }
+        #if os(iOS)
         .actionSheet(isPresented: $showActionSheet, content: {
             ActionSheet(title: Text("Choose a new photo"),
                         message: Text("Pick a photo that you like"),
@@ -38,6 +39,7 @@ struct NavigationCheck: View {
                             .cancel()
                         ])
         })
+        #endif
     }
 }
 

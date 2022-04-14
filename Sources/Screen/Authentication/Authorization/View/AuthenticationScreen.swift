@@ -47,7 +47,9 @@ extension AuthenticationScreen: View {
                                 )
                                     .frame(maxWidth: proxy.size.width - 44.0)
                             }
+                            #if os(iOS)
                             .textInputAutocapitalization(.never)
+                            #endif
                             Text(viewModel.errorText)
                                 .font(.custom("Cofmortaa", size: 14.0).bold())
                                 .foregroundColor(SUColorStandartPalette.destructive)
