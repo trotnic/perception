@@ -33,7 +33,6 @@ extension SUSheet: View {
             VStack(spacing: .zero) {
                 HStack {
                     SUButtonCircular(icon: "xmark", action: {})
-                        .frame(width: 36.0, height: 36.0)
                         .padding(.vertical, 20.0)
                     Spacer()
                     VStack {
@@ -47,23 +46,9 @@ extension SUSheet: View {
 
                     Spacer()
                     SUButtonCircular(icon: "chevron.left", action: {})
-                        .frame(width: 36.0, height: 36.0)
                         .padding(.vertical, 20.0)
                 }
                 .padding(.horizontal, 16.0)
-//                .gesture(
-//                    DragGesture()
-//                        .onChanged { value in
-//                            withAnimation {
-//                                offset = value.translation.height
-//                            }
-//                        }
-//                        .onEnded { value in
-//                            withAnimation {
-//                                offset = .zero
-//                            }
-//                        }
-//                )
                 ScrollView {
                     VStack(spacing: 24.0) {
                         ForEach(content()) { item in

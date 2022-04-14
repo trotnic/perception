@@ -38,11 +38,12 @@ extension WorkspaceScreen: View {
                             icon: "chevron.left",
                             action: workspaceViewModel.backAction
                         )
-                            .frame(width: 36.0, height: 36.0)
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    VStack(spacing: 2.0) {
+                    VStack(
+                        spacing: 2.0
+                    ) {
                         Text("Workspace")
                             .font(.custom("Comfortaa", size: 16.0).weight(.bold))
                             .foregroundColor(SUColorStandartPalette.text)
@@ -54,10 +55,12 @@ extension WorkspaceScreen: View {
                     }
                     .animation(.easeInOut(duration: 0.12), value: tileFrame.origin.y < navbarFrame.origin.y)
                 }
-                .padding(.top, 16)
+                .padding(.top, 16.0)
                 GeometryReader { scrollProxy in
                     ScrollView {
-                        VStack(spacing: 40) {
+                        VStack(
+                            spacing: 40.0
+                        ) {
                             TopTile()
                                 .background {
                                     GeometryReader { proxy in
@@ -132,6 +135,7 @@ private extension WorkspaceScreen {
                     SUButtonEmoji(text: $workspaceViewModel.emoji, commit: {})
                         .focused($emojiButtonFocus)
                     TextField("", text: $workspaceViewModel.title)
+                        .textFieldStyle(PlainTextFieldStyle())
                         .font(.custom("Comfortaa", size: 18.0).weight(.bold))
                 }
                 RoundedRectangle(cornerRadius: 1)

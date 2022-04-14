@@ -18,10 +18,6 @@ struct SUButtonCircularStyle: ButtonStyle {
                     configuration.isPressed ?
                     SUColorStandartPalette.secondary1 : SUColorStandartPalette.text
                 )
-                .frame(
-                    width: proxy.size.width,
-                    height: proxy.size.height
-                )
                 .background {
                     Circle()
                         .stroke(lineWidth: 2.0)
@@ -30,6 +26,11 @@ struct SUButtonCircularStyle: ButtonStyle {
                             SUColorStandartPalette.secondary3 : SUColorStandartPalette.secondary2
                         )
                 }
+                .contentShape(Circle())
+                .frame(
+                    width: proxy.size.width,
+                    height: proxy.size.height
+                )
                 .scaleEffect(configuration.isPressed ? 0.78 : 1.0)
                 .animation(.easeInOut(duration: 0.12), value: configuration.isPressed)
         }

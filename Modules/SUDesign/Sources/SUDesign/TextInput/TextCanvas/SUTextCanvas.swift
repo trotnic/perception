@@ -47,9 +47,6 @@ private struct UITextViewWrapper: UIViewRepresentable {
         if uiView.text != text {
             uiView.text = text
         }
-//        if uiView.window != nil, !uiView.isFirstResponder {
-//            uiView.becomeFirstResponder()
-//        }
         UITextViewWrapper.recalculateHeight(view: uiView, result: $calculatedHeight)
     }
 
@@ -63,10 +60,13 @@ private struct UITextViewWrapper: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
-        @Binding var text: String
-        @Binding var calculatedHeight: CGFloat
+        @Binding private var text: String
+        @Binding private var calculatedHeight: CGFloat
 
-        init(text: Binding<String>, height: Binding<CGFloat>) {
+        init(
+            text: Binding<String>,
+            height: Binding<CGFloat>
+        ) {
             _text = text
             _calculatedHeight = height
         }
@@ -79,12 +79,16 @@ private struct UITextViewWrapper: UIViewRepresentable {
 
 }
 
+#endif
+
 public struct SUTextCanvas {
 
     @Binding private var text: String
     @State private var dynamicHeight: CGFloat = 44.0
 
-    public init(text: Binding<String>) {
+    public init(
+        text: Binding<String>
+    ) {
         _text = text
     }
 }
@@ -92,8 +96,13 @@ public struct SUTextCanvas {
 extension SUTextCanvas: View {
 
     public var body: some View {
-        UITextViewWrapper(text: $text, calculatedHeight: $dynamicHeight)
-            .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
+        #if os(iOS)
+            UITextViewWrapper(text: $text, calculatedHeight: $dynamicHeight)
+                .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
+        #elseif os(macOS)
+            NSTextViewWrapper(text: $text, calculatedHeight: $dynamicHeight)
+                .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
+        #endif
     }
 }
 
@@ -107,6 +116,91 @@ struct SUTextCanvasPreviews: PreviewProvider {
                 .frame(width: .infinity, height: 40)
         }
     }
+}
+
+#if os(macOS)
+
+import AppKit
+
+private struct NSTextViewWrapper: NSViewRepresentable {
+
+    @Binding var text: String
+    @Binding var calculatedHeight: CGFloat
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(text: $text, height: $calculatedHeight)
+    }
+
+    func makeNSView(context: NSViewRepresentableContext<NSTextViewWrapper>) -> NSTextView {
+        let textField = NSTextView()
+        textField.delegate = context.coordinator
+
+        textField.isEditable = true
+        textField.font = NSFont.preferredFont(forTextStyle: .body)
+        textField.isSelectable = true
+        textField.drawsBackground = false
+        textField.allowsUndo = true
+
+//        textField.textContainerInset = .zero
+//        textField.textContainer.lineFragmentPadding = .zero
+//        textField.textContainerInset = UIEdgeInsets(top: 4.0, left: 4.0, bottom: 4.0, right: 4.0)
+//        textField.keyboardType = .twitter
+
+//        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        return textField
+    }
+
+    func updateNSView(_ nsView: NSTextView, context: NSViewRepresentableContext<NSTextViewWrapper>) {
+        if nsView.string != text {
+            nsView.string = text
+        }
+    }
+
+    private static func recalculateHeight(view: NSView, result: Binding<CGFloat>) {
+//        view.size
+//        let newSize = view.sizeThatFits(CGSize(width: view.frame.size.width, height: CGFloat.greatestFiniteMagnitude))
+//        if result.wrappedValue != newSize.height {
+//            DispatchQueue.main.async {
+//                result.wrappedValue = newSize.height // !! must be called asynchronously
+//            }
+//        }
+    }
+
+    final class Coordinator: NSObject, NSTextViewDelegate {
+        @Binding private var text: String
+        @Binding private var calculatedHeight: CGFloat
+
+        init(
+            text: Binding<String>,
+            height: Binding<CGFloat>
+        ) {
+            _text = text
+            _calculatedHeight = height
+        }
+
+        func textDidChange(_ notification: Notification) {
+            guard notification.name == NSText.didChangeNotification,
+                  let textView = (notification.object as? NSTextView),
+                  let latestText = textView.textStorage else { return }
+            text = latestText.string
+//            NSTextViewWrapper.recalculateHeight(view: textView, result: calculatedHeight)
+        }
+
+        func textView(_ textView: NSTextView, shouldChangeTextIn: NSRange, replacementString: String?) -> Bool {
+            if replacementString == "\n" {
+                textView.resignFirstResponder()
+//                onDone()
+                return false
+            }
+            return true
+        }
+
+//        func textViewDidChange(_ uiView: UITextView) {
+//            self.text = uiView.text
+//            UITextViewWrapper.recalculateHeight(view: uiView, result: $calculatedHeight)
+//        }
+    }
+
 }
 
 #endif

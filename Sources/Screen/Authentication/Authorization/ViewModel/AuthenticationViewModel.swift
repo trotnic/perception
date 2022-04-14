@@ -17,6 +17,13 @@ public final class AuthenticationViewModel: ObservableObject {
     @Published public var errorText: String = .empty
     @Published public var isSignButtonActive: Bool = false
 
+    @Published public var state: AuthState = .signIn
+
+    public enum AuthState {
+        case signIn
+        case signUp
+    }
+
     private var disposeBag = Set<AnyCancellable>()
 
     private let appState: SUAppStateProvider
@@ -36,33 +43,17 @@ public final class AuthenticationViewModel: ObservableObject {
 
 public extension AuthenticationViewModel {
 
-    func signIn() {
-        Task {
-            do {
-                try await sessionManager.signIn(email: email, password: password)
-                await MainActor.run {
-                    appState.change(route: .space)
-                }
-            } catch {
-                await MainActor.run {
-                    errorText = "Invalid email or password"
-                }
-            }
-        }
+    func toggleStateAction() {
+        resetState()
+        state = state == .signIn ? .signUp : .signIn
     }
 
-    func signUp() {
-        Task {
-            do {
-                try await sessionManager.signUp(email: email, password: password)
-                await MainActor.run {
-                    appState.change(route: .space)
-                }
-            } catch {
-                await MainActor.run {
-                    errorText = "Error occured. Try again"
-                }
-            }
+    func signButtonAction() {
+        switch state {
+        case .signIn:
+            signInAction()
+        case .signUp:
+            signUpAction()
         }
     }
 }
@@ -83,5 +74,41 @@ private extension AuthenticationViewModel {
             .drop { _ in self.errorText.isEmpty }
             .sink { _ in self.errorText = .empty }
             .store(in: &disposeBag)
+    }
+
+    func signInAction() {
+        Task {
+            do {
+                try await sessionManager.signIn(email: email, password: password)
+                await MainActor.run {
+                    appState.change(route: .space)
+                }
+            } catch {
+                await MainActor.run {
+                    errorText = "Invalid email or password"
+                }
+            }
+        }
+    }
+
+    func signUpAction() {
+        Task {
+            do {
+                try await sessionManager.signUp(email: email, password: password)
+                await MainActor.run {
+                    appState.change(route: .space)
+                }
+            } catch {
+                await MainActor.run {
+                    errorText = "Error occured. Try again"
+                }
+            }
+        }
+    }
+
+    func resetState() {
+        email = .empty
+        password = .empty
+        errorText = .empty
     }
 }

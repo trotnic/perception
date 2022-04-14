@@ -31,7 +31,6 @@ extension WorkspaceMemberScreen: View {
                             icon: "chevron.left",
                             action: viewModel.backAction
                         )
-                            .frame(width: 36.0, height: 36.0)
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -45,7 +44,6 @@ extension WorkspaceMemberScreen: View {
                             icon: "person.badge.plus",
                             action: viewModel.inviteAction
                         )
-                            .frame(width: 36.0, height: 36.0)
                     }
                     .padding(.trailing, 16)
                     .frame(maxWidth: .infinity, alignment: .trailing)

@@ -36,7 +36,6 @@ extension DocumentScreen: View {
                             icon: "chevron.left",
                             action: documentViewModel.backAction
                         )
-                            .frame(width: 36.0, height: 36.0)
                     }
                     .padding(.leading, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -65,6 +64,7 @@ extension DocumentScreen: View {
                                 Spacer()
                             }
                             TextField(String.empty, text: $documentViewModel.title)
+                                .textFieldStyle(PlainTextFieldStyle())
                                 .font(.custom("Comfortaa", size: 36.0).bold())
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -81,12 +81,15 @@ extension DocumentScreen: View {
                                     .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
                             }
                         }
-                        #if os(iOS)
-                        SUTextCanvas(text: $documentViewModel.text)
+                        SUTextCanvas(
+                            text: $documentViewModel.text
+                        )
                             .padding(.vertical, 16.0)
                             .frame(width: proxy.size.width - 40.0)
                             .focused($textCanvasFocus)
-                        #endif
+                            .onTapGesture {
+                                textCanvasFocus = true
+                            }
                         Color.clear
                             .padding(.bottom, toolbarFrame.height)
                     }

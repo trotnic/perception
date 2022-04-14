@@ -9,10 +9,15 @@
 import SwiftUI
 
 public struct SUSecureTextFieldCapsule {
-    @Binding var text: String
-    let placeholder: String
 
-    public init(text: Binding<String>, placeholder: String) {
+    @Binding private var text: String
+
+    private let placeholder: String
+
+    public init(
+        text: Binding<String>,
+        placeholder: String
+    ) {
         _text = text
         self.placeholder = placeholder
     }
@@ -26,6 +31,7 @@ extension SUSecureTextFieldCapsule: View {
                 Text(placeholder)
                     .foregroundColor(SUColorStandartPalette.secondary1)
             }
+            .textFieldStyle(PlainTextFieldStyle())
             .padding(16.0)
             .background(SUColorStandartPalette.tile)
             .cornerRadius(10.0)

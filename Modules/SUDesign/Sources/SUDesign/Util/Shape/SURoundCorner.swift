@@ -45,6 +45,8 @@ struct SURoundCorner_Previews: PreviewProvider {
     }
 }
 
+#if os(macOS)
+
 extension NSBezierPath {
     
     /// A `CGPath` object representing the current `NSBezierPath`.
@@ -82,3 +84,5 @@ extension NSBezierPath {
         return path
     }
 }
+
+#endif

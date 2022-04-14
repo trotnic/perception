@@ -29,7 +29,6 @@ extension AccountInviteScreen: View {
                                 icon: "chevron.left",
                                 action: viewModel.backAction
                             )
-                                .frame(width: 36.0, height: 36.0)
                         }
                         .padding(.leading, 16)
                         .frame(maxWidth: .infinity, alignment: .leading)

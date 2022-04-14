@@ -29,7 +29,6 @@ extension SearchScreen: View {
                             icon: "chevron.left",
                             action: viewModel.backAction
                         )
-                            .frame(width: 36.0, height: 36.0)
                         SUTextFieldCapsule(
                             text: $viewModel.searchQuery,
                             placeholder: "Search",
@@ -53,8 +52,6 @@ extension SearchScreen: View {
                             ]
                         )
                         Spacer()
-//                        SUButtonCircular(icon: "xmark", action: viewModel.backAction)
-//                            .frame(width: 36.0, height: 36.0)
                     }
                     .frame(height: 32.0)
                 }
