@@ -184,9 +184,6 @@ struct NavigationTransition: ViewModifier {
     @EnvironmentObject private var navigator: Navigator
     
     func body(content: Content) -> some View {
-//        print(navigator.lastAction?.direction)
-//        print(navigator.lastAction?.currentPath)
-//        print(navigator.lastAction?.previousPath)
         let currentComponents = navigator.lastAction?.currentPath.split(separator: "/")
         let previousComponents = navigator.lastAction?.previousPath.split(separator: "/")
 
@@ -200,20 +197,6 @@ struct NavigationTransition: ViewModifier {
                     )
                 )
         }
-//        print(navigator.lastAction?.direction)
-//        if previousComponents?.contains("create") == true,
-//           (currentComponents?.contains("workspace") == true && currentComponents?.contains("document") == true) ||
-//            (currentComponents?.contains("workspace") == true && previousComponents?.contains("document") == false)
-//        {
-//            return content
-//                .animation(.easeInOut, value: navigator.path)
-//                .transition(
-//                    AnyTransition.asymmetric(
-//                        insertion: .move(edge: .trailing),
-//                        removal: .move(edge: .leading)
-//                    )
-//                )
-//        }
 
         return content
             .animation(.easeInOut, value: navigator.path)

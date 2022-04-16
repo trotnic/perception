@@ -50,19 +50,27 @@ public struct SUShallowDocument {
 }
 
 public struct SUDocument: Equatable {
-    public let meta: SUDocumentMeta
-    public let ownerId: String
-    public let title: String
-    public let text: String
-    public let emoji: String
-    public let dateCreated: Date
-    public let dateEdited: Date
+  public let meta: SUDocumentMeta
+  public let ownerId: String
+  public let title: String
+  public let emoji: String
+  public let dateCreated: Date
+  public let dateEdited: Date
+  public let items: [SUDocumentBlock]
 
-    public static func == (lhs: SUDocument, rhs: SUDocument) -> Bool {
-        lhs.meta == rhs.meta
-    }
+  public static func == (lhs: SUDocument, rhs: SUDocument) -> Bool {
+    lhs.meta == rhs.meta
+  }
 }
 
 public extension SUDocument {
-    static let empty = SUDocument(meta: .empty, ownerId: .empty, title: .empty, text: .empty, emoji: .empty, dateCreated: .now, dateEdited: .now)
+    static let empty = SUDocument(
+      meta: .empty,
+      ownerId: .empty,
+      title: .empty,
+      emoji: .empty,
+      dateCreated: .now,
+      dateEdited: .now,
+      items: []
+    )
 }

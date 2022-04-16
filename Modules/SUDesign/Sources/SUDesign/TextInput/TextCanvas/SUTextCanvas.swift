@@ -76,7 +76,6 @@ private struct UITextViewWrapper: UIViewRepresentable {
             UITextViewWrapper.recalculateHeight(view: uiView, result: $calculatedHeight)
         }
     }
-
 }
 
 #endif

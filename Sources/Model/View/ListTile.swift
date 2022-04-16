@@ -12,6 +12,4 @@ public struct ListTileViewItem: Identifiable {
     public var id: String = UUID().uuidString
     public let iconText: String
     public let title: String
-//    public let membersTitle: String
-//    public let lastEditTitle: String
 }
