@@ -72,6 +72,16 @@ extension DocumentManager: SUManagerDocument {
     )
   }
 
+  public func insertImage(
+    documentId: String,
+    imageData: Data
+  ) async throws {
+    try await repository.insertImageIntoDocument(
+      with: documentId,
+      imageData: imageData
+    )
+  }
+
   public func updateDocument(id: String, title: String) async throws {
     try await repository.updateDocument(with: id, title: title)
   }

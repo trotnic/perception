@@ -77,6 +77,18 @@ public extension DocumentViewModel {
       }
     }
   }
+
+  func insertImageAction(data: Data?) {
+    guard let data = data else {
+      return
+    }
+    Task {
+      try await documentManager.insertImage(
+        documentId: documentMeta.id,
+        imageData: data
+      )
+    }
+  }
 }
 
 // MARK: - Private interface

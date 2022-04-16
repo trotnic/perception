@@ -536,7 +536,9 @@ extension FireRepository: Repository {
           "emoji" : "",
           "dateCreated" : Timestamp(date: Date.now),
           "dateEdited" : Timestamp(date: Date.now),
-          "items": []
+          "items": [
+            "id": "default"
+          ]
         ]),
         workspaceRef
           .updateData([
@@ -601,6 +603,39 @@ extension FireRepository: Repository {
             fatalError()
         }
     }
+  }
+
+  public func insertImageIntoDocument(
+    with id: String,
+    imageData: Data
+  ) async throws {
+    let imageId = id.appending(Date.now.description)
+    let fileRef = storage.reference()
+      .child("documentImages/\(imageId)).jpg")
+    fileRef.putData(imageData, metadata: nil) { (metadata, error) in
+      guard let metadata = metadata else {
+        // Uh-oh, an error occurred!
+        return
+      }
+      // Metadata contains file metadata such as size, content-type.
+      let size = metadata.size
+      // You can also access to download URL after upload.
+      fileRef.downloadURL { (url, error) in
+        guard let downloadURL = url else {
+          // Uh-oh, an error occurred!
+          return
+        }
+        self.documentRef(id: id)
+          .updateData([
+            "items.\(imageId)":[
+              "id": imageId,
+              "type": 1,
+              "content": downloadURL.absoluteString
+            ]
+          ])
+        // print(downloadURL)
+      }
+    }.enqueue()
   }
 
   public func updateDocument(with id: String, title: String) async throws {
@@ -701,34 +736,37 @@ extension FireRepository: Repository {
         listeners[id] = listener
     }
 
-    public func uploadImage(data: Data, userId: String) {
-        let fileRef = storage.reference()
-            .child("avatars/\(userId).jpg")
-        fileRef.putData(data, metadata: nil) { (metadata, error) in
-          guard let metadata = metadata else {
-            // Uh-oh, an error occurred!
-            return
-          }
-          // Metadata contains file metadata such as size, content-type.
-          let size = metadata.size
-          // You can also access to download URL after upload.
-          fileRef.downloadURL { (url, error) in
-            guard let downloadURL = url else {
-              // Uh-oh, an error occurred!
-              return
-            }
-              self.userRef(id: userId)
-                  .updateData([
-                    "avatarPath": downloadURL.absoluteString
-                  ])
-//              print(downloadURL)
-          }
-        }.enqueue()
-    }
+  public func uploadImage(
+    data: Data,
+    userId: String
+  ) {
+    let fileRef = storage.reference()
+      .child("avatars/\(userId).jpg")
+    fileRef.putData(data, metadata: nil) { (metadata, error) in
+      guard let metadata = metadata else {
+        // Uh-oh, an error occurred!
+        return
+      }
+      // Metadata contains file metadata such as size, content-type.
+      let size = metadata.size
+      // You can also access to download URL after upload.
+      fileRef.downloadURL { (url, error) in
+        guard let downloadURL = url else {
+          // Uh-oh, an error occurred!
+          return
+        }
+        self.userRef(id: userId)
+          .updateData([
+            "avatarPath": downloadURL.absoluteString
+          ])
+        // print(downloadURL)
+      }
+    }.enqueue()
+  }
 
-    public func stopListen(with id: String) {
-        listeners.removeValue(forKey: id)
-    }
+  public func stopListen(with id: String) {
+    listeners.removeValue(forKey: id)
+  }
 }
 
 // MARK: - Search

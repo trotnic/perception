@@ -21,6 +21,7 @@ struct DocumentScreen {
   @State private var navbarFrame: CGRect = .zero
   @State private var tileFrame: CGRect = .zero
   @State private var toolbarFrame: CGRect = .zero
+  @State private var isImagePickerPresented: Bool = false
 }
 
 extension DocumentScreen: View {
@@ -54,65 +55,9 @@ extension DocumentScreen: View {
         }
         GeometryReader { scrollProxy in
           ScrollView {
-            VStack {
-              HStack {
-                SUButtonEmoji(
-                  text: $documentViewModel.emoji,
-                  commit: {}
-                )
-                  .frame(width: 28.0, height: 28.0)
-                Spacer()
-              }
-              TextField(String.empty, text: $documentViewModel.title)
-                .textFieldStyle(PlainTextFieldStyle())
-                .font(.custom("Comfortaa", size: 36.0).bold())
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.vertical, 16.0)
-            .padding(.horizontal, 24.0)
-            .background(SUColorStandartPalette.tile)
-            .cornerRadius(20.0)
-            .padding(.horizontal, 16.0)
-            .padding(.top, 8.0)
-            .background {
-              GeometryReader { proxy in
-                Color.clear
-                  .preference(
-                    key: SUFrameKey.self,
-                    value: proxy.frame(in: .global)
-                  )
-                  .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
-              }
-            }
+            TopTile()
             VStack(spacing: 12.0) {
-              ForEach(documentViewModel.items) { item in
-                switch item.type {
-                  case .text:
-                    SUTextCanvas(
-                      text: Binding<String>(
-                        get: { item.content },
-                        set: item.action
-                      )
-                    )
-                      .padding(.vertical, 16.0)
-                      .frame(width: proxy.size.width - 40.0)
-                      .focused($textCanvasFocus)
-                      .onTapGesture {
-                        textCanvasFocus = true
-                      }
-                      .background {
-                        Color.red.opacity(0.15)
-                      }
-                  case .image:
-                    AsyncImage(url: URL(string: item.content))
-                      .frame(
-                        width: proxy.size.width - 40.0,
-                        height: proxy.size.width - 64.0
-                      )
-                      .clipped()
-                      .cornerRadius(10.0)
-                }
-              }
+              DocumentBlocks(size: scrollProxy.size)
             }
             .frame(maxHeight: .infinity)
             Color.clear
@@ -165,10 +110,94 @@ extension DocumentScreen: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     .onAppear(perform: documentViewModel.load)
+    .sheet(
+      isPresented: $isImagePickerPresented,
+      onDismiss: {},
+      content: {
+        SUImagePicker(
+          image: .init(
+            get: {
+              nil
+            },
+            set: { image in
+              Task {
+                let data = image?.pngData()
+                await MainActor.run {
+                  documentViewModel.insertImageAction(data: data)
+                }
+              }
+            }
+          )
+        )
+      })
   }
 }
 
 private extension DocumentScreen {
+
+  func TopTile() -> some View {
+    VStack {
+      HStack {
+        SUButtonEmoji(
+          text: $documentViewModel.emoji,
+          commit: {}
+        )
+          .frame(width: 28.0, height: 28.0)
+        Spacer()
+      }
+      TextField(String.empty, text: $documentViewModel.title)
+        .textFieldStyle(PlainTextFieldStyle())
+        .font(.custom("Comfortaa", size: 36.0).bold())
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    .padding(.vertical, 16.0)
+    .padding(.horizontal, 24.0)
+    .background(SUColorStandartPalette.tile)
+    .cornerRadius(20.0)
+    .padding(.horizontal, 16.0)
+    .padding(.top, 8.0)
+    .background {
+      GeometryReader { proxy in
+        Color.clear
+          .preference(
+            key: SUFrameKey.self,
+            value: proxy.frame(in: .global)
+          )
+          .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
+      }
+    }
+  }
+
+  func DocumentBlocks(size: CGSize) -> some View {
+    ForEach(documentViewModel.items) { item in
+      switch item.type {
+        case .text:
+          SUTextCanvas(
+            text: Binding<String>(
+              get: { item.content },
+              set: item.action
+            )
+          )
+            .padding(.vertical, 16.0)
+            .frame(width: size.width - 40.0)
+            .focused($textCanvasFocus)
+            .onTapGesture {
+              textCanvasFocus = true
+            }
+            .background {
+              Color.red.opacity(0.15)
+            }
+        case .image:
+          AsyncImage(url: URL(string: item.content))
+            .frame(
+              width: size.width - 40.0,
+              height: size.width - 64.0
+            )
+            .clipped()
+            .cornerRadius(10.0)
+      }
+    }
+  }
 
   func Toolbar() -> some View {
     SUToolbar(
@@ -179,7 +208,9 @@ private extension DocumentScreen {
             icon: "plus",
             title: "Insert image",
             type: .action,
-            action: documentViewModel.deleteAction
+            action: {
+              self.isImagePickerPresented = true
+            }
           ),
           SUToolbar.Item.Twin(
             icon: "trash",

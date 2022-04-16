@@ -20,6 +20,7 @@ public protocol SUManagerDocument {
   func updateEmoji(documentId: String, text: String) async throws
   func updateText(documentId: String, textBlockId: String, text: String) async throws
 
+  func insertImage(documentId: String, imageData: Data) async throws
 //  func update(documentId: String, transactionType: SUDocumentUpdateSubject)
   func updateDocument(id: String, title: String) async throws
   func updateDocument(id: String, emoji: String) async throws
@@ -107,6 +108,7 @@ public struct SUManagerDocumentMock: SUManagerDocument {
   public func updateTitle(documentId: String, text: String) async throws {}
   public func updateEmoji(documentId: String, text: String) async throws {}
   public func updateText(documentId: String, textBlockId: String, text: String) async throws {}
+  public func insertImage(documentId: String, imageData: Data) async throws {}
   public func updateDocument(id: String, title: String) async throws {}
   public func updateDocument(id: String, emoji: String) async throws {}
   public func updateDocument(id: String, text: String) async throws {}
