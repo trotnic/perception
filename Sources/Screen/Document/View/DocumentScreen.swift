@@ -22,6 +22,7 @@ struct DocumentScreen {
   @State private var tileFrame: CGRect = .zero
   @State private var toolbarFrame: CGRect = .zero
   @State private var isImagePickerPresented: Bool = false
+  @State private var isTextFromImagePickerPresented: Bool = false
 }
 
 extension DocumentScreen: View {
@@ -39,7 +40,10 @@ extension DocumentScreen: View {
             )
           }
           .padding(.leading, 16)
-          .frame(maxWidth: .infinity, alignment: .leading)
+          .frame(
+            maxWidth: .infinity,
+            alignment: .leading
+          )
           VStack(spacing: 2.0) {
             if tileFrame.origin.y + 8.0 < navbarFrame.origin.y {
               Text(documentViewModel.title)
@@ -47,7 +51,10 @@ extension DocumentScreen: View {
                 .foregroundColor(SUColorStandartPalette.text)
             }
           }
-          .animation(.easeInOut(duration: 0.12), value: tileFrame.origin.y + 8.0 < navbarFrame.origin.y)
+          .animation(
+            .easeInOut(duration: 0.12),
+            value: tileFrame.origin.y + 8.0 < navbarFrame.origin.y
+          )
         }
         .padding(.top, 16)
         .onTapGesture {
@@ -79,7 +86,10 @@ extension DocumentScreen: View {
           }
           .overlay {
             Color.clear
-              .preference(key: SUFrameKey.self, value: scrollProxy.frame(in: .global))
+              .preference(
+                key: SUFrameKey.self,
+                value: scrollProxy.frame(in: .global)
+              )
               .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
           }
           .onTapGesture {
@@ -99,15 +109,24 @@ extension DocumentScreen: View {
                   .frame(height: proxy.size.height * 2.0)
                   .offset(y: -12.0)
                   .blur(radius: 6.0)
-                  .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
+                  .preference(
+                    key: SUFrameKey.self,
+                    value: proxy.frame(in: .global)
+                  )
                   .onPreferenceChange(SUFrameKey.self) { toolbarFrame = $0 }
               }
             }
         }
-        .frame(maxHeight: .infinity, alignment: .bottom)
+        .frame(
+          maxHeight: .infinity,
+          alignment: .bottom
+        )
         .padding(.bottom, 10.0)
       }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .frame(
+        maxWidth: .infinity,
+        maxHeight: .infinity
+      )
     }
     .onAppear(perform: documentViewModel.load)
     .sheet(
@@ -129,7 +148,29 @@ extension DocumentScreen: View {
             }
           )
         )
-      })
+      }
+    )
+    .sheet(
+      isPresented: $isTextFromImagePickerPresented,
+      onDismiss: {},
+      content: {
+        SUImagePicker(
+          image: .init(
+            get: {
+              nil
+            },
+            set: { image in
+              Task {
+                guard let cgImage = image?.cgImage else { return }
+                await MainActor.run {
+                  documentViewModel.insertTextFromImageAction(cgImage: cgImage)
+                }
+              }
+            }
+          )
+        )
+      }
+    )
   }
 }
 
@@ -205,14 +246,6 @@ private extension DocumentScreen {
       defaultTwins: {
         [
           SUToolbar.Item.Twin(
-            icon: "plus",
-            title: "Insert image",
-            type: .action,
-            action: {
-              self.isImagePickerPresented = true
-            }
-          ),
-          SUToolbar.Item.Twin(
             icon: "trash",
             title: "Delete document",
             type: .action,
@@ -230,6 +263,31 @@ private extension DocumentScreen {
                 title: "Account",
                 type: .actionNext,
                 action: settingsViewModel.accountAction
+              )
+            ]
+          )
+        ]
+      },
+      rightItems: {
+        [
+          SUToolbar.Item(
+            icon: "link.badge.plus",
+            twins: [
+              SUToolbar.Item.Twin(
+                icon: "photo",
+                title: "Photo",
+                type: .action,
+                action: {
+                  self.isImagePickerPresented = true
+                }
+              ),
+              SUToolbar.Item.Twin(
+                icon: "paintbrush",
+                title: "Text from a photo",
+                type: .action,
+                action: {
+                  self.isTextFromImagePickerPresented = true
+                }
               )
             ]
           )

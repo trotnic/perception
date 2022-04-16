@@ -7,6 +7,8 @@
 //
 
 import Combine
+import CoreGraphics
+import Vision
 import Foundation
 import SUFoundation
 
@@ -87,6 +89,41 @@ public extension DocumentViewModel {
         documentId: documentMeta.id,
         imageData: data
       )
+    }
+  }
+
+  func insertTextFromImageAction(cgImage: CGImage) {
+    Task {
+      let requestHandler = VNImageRequestHandler(cgImage: cgImage)
+
+      // Create a new request to recognize text.
+      let request = VNRecognizeTextRequest { request, error in
+        guard let observations =
+                request.results as? [VNRecognizedTextObservation] else {
+                  return
+                }
+        let recognizedStrings = observations.compactMap { observation in
+          // Return the string of the top VNRecognizedText instance.
+          return observation.topCandidates(1).first?.string
+        }
+        
+        Task {
+          try await self.documentManager.insertText(
+            documentId: self.documentMeta.id,
+            text: recognizedStrings.joined(separator: " ")
+          )
+        }
+//        print(recognizedStrings)
+        // Process the recognized strings.
+//        processResults(recognizedStrings)
+      }
+
+      do {
+          // Perform the text-recognition request.
+          try requestHandler.perform([request])
+      } catch {
+          print("Unable to perform the requests: \(error).")
+      }
     }
   }
 }

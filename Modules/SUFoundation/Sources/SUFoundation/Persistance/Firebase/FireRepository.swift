@@ -496,8 +496,9 @@ extension FireRepository: Repository {
             guard let id = raw.value["id"] as? String else { return nil }
             guard let type = raw.value["type"] as? Int else { return nil }
             guard let content = raw.value["content"] as? String else { return nil }
-            return SUDocumentBlock(id: id, type: .init(type: type), content: content)
-          }
+            guard let dateCreated = raw.value["dateCreated"] as? Timestamp else { return nil }
+            return SUDocumentBlock(id: id, type: .init(type: type), content: content, dateCreated: dateCreated.dateValue())
+          }.sorted(by: { $0.dateCreated < $1.dateCreated })
 
           let document = SUDocument(
             meta: SUDocumentMeta(
@@ -565,8 +566,15 @@ extension FireRepository: Repository {
       guard let id = raw["id"] as? String else { return nil }
       guard let type = raw["type"] as? Int else { return nil }
       guard let content = raw["content"] as? String else { return nil }
-      return SUDocumentBlock(id: id, type: .init(type: type), content: content)
-    }
+      guard let dateCreated = raw["dateCreated"] as? Timestamp else { return nil }
+      
+      return SUDocumentBlock(
+        id: id,
+        type: .init(type: type),
+        content: content,
+        dateCreated: dateCreated.dateValue()
+      )
+    }.sorted(by: { $0.dateCreated < $1.dateCreated })
 
     return SUDocument(
       meta: SUDocumentMeta(
@@ -630,12 +638,29 @@ extension FireRepository: Repository {
             "items.\(imageId)":[
               "id": imageId,
               "type": 1,
-              "content": downloadURL.absoluteString
+              "content": downloadURL.absoluteString,
+              "dateCreated": Timestamp(date: .now)
             ]
           ])
         // print(downloadURL)
       }
     }.enqueue()
+  }
+
+  public func insertTextIntoDocument(
+    with id: String,
+    text: String
+  ) async throws {
+    let textId = Date.now.description
+    try await documentRef(id: id)
+      .updateData([
+        "items.\(textId)":[
+          "id": textId,
+          "type": 0,
+          "content": text,
+          "dateCreated": Timestamp(date: .now)
+        ]
+      ])
   }
 
   public func updateDocument(with id: String, title: String) async throws {

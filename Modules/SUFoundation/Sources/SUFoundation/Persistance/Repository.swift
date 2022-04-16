@@ -29,7 +29,9 @@ public protocol Repository {
   func updateDocument(with id: String, title: String) async throws
   func updateDocument(with id: String, emoji: String) async throws
   func updateDocument(with id: String, text: String) async throws
+
   func insertImageIntoDocument(with id: String, imageData: Data) async throws
+  func insertTextIntoDocument(with id: String, text: String) async throws
 
   func deleteDocument(with id: String, in workspaceId: String) async throws
   func deleteWorkspace(id: String, userId: String) async throws

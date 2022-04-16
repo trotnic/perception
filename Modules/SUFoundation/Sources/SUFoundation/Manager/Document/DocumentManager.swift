@@ -66,7 +66,8 @@ extension DocumentManager: SUManagerDocument {
         SUDocumentBlock(
           id: textBlockId,
           type: .text,
-          content: text
+          content: text,
+          dateCreated: .now
         )
       )
     )
@@ -79,6 +80,16 @@ extension DocumentManager: SUManagerDocument {
     try await repository.insertImageIntoDocument(
       with: documentId,
       imageData: imageData
+    )
+  }
+
+  public func insertText(
+    documentId: String,
+    text: String
+  ) async throws {
+    try await repository.insertTextIntoDocument(
+      with: documentId,
+      text: text
     )
   }
 
