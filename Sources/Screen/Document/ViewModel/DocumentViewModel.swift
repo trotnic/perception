@@ -49,7 +49,7 @@ public extension DocumentViewModel {
       case image
     }
 
-    public let id: String = UUID().uuidString
+    public let id: UUID = UUID()
     public let content: String
     public let type: BlockType
     public let action: (String) -> Void
@@ -80,6 +80,10 @@ public extension DocumentViewModel {
     }
   }
 
+  func drawingAction() {
+    appState.change(route: .draw(documentMeta))
+  }
+
   func insertImageAction(data: Data?) {
     guard let data = data else {
       return
@@ -92,6 +96,7 @@ public extension DocumentViewModel {
     }
   }
 
+  // TODO: Move to a separate service
   func insertTextFromImageAction(cgImage: CGImage) {
     Task {
       let requestHandler = VNImageRequestHandler(cgImage: cgImage)

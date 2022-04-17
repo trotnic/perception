@@ -10,33 +10,34 @@ import SUFoundation
 
 
 public protocol SUAppStateProvider {
-    func change(route: SUAppScreen)
+  func change(route: SUAppScreen)
 }
 
 public enum SUAppScreen {
-    case none
-    case back
-    case authentication
-    case account(SUUserMeta)
-    case space
-    case create
-    case read(SUAppScreenContent)
-    case search
-    case members(SUWorkspaceMeta)
-    case invite(SUWorkspaceMeta)
-    case invites(SUUserMeta)
+  case none
+  case back
+  case authentication
+  case account(SUUserMeta)
+  case space
+  case create
+  case read(SUAppScreenContent)
+  case search
+  case draw(SUDocumentMeta)
+  case members(SUWorkspaceMeta)
+  case invite(SUWorkspaceMeta)
+  case invites(SUUserMeta)
 }
 
 public enum SUAppIntention {
-    case create
-    case read(String)
+  case create
+  case read(String)
 }
 
 public enum SUAppScreenContent {
-    case workspace(SUWorkspaceMeta)
-    case document(SUDocumentMeta)
+  case workspace(SUWorkspaceMeta)
+  case document(SUDocumentMeta)
 }
 
 public struct SUAppStateProviderMock: SUAppStateProvider {
-    public func change(route: SUAppScreen) {}
+  public func change(route: SUAppScreen) {}
 }

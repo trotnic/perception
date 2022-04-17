@@ -229,7 +229,14 @@ private extension DocumentScreen {
               Color.red.opacity(0.15)
             }
         case .image:
-          AsyncImage(url: URL(string: item.content))
+          AsyncImage(url: URL(string: item.content)) { image in
+              image
+              .resizable()
+              .scaledToFit()
+//              .frame(maxWidth: size.width)
+          } placeholder: {
+            Color.purple.opacity(0.1)
+          }
             .frame(
               width: size.width - 40.0,
               height: size.width - 64.0
@@ -282,11 +289,19 @@ private extension DocumentScreen {
                 }
               ),
               SUToolbar.Item.Twin(
-                icon: "paintbrush",
+                icon: "text.magnifyingglass",
                 title: "Text from a photo",
                 type: .action,
                 action: {
                   self.isTextFromImagePickerPresented = true
+                }
+              ),
+              SUToolbar.Item.Twin(
+                icon: "paintbrush",
+                title: "Drawing",
+                type: .action,
+                action: {
+                  documentViewModel.drawingAction()
                 }
               )
             ]
