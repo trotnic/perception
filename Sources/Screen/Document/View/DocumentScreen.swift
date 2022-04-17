@@ -227,20 +227,21 @@ private extension DocumentScreen {
               Color.red.opacity(0.15)
             }
         case .image:
-          AsyncImage(url: URL(string: item.content)) { image in
-              image
+          AsyncImage(
+            url: URL(string: item.content)
+          ) {
+            $0
               .resizable()
               .scaledToFit()
-//              .frame(maxWidth: size.width)
           } placeholder: {
             Color.purple.opacity(0.1)
           }
-            .frame(
-              width: size.width - 40.0,
-              height: size.width - 64.0
-            )
-            .clipped()
-            .cornerRadius(10.0)
+          .frame(
+            width: size.width - 40.0,
+            height: size.width - 64.0
+          )
+          .clipped()
+          .cornerRadius(10.0)
       }
     }
   }
