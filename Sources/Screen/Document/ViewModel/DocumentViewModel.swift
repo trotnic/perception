@@ -21,6 +21,7 @@ public final class DocumentViewModel: ObservableObject {
 
   private let appState: SUAppStateProvider
   private let documentManager: SUManagerDocument
+  private let temporaryFileManager: SUManagerTemporaryFile
   private let documentMeta: SUDocumentMeta
 
   @Published public private(set) var items: [DocumentBlock] = []
@@ -31,10 +32,12 @@ public final class DocumentViewModel: ObservableObject {
   public init(
     appState: SUAppStateProvider,
     documentManager: SUManagerDocument,
+    temporaryFileManager: SUManagerTemporaryFile,
     documentMeta: SUDocumentMeta
   ) {
     self.appState = appState
     self.documentManager = documentManager
+    self.temporaryFileManager = temporaryFileManager
     self.documentMeta = documentMeta
 
     setupBindings()
@@ -96,40 +99,18 @@ public extension DocumentViewModel {
     }
   }
 
-  // TODO: Move to a separate service
-  func insertTextFromImageAction(cgImage: CGImage) {
+  func startTextFromImageRecognition(data: Data) {
     Task {
-      let requestHandler = VNImageRequestHandler(cgImage: cgImage)
-
-      // Create a new request to recognize text.
-      let request = VNRecognizeTextRequest { request, error in
-        guard let observations =
-                request.results as? [VNRecognizedTextObservation] else {
-                  return
-                }
-        let recognizedStrings = observations.compactMap { observation in
-          // Return the string of the top VNRecognizedText instance.
-          return observation.topCandidates(1).first?.string
-        }
-        
-        Task {
-          try await self.documentManager.insertText(
-            documentId: self.documentMeta.id,
-            text: recognizedStrings.joined(separator: " ")
-          )
-        }
-//        print(recognizedStrings)
-        // Process the recognized strings.
-//        processResults(recognizedStrings)
-      }
-
-      do {
-          // Perform the text-recognition request.
-          try requestHandler.perform([request])
-      } catch {
-          print("Unable to perform the requests: \(error).")
+      try temporaryFileManager.storeTemporary(data: data)
+      await MainActor.run {
+        appState.change(route: .recognize(documentMeta))
       }
     }
+  }
+
+//  // TODO: Move to a separate service
+  func insertTextFromImageAction(cgImage: CGImage) {
+
   }
 }
 

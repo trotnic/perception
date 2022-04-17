@@ -15,18 +15,19 @@ import SUFoundation
 
 public final class SUEnvironment: ObservableObject {
 
-    private let factory = SUDepFactory()
+  private let factory = SUDepFactory()
 
-    public let navigator: Navigator = Navigator()
-    public private(set) lazy var appState: SUAppStateProvider = SUAppState(navigator: navigator)
+  public let navigator: Navigator = Navigator()
+  public private(set) lazy var appState: SUAppStateProvider = SUAppState(navigator: navigator)
 
-    public var repository: Repository { factory.repository }
-    public var userManager: UserManager { factory.userManager }
-    public var spaceManager: SpaceManager { factory.spaceManager }
-    public var searchManager: SearchManager { factory.searchManager }
-    public var workspaceManager: WorkspaceManager { factory.workspaceManager }
-    public var documentManager: DocumentManager { factory.documentManager }
-    public var memberManager: MemberManager { factory.memberManager }
-    public var inviteManager: InviteManager { factory.inviteManager }
-    public var accountManager: AccountManager { factory.accountManager }
+  public var repository: Repository { factory.repository }
+  public var userManager: UserManager { factory.userManager }
+  public var spaceManager: SpaceManager { factory.spaceManager }
+  public var searchManager: SearchManager { factory.searchManager }
+  public var workspaceManager: WorkspaceManager { factory.workspaceManager }
+  public var documentManager: DocumentManager { factory.documentManager }
+  public var memberManager: MemberManager { factory.memberManager }
+  public var inviteManager: InviteManager { factory.inviteManager }
+  public var accountManager: AccountManager { factory.accountManager }
+  public var temporaryFileManager: TemporaryFileManager { factory.temporaryFileManager }
 }

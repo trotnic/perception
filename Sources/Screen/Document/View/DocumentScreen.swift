@@ -161,10 +161,8 @@ extension DocumentScreen: View {
             },
             set: { image in
               Task {
-                guard let cgImage = image?.cgImage else { return }
-                await MainActor.run {
-                  documentViewModel.insertTextFromImageAction(cgImage: cgImage)
-                }
+                guard let data = image?.pngData() else { return }
+                documentViewModel.startTextFromImageRecognition(data: data)
               }
             }
           )
@@ -328,6 +326,7 @@ struct DocumentScreen_Previews: PreviewProvider {
         "Some text"
       }
     ),
+    temporaryFileManager: SUManagerTemporaryFileMock(),
     documentMeta: .empty
   )
 

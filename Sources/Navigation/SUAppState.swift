@@ -59,7 +59,7 @@ public final class SUAppState: SUAppStateProvider {
         currentScreen = .space
       case .create:
         switch currentScreen {
-          case .back, .create, .authentication, .account, .none, .search, .members, .invite, .invites, .draw:
+          case .back, .create, .authentication, .account, .none, .search, .members, .invite, .invites, .draw, .recognize:
             fatalError("This should never happen")
           case .space:
             navigator.navigate("/space/create")
@@ -75,7 +75,7 @@ public final class SUAppState: SUAppStateProvider {
         screenStack.append(.create)
       case .read(let content):
         switch currentScreen {
-          case .none, .account, .authentication, .back, .members, .invite, .invites, .draw:
+          case .none, .account, .authentication, .back, .members, .invite, .invites, .draw, .recognize:
             fatalError("This should never happen")
           case .read, .space, .search:
             switch content {
@@ -99,6 +99,10 @@ public final class SUAppState: SUAppStateProvider {
         navigator.navigate("/space/workspace/\(meta.workspaceId)/document/\(meta.id)/draw")
         currentScreen = .draw(meta)
         screenStack.append(.draw(meta))
+      case .recognize(let meta):
+        navigator.navigate("/space/workspace/\(meta.workspaceId)/document/\(meta.id)/recognize")
+        currentScreen = .recognize(meta)
+        screenStack.append(.recognize(meta))
       case .search:
         navigator.navigate("/space/search")
         currentScreen = .search

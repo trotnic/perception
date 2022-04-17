@@ -23,6 +23,7 @@ public enum SUAppScreen {
   case read(SUAppScreenContent)
   case search
   case draw(SUDocumentMeta)
+  case recognize(SUDocumentMeta)
   case members(SUWorkspaceMeta)
   case invite(SUWorkspaceMeta)
   case invites(SUUserMeta)

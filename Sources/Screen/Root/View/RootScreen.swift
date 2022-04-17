@@ -144,6 +144,7 @@ extension RootScreen: View {
         documentViewModel: DocumentViewModel(
           appState: environment.appState,
           documentManager: environment.documentManager,
+          temporaryFileManager: environment.temporaryFileManager,
           documentMeta: meta
         ),
         settingsViewModel: ToolbarSettingsViewModel(
@@ -163,6 +164,22 @@ extension RootScreen: View {
         viewModel: DrawingScreenViewModel(
           appState: environment.appState,
           documentManager: environment.documentManager,
+          documentMeta: meta
+        )
+      )
+    }
+    .navigationTransition()
+    Route("space/workspace/:wId/document/:dId/recognize", validator: {
+      .init(
+        id: $0.parameters["dId"]!,
+        workspaceId: $0.parameters["wId"]!
+      )
+    }) { (meta: SUDocumentMeta) in
+      TextRecognitionScreen(
+        viewModel: TextRecognitionScreenViewModel(
+          appState: environment.appState,
+          documentManager: environment.documentManager,
+          temporaryFileManager: environment.temporaryFileManager,
           documentMeta: meta
         )
       )
