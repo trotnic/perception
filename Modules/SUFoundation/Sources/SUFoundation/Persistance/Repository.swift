@@ -33,6 +33,8 @@ public protocol Repository {
   func insertImageIntoDocument(with id: String, imageData: Data) async throws
   func insertTextIntoDocument(with id: String, text: String) async throws
 
+  func deleteBlock(documentId: String, blockId: String) async throws
+
   func deleteDocument(with id: String, in workspaceId: String) async throws
   func deleteWorkspace(id: String, userId: String) async throws
 

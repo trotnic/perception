@@ -242,6 +242,15 @@ private extension DocumentScreen {
           )
           .clipped()
           .cornerRadius(10.0)
+          .contextMenu {
+            Group {
+              Button(role: .destructive) {
+                item.deleteAction()
+              } label: {
+                  Label("Delete", systemImage: "trash")
+              }
+            }
+          }
       }
     }
   }

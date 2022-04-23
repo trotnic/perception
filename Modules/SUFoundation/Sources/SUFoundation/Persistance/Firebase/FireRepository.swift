@@ -663,6 +663,16 @@ extension FireRepository: Repository {
       ])
   }
 
+  public func deleteBlock(
+    documentId: String,
+    blockId: String
+  ) async throws {
+    try await documentRef(id: documentId)
+      .updateData([
+        "items.\(blockId)": FieldValue.delete()
+      ])
+  }
+
   public func updateDocument(with id: String, title: String) async throws {
     try await documentRef(id: id)
       .updateData([
@@ -722,30 +732,30 @@ extension FireRepository: Repository {
 
     // MARK: - User
 
-    public func user(with id: String) async throws -> SUUser {
-        let user = try await userRef(id: id).getDocument()
+  public func user(with id: String) async throws -> SUUser {
+    let user = try await userRef(id: id).getDocument()
 
-        guard let username = user.get("username") as? String else { throw FetchError.cantLoadEntity }
-        guard let email = user.get("email") as? String else { throw FetchError.cantLoadEntity }
-        let avatarPath = user.get("avatarPath") as? String
+      guard let username = user.get("username") as? String else { throw FetchError.cantLoadEntity }
+      guard let email = user.get("email") as? String else { throw FetchError.cantLoadEntity }
+      let avatarPath = user.get("avatarPath") as? String
 
-        return SUUser(
-            meta: SUUserMeta(
-                id: id
-            ),
-            username: username,
-            email: email,
-            invites: [],
-            avatarPath: avatarPath
-        )
+      return SUUser(
+        meta: SUUserMeta(
+          id: id
+        ),
+        username: username,
+        email: email,
+        invites: [],
+        avatarPath: avatarPath
+      )
     }
 
-    public func updateUser(with id: String, name: String) async throws {
-        try await userRef(id: id)
-            .updateData([
-                "username": name
-            ])
-    }
+  public func updateUser(with id: String, name: String) async throws {
+    try await userRef(id: id)
+      .updateData([
+        "username": name
+      ])
+  }
 
     public func startListenUser(
         with id: String,

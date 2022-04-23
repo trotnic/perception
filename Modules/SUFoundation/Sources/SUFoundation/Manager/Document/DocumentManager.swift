@@ -93,6 +93,16 @@ extension DocumentManager: SUManagerDocument {
     )
   }
 
+  public func deleteBlock(
+    documentId: String,
+    blockId: String
+  ) async throws {
+    try await repository.deleteBlock(
+      documentId: documentId,
+      blockId: blockId
+    )
+  }
+
   public func updateDocument(id: String, title: String) async throws {
     try await repository.updateDocument(with: id, title: title)
   }

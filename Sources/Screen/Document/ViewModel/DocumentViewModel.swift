@@ -56,6 +56,7 @@ public extension DocumentViewModel {
     public let content: String
     public let type: BlockType
     public let action: (String) -> Void
+    public let deleteAction: () -> Void
   }
 }
 
@@ -88,9 +89,7 @@ public extension DocumentViewModel {
   }
 
   func insertImageAction(data: Data?) {
-    guard let data = data else {
-      return
-    }
+    guard let data = data else { return }
     Task {
       try await documentManager.insertImage(
         documentId: documentMeta.id,
@@ -123,7 +122,7 @@ private extension DocumentViewModel {
       .document
     //            .drop(while: { $0 == SUDocument.empty })
       .receive(on: DispatchQueue.main)
-      .sink(receiveValue: { [self] document in
+      .sink { [self] document in
         title = document.title
         emoji = document.emoji
         items = document.items.map { block in
@@ -132,19 +131,35 @@ private extension DocumentViewModel {
               return DocumentBlock(
                 content: block.content,
                 type: .image,
-                action: { _ in }
+                action: { _ in },
+                deleteAction: { [self] in
+                  Task {
+                    try await documentManager.deleteBlock(
+                      documentId: documentMeta.id,
+                      blockId: block.id
+                    )
+                  }
+                }
               )
             case .text:
               return DocumentBlock(
                 content: block.content,
                 type: .text,
-                action: { text in
+                action: { [self] text in
                   debouncerText.send((block.id, text))
+                },
+                deleteAction: { [self] in
+                  Task {
+                    try await documentManager.deleteBlock(
+                      documentId: documentMeta.id,
+                      blockId: block.id
+                    )
+                  }
                 }
               )
           }
         }
-      })
+      }
       .store(in: &disposeBag)
 
     $title
