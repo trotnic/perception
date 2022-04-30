@@ -13,7 +13,7 @@ struct SUButtonCircularStyle: ButtonStyle {
   func makeBody(configuration: Configuration) -> some View {
     GeometryReader { proxy in
       configuration.label
-        .padding(10.0)
+//        .padding(10.0)
         .foregroundColor(
           configuration.isPressed ?
           SUColorStandartPalette.secondary1 : SUColorStandartPalette.text

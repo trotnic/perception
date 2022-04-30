@@ -34,6 +34,7 @@ extension SUButtonCircular: View {
     Button(action: action) {
       Image(systemName: icon)
         .font(.system(size: 16.0).weight(.regular))
+        .frame(width: size.width, height: size.height)
     }
     .buttonStyle(SUButtonCircularStyle())
     .frame(width: size.width, height: size.height)

@@ -25,10 +25,9 @@ extension DrawingScreen: View {
         .edgesIgnoringSafeArea(.all)
       VStack(spacing: 8.0) {
         ZStack {
-          HStack(spacing: 24.0) {
+          HStack(spacing: 14.0) {
             SUButtonCircular(
               icon: "chevron.left",
-              size: CGSize(width: 20.0, height: 20.0),
               action: viewModel.backAction
             )
           }
@@ -37,10 +36,9 @@ extension DrawingScreen: View {
             maxWidth: .infinity,
             alignment: .leading
           )
-          HStack(spacing: 28.0) {
+          HStack(spacing: 14.0) {
             SUButtonCircular(
               icon: "checkmark",
-              size: CGSize(width: 20.0, height: 20.0),
               action: {
                 Task {
                   guard let data = canvasView.drawing.image(
@@ -55,21 +53,18 @@ extension DrawingScreen: View {
             )
             SUButtonCircular(
               icon: "trash",
-              size: CGSize(width: 20.0, height: 20.0),
               action: {
                 canvasView.drawing = PKDrawing()
               }
             )
             SUButtonCircular(
               icon: "arrow.uturn.left",
-              size: CGSize(width: 20.0, height: 20.0),
               action: {
                 canvasView.undoManager?.undo()
               }
             )
             SUButtonCircular(
               icon: "arrow.uturn.right",
-              size: CGSize(width: 20.0, height: 20.0),
               action: {
                 canvasView.undoManager?.redo()
               }
