@@ -402,8 +402,15 @@ struct DocumentScreen_Previews: PreviewProvider {
       title: {
         "Document #1"
       },
-      text: {
-        "Some text"
+      items: {
+        [
+          .init(
+            id: "someid",
+            type: .text,
+            content: "Some text to check the behaviour",
+            dateCreated: .now
+          )
+        ]
       }
     ),
     temporaryFileManager: SUManagerTemporaryFileMock(),

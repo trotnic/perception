@@ -59,6 +59,18 @@ public struct SUDocumentBlock {
   public let type: BlockType
   public let content: String
   public let dateCreated: Date
+
+  public init(
+    id: String,
+    type: BlockType,
+    content: String,
+    dateCreated: Date
+  ) {
+    self.id = id
+    self.type = type
+    self.content = content
+    self.dateCreated = dateCreated
+  }
 }
 
 public struct SUManagerDocumentMock: SUManagerDocument {
@@ -68,20 +80,20 @@ public struct SUManagerDocumentMock: SUManagerDocument {
   private let metaCallback: () -> SUDocumentMeta
   private let ownerIdCallback: () -> String
   private let titleCallback: () -> String
-  private let textCallback: () -> String
+  private let itemsCallback: () -> Array<SUDocumentBlock>
   private let emojiCallback: () -> String
 
   public init(
     meta: @escaping () -> SUDocumentMeta = { .empty },
     ownerId: @escaping () -> String = { .empty },
     title: @escaping () -> String = { .empty },
-    text: @escaping () -> String = { .empty },
+    items: @escaping () -> Array<SUDocumentBlock> = { [] },
     emoji: @escaping () -> String = { "🔥" }
   ) {
     self.metaCallback = meta
     self.ownerIdCallback = ownerId
     self.titleCallback = title
-    self.textCallback = text
+    self.itemsCallback = items
     self.emojiCallback = emoji
   }
 
@@ -93,7 +105,7 @@ public struct SUManagerDocumentMock: SUManagerDocument {
       emoji: emojiCallback(),
       dateCreated: .now,
       dateEdited: .now,
-      items: []
+      items: itemsCallback()
     )
   }
 
