@@ -23,7 +23,6 @@ private struct UITextViewWrapper: UIViewRepresentable {
   func makeUIView(context: UIViewRepresentableContext<UITextViewWrapper>) -> UITextView {
     let textField = UITextView()
     textField.delegate = context.coordinator
-    textField.translatesAutoresizingMaskIntoConstraints = false
 
     textField.isEditable = true
     textField.font = UIFont.preferredFont(forTextStyle: .body)
@@ -40,21 +39,26 @@ private struct UITextViewWrapper: UIViewRepresentable {
     textField.text = text
 
     textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+    textField.setContentHuggingPriority(.required, for: .horizontal)
     return textField
   }
 
-  func updateUIView(_ uiView: UITextView, context: UIViewRepresentableContext<UITextViewWrapper>) {
-//    if uiView.text != text {
-//      uiView.text = text
-//    }
-    UITextViewWrapper.recalculateHeight(view: uiView, result: $calculatedHeight)
+  func updateUIView(_ view: UITextView, context: UIViewRepresentableContext<UITextViewWrapper>) {
+    UITextViewWrapper.recalculateHeight(view: view, result: $calculatedHeight)
   }
 
   private static func recalculateHeight(view: UIView, result: Binding<CGFloat>) {
-    let newSize = view.sizeThatFits(CGSize(width: view.frame.size.width, height: CGFloat.greatestFiniteMagnitude))
+    guard let window = view.window else { return }
+    let newSize = view.sizeThatFits(
+      CGSize(
+        width: window.bounds.width,
+        height: CGFloat.greatestFiniteMagnitude
+      )
+    )
     if result.wrappedValue != newSize.height {
       DispatchQueue.main.async {
         result.wrappedValue = newSize.height // !! must be called asynchronously
+        view.bounds.size = newSize
       }
     }
   }
@@ -121,7 +125,6 @@ struct SUTextCanvasPreviews: PreviewProvider {
 import AppKit
 
 private struct NSTextViewWrapper: NSViewRepresentable {
-
   @Binding var text: String
   @Binding var calculatedHeight: CGFloat
 

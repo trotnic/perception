@@ -24,10 +24,6 @@ extension TextRecognitionScreen: View {
           HStack(spacing: 24.0) {
             SUButtonCircular(
               icon: "chevron.left",
-              size: CGSize(
-                width: 20.0,
-                height: 20.0
-              ),
               action: viewModel.backAction
             )
           }
@@ -39,10 +35,6 @@ extension TextRecognitionScreen: View {
           HStack(spacing: 28.0) {
             SUButtonCircular(
               icon: "checkmark",
-              size: CGSize(
-                width: 20.0,
-                height: 20.0
-              ),
               action: viewModel.saveAction
             )
           }

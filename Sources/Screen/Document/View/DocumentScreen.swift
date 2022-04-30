@@ -312,10 +312,10 @@ private extension DocumentScreen {
                 title: "Photo",
                 type: .action,
                 action: {
-                  #if os(iOS)
+#if os(iOS)
                   self.isImagePickerPresented = true
-                  #endif
-                  #if os(macOS)
+#endif
+#if os(macOS)
                   let openPanel = NSOpenPanel()
                   openPanel.prompt = "Select File"
                   openPanel.allowsMultipleSelection = false
@@ -329,7 +329,7 @@ private extension DocumentScreen {
                       print(selectedPath)
                     }
                   }
-                  #endif
+#endif
                 }
               ),
               SUToolbar.Item.Twin(
@@ -337,10 +337,10 @@ private extension DocumentScreen {
                 title: "Text from a photo",
                 type: .action,
                 action: {
-                  #if os(iOS)
+#if os(iOS)
                   self.isTextFromImagePickerPresented = true
-                  #endif
-                  #if os(macOS)
+#endif
+#if os(macOS)
                   let openPanel = NSOpenPanel()
                   openPanel.prompt = "Select File"
                   openPanel.allowsMultipleSelection = false
@@ -354,7 +354,7 @@ private extension DocumentScreen {
                       print(selectedPath)
                     }
                   }
-                  #endif
+#endif
                 }
               )
             ] + ToolbarPhoneButtons()
@@ -365,7 +365,7 @@ private extension DocumentScreen {
   }
 
   func ToolbarPhoneButtons() -> [SUToolbar.Item.Twin] {
-    #if os(iOS)
+#if os(iOS)
     return [
       SUToolbar.Item.Twin(
         icon: "doc.viewfinder",
@@ -384,9 +384,9 @@ private extension DocumentScreen {
         }
       )
     ]
-    #else
+#else
     return []
-    #endif
+#endif
   }
 }
 
