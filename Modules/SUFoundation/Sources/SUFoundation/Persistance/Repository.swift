@@ -9,10 +9,8 @@
 import Foundation
 
 public protocol Repository {
-
   func startListenSpace(userId: String, callback: @escaping ([SUShallowWorkspace]) -> Void) async throws
   func workspaces(for userId: String) async throws -> [SUShallowWorkspace]
-  //    func listenWorkspace(with id: String, completion: @escaping (SUWorkspace) -> Void)
 
   func startListenWorkspace(workspaceId: String, callback: @escaping (SUWorkspace) -> Void)
   func workspace(with id: String) async throws -> SUWorkspace

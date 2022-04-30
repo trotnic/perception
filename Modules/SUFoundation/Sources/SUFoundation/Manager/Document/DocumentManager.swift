@@ -11,13 +11,17 @@ import Foundation
 
 public final class DocumentManager {
 
-  public private(set) var document = CurrentValueSubject<SUDocument, Never>(.empty)
+  public let document = CurrentValueSubject<SUDocument, Never>(.empty)
   private let repository: Repository
 
   public init(
     repository: Repository
   ) {
     self.repository = repository
+  }
+
+  deinit {
+    repository.stopListen(with: document.value.meta.id)
   }
 }
 

@@ -51,4 +51,6 @@ public extension SUDepFactory {
   var accountManager: AccountManager { AccountManager(repository: _repository) }
 
   var temporaryFileManager: TemporaryFileManager { TemporaryFileManager(userDefaults: .standard, fileManager: .default) }
+
+  var textRecognitionManager: TextRecognitionManager { TextRecognitionManager() }
 }

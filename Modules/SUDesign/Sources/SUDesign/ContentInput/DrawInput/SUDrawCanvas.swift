@@ -6,6 +6,7 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+#if os(iOS)
 import Foundation
 import SwiftUI
 import PencilKit
@@ -23,6 +24,7 @@ struct SUDrawCanvasInternal: UIViewRepresentable {
     toolPickerIsActive: Binding<Bool>,
     onDone: @escaping () -> Void
   ) {
+    
     _canvasView = canvasView
     _toolPickerIsActive = toolPickerIsActive
     self.onDone = onDone
@@ -105,3 +107,4 @@ extension SUDrawCanvas: View {
     )
   }
 }
+#endif

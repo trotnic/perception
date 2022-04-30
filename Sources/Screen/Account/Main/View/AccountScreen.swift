@@ -57,8 +57,8 @@ extension AccountScreen: View {
       .foregroundColor(SUColorStandartPalette.text)
     }
     .onAppear(perform: viewModel.loadAction)
+#if os(iOS)
     .sheet(isPresented: $showSheet) {
-      #if os(iOS)
       SUImagePicker(
         image: .init(
           get: {
@@ -74,8 +74,8 @@ extension AccountScreen: View {
           }
         )
       )
-      #endif
     }
+#endif
   }
 }
 

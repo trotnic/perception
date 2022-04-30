@@ -6,6 +6,7 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+#if os(iOS)
 import Foundation
 import SUFoundation
 import PencilKit
@@ -39,3 +40,4 @@ public extension DrawingScreenViewModel {
     appState.change(route: .back)
   }
 }
+#endif

@@ -10,6 +10,10 @@ import SwiftUI
 import SUDesign
 import SUFoundation
 
+#if os(macOS)
+import AppKit
+#endif
+
 struct DocumentScreen {
 
   @StateObject var documentViewModel: DocumentViewModel
@@ -21,8 +25,10 @@ struct DocumentScreen {
   @State private var navbarFrame: CGRect = .zero
   @State private var tileFrame: CGRect = .zero
   @State private var toolbarFrame: CGRect = .zero
+
   @State private var isImagePickerPresented: Bool = false
   @State private var isTextFromImagePickerPresented: Bool = false
+  @State private var isDocumentScanPresented: Bool = false
 }
 
 extension DocumentScreen: View {
@@ -63,7 +69,7 @@ extension DocumentScreen: View {
         GeometryReader { scrollProxy in
           ScrollView {
             TopTile()
-            VStack(spacing: 12.0) {
+            VStack(spacing: 6.0) {
               DocumentBlocks(size: scrollProxy.size)
             }
             .frame(maxHeight: .infinity)
@@ -128,7 +134,8 @@ extension DocumentScreen: View {
         maxHeight: .infinity
       )
     }
-    .onAppear(perform: documentViewModel.load)
+    .onAppear(perform: documentViewModel.start)
+#if os(iOS)
     .sheet(
       isPresented: $isImagePickerPresented,
       onDismiss: {},
@@ -169,6 +176,18 @@ extension DocumentScreen: View {
         )
       }
     )
+    .fullScreenCover(
+      isPresented: $isDocumentScanPresented,
+      onDismiss: {},
+      content: {
+        SUDocumentScan { scans in
+          scans
+            .compactMap { $0.pngData() }
+            .forEach(documentViewModel.insertImageAction(data:))
+        }
+      }
+    )
+#endif
   }
 }
 
@@ -217,15 +236,15 @@ private extension DocumentScreen {
               set: item.action
             )
           )
-            .padding(.vertical, 16.0)
+//            .padding(.vertical, 16.0)
             .frame(width: size.width - 40.0)
             .focused($textCanvasFocus)
             .onTapGesture {
               textCanvasFocus = true
             }
-            .background {
-              Color.red.opacity(0.15)
-            }
+//            .background {
+//              Color.red.opacity(0.15)
+//            }
         case .image:
           AsyncImage(
             url: URL(string: item.content)
@@ -293,7 +312,24 @@ private extension DocumentScreen {
                 title: "Photo",
                 type: .action,
                 action: {
+                  #if os(iOS)
                   self.isImagePickerPresented = true
+                  #endif
+                  #if os(macOS)
+                  let openPanel = NSOpenPanel()
+                  openPanel.prompt = "Select File"
+                  openPanel.allowsMultipleSelection = false
+                  openPanel.canChooseDirectories = false
+                  openPanel.canCreateDirectories = false
+                  openPanel.canChooseFiles = true
+                  openPanel.allowedContentTypes = [.image]
+                  openPanel.begin { (result) -> Void in
+                    if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
+                      let selectedPath = openPanel.url!.path
+                      print(selectedPath)
+                    }
+                  }
+                  #endif
                 }
               ),
               SUToolbar.Item.Twin(
@@ -301,22 +337,56 @@ private extension DocumentScreen {
                 title: "Text from a photo",
                 type: .action,
                 action: {
+                  #if os(iOS)
                   self.isTextFromImagePickerPresented = true
-                }
-              ),
-              SUToolbar.Item.Twin(
-                icon: "paintbrush",
-                title: "Drawing",
-                type: .action,
-                action: {
-                  documentViewModel.drawingAction()
+                  #endif
+                  #if os(macOS)
+                  let openPanel = NSOpenPanel()
+                  openPanel.prompt = "Select File"
+                  openPanel.allowsMultipleSelection = false
+                  openPanel.canChooseDirectories = false
+                  openPanel.canCreateDirectories = false
+                  openPanel.canChooseFiles = true
+                  openPanel.allowedContentTypes = [.image]
+                  openPanel.begin { (result) -> Void in
+                    if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
+                      let selectedPath = openPanel.url!.path
+                      print(selectedPath)
+                    }
+                  }
+                  #endif
                 }
               )
-            ]
+            ] + ToolbarPhoneButtons()
           )
         ]
       }
     )
+  }
+
+  func ToolbarPhoneButtons() -> [SUToolbar.Item.Twin] {
+    #if os(iOS)
+    return [
+      SUToolbar.Item.Twin(
+        icon: "doc.viewfinder",
+        title: "Scan document",
+        type: .action,
+        action: {
+          self.isDocumentScanPresented = true
+        }
+      ),
+      SUToolbar.Item.Twin(
+        icon: "paintbrush",
+        title: "Drawing",
+        type: .action,
+        action: {
+          documentViewModel.drawingAction()
+        }
+      )
+    ]
+    #else
+    return []
+    #endif
   }
 }
 

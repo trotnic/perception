@@ -39,7 +39,10 @@ public extension WorkspaceMemberInviteViewModel {
     func inviteAction() {
         Task {
             do {
-                try await inviteManager.inviteUser(with: email, in: workspaceMeta.id)
+                try await inviteManager.inviteUser(
+                  with: email,
+                  in: workspaceMeta.id
+                )
             } catch {
                 // TODO: Error handling
             }

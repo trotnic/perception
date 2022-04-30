@@ -30,4 +30,5 @@ public final class SUEnvironment: ObservableObject {
   public var inviteManager: InviteManager { factory.inviteManager }
   public var accountManager: AccountManager { factory.accountManager }
   public var temporaryFileManager: TemporaryFileManager { factory.temporaryFileManager }
+  public var textRecognitionManager: TextRecognitionManager { factory.textRecognitionManager }
 }

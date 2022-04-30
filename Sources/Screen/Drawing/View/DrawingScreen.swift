@@ -6,6 +6,7 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+#if os(iOS)
 import SwiftUI
 import SUDesign
 import PencilKit
@@ -117,3 +118,4 @@ struct DrawingScreen_Previews: PreviewProvider {
   }
 }
 
+#endif

@@ -6,11 +6,11 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+#if os(iOS)
 import SwiftUI
 import UIKit
 import PhotosUI
 
-#if os(iOS)
 public struct SUImagePicker: UIViewControllerRepresentable {
   @Binding public var image: UIImage?
 

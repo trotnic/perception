@@ -64,7 +64,7 @@ public extension DocumentViewModel {
 
 public extension DocumentViewModel {
 
-  func load() {
+  func start() {
     documentManager.observe(documentId: documentMeta.id)
   }
 
@@ -120,7 +120,6 @@ private extension DocumentViewModel {
   func setupBindings() {
     documentManager
       .document
-    //            .drop(while: { $0 == SUDocument.empty })
       .receive(on: DispatchQueue.main)
       .sink { [self] document in
         title = document.title

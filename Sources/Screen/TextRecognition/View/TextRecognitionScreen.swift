@@ -94,7 +94,12 @@ extension TextRecognitionScreen {
       if
         let image = viewModel.image
       {
-        Image(uiImage: image)
+        #if os(iOS)
+        let image = Image(uiImage: image)
+        #elseif os(macOS)
+        let image = Image(nsImage: image)
+        #endif
+        image
           .resizable()
           .scaledToFit()
           .overlay {
@@ -133,14 +138,15 @@ extension TextRecognitionScreen {
 }
 
 struct TextRecognitionScreen_Previews: PreviewProvider {
-    static var previews: some View {
-        TextRecognitionScreen(
-          viewModel: TextRecognitionScreenViewModel(
-            appState: SUAppStateProviderMock(),
-            documentManager: SUManagerDocumentMock(),
-            temporaryFileManager: SUManagerTemporaryFileMock(),
-            documentMeta: .empty
-          )
-        )
-    }
+  static var previews: some View {
+    TextRecognitionScreen(
+      viewModel: TextRecognitionScreenViewModel(
+        appState: SUAppStateProviderMock(),
+        documentManager: SUManagerDocumentMock(),
+        temporaryFileManager: SUManagerTemporaryFileMock(),
+        textRecognitionManager: SUManagerTextRecognitionMock(),
+        documentMeta: .empty
+      )
+    )
+  }
 }

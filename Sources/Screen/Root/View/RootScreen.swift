@@ -154,6 +154,7 @@ extension RootScreen: View {
       )
     }
     .navigationTransition()
+    #if os(iOS)
     Route("space/workspace/:wId/document/:dId/draw", validator: {
       .init(
         id: $0.parameters["dId"]!,
@@ -169,6 +170,7 @@ extension RootScreen: View {
       )
     }
     .navigationTransition()
+    #endif
     Route("space/workspace/:wId/document/:dId/recognize", validator: {
       .init(
         id: $0.parameters["dId"]!,
@@ -180,6 +182,7 @@ extension RootScreen: View {
           appState: environment.appState,
           documentManager: environment.documentManager,
           temporaryFileManager: environment.temporaryFileManager,
+          textRecognitionManager: environment.textRecognitionManager,
           documentMeta: meta
         )
       )

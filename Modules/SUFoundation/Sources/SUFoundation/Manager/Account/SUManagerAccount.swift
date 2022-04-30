@@ -20,7 +20,7 @@ public protocol SUManagerAccount {
 
 public struct SUManagerAccountMock {
 
-    public var invites = CurrentValueSubject<[SUShallowWorkspace], Never>([])
+    public let invites = CurrentValueSubject<[SUShallowWorkspace], Never>([])
 
     private let workspacesCallback: () -> [SUShallowWorkspace]
 
