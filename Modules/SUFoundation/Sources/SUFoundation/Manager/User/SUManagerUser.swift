@@ -12,63 +12,61 @@ import Foundation
 public typealias SUManagerUserPrime = SUManagerUser & SUManagerSession
 
 public protocol SUManagerUserIdentifiable {
-    var userId: String { get }
+  var userId: String { get }
 }
 
 public protocol SUManagerSession: SUManagerUserIdentifiable {
-    var isAuthenticated: Bool { get }
+  var isAuthenticated: Bool { get }
 
-    func signIn(email: String, password: String) async throws
-    func signOut() throws
-    func signUp(email: String, password: String) async throws
+  func signIn(email: String, password: String) async throws
+  func signOut() throws
+  func signUp(email: String, password: String) async throws
 }
 
 public protocol SUManagerUser {
 
-    var user: CurrentValueSubject<SUUser, Never> { get }
+  var user: CurrentValueSubject<SUUser, Never> { get }
 
-    func fetch(id: String) async throws -> SUUser
-    func update(id: String, name: String) async throws
-    func setup(id: String)
-    func uploadImage(data: Data, userId: String)
+  func fetch(id: String) async throws -> SUUser
+  func update(id: String, name: String) async throws
+  func setup(id: String)
+  func uploadImage(data: Data, userId: String)
 }
 
 // MARK: - Mocks
 
 public struct SUManagerUserPrimeMock {
 
-    public let user = CurrentValueSubject<SUUser, Never>(.empty)
-
-    private let userIdCallback: () -> String
-    private let isAuthenticatedCallback: () -> Bool
-    private let userCallback: () -> SUUser
-
-    public init(
-        userId: @escaping () -> String = { .empty },
-        isAuthenticated: @escaping () -> Bool = { false },
-        user: @escaping () -> SUUser = { .empty }
-    ) {
-        userIdCallback = userId
-        isAuthenticatedCallback = isAuthenticated
-        userCallback = user
-    }
+  public let user = CurrentValueSubject<SUUser, Never>(.empty)
+  
+  private let userIdCallback: () -> String
+  private let isAuthenticatedCallback: () -> Bool
+  private let userCallback: () -> SUUser
+  
+  public init(
+    userId: @escaping () -> String = { .empty },
+    isAuthenticated: @escaping () -> Bool = { false },
+    user: @escaping () -> SUUser = { .empty }
+  ) {
+    userIdCallback = userId
+    isAuthenticatedCallback = isAuthenticated
+    userCallback = user
+  }
 }
 
 extension SUManagerUserPrimeMock: SUManagerUserPrime {
 
-    public var isAuthenticated: Bool { isAuthenticatedCallback() }
-    public var userId: String { userIdCallback() }
+  public var isAuthenticated: Bool { isAuthenticatedCallback() }
+  public var userId: String { userIdCallback() }
 
-    public func signIn(email: String, password: String) async throws {}
-    public func signOut() throws {}
-    public func signUp(email: String, password: String) async throws {}
+  public func signIn(email: String, password: String) async throws {}
+  public func signOut() throws {}
+  public func signUp(email: String, password: String) async throws {}
 
-    public func fetch(id: String) async throws -> SUUser { userCallback() }
-    public func update(id: String, name: String) async throws {}
-    public func setup(id: String) {
-        user.value = userCallback()
-    }
-    public func uploadImage(data: Data, userId: String) {
-        
-    }
+  public func fetch(id: String) async throws -> SUUser { userCallback() }
+  public func update(id: String, name: String) async throws {}
+  public func setup(id: String) {
+    user.value = userCallback()
+  }
+  public func uploadImage(data: Data, userId: String) {}
 }

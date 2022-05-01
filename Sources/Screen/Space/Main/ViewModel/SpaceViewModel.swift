@@ -12,113 +12,113 @@ import SUFoundation
 
 public final class SpaceViewModel: ObservableObject {
 
-    @Published public private(set) var isContentLoaded: Bool = false
-    @Published public private(set) var items: [ListItem] = []
-    @Published public private(set) var isSpaceEmpty: Bool = false
-    @Published public private(set) var isLoading: Bool = true
+  @Published public private(set) var isContentLoaded: Bool = false
+  @Published public private(set) var items: [ListItem] = []
+  @Published public private(set) var isSpaceEmpty: Bool = false
+  @Published public private(set) var isLoading: Bool = true
 
-    private var disposeBag = Set<AnyCancellable>()
+  private var disposeBag = Set<AnyCancellable>()
 
-    private let appState: SUAppStateProvider
-    private let spaceManager: SUManagerSpace
-    private let sessionManager: SUManagerUserIdentifiable
+  private let appState: SUAppStateProvider
+  private let spaceManager: SUManagerSpace
+  private let sessionManager: SUManagerUserIdentifiable
 
-    public init(
-        appState: SUAppStateProvider,
-        spaceManager: SUManagerSpace,
-        sessionManager: SUManagerUserIdentifiable
-    ) {
-        self.appState = appState
-        self.spaceManager = spaceManager
-        self.sessionManager = sessionManager
-
-        setupBindings()
-    }
+  public init(
+    appState: SUAppStateProvider,
+    spaceManager: SUManagerSpace,
+    sessionManager: SUManagerUserIdentifiable
+  ) {
+    self.appState = appState
+    self.spaceManager = spaceManager
+    self.sessionManager = sessionManager
+    
+    setupBindings()
+  }
 }
 
 // MARK: - Public interface
 
 public extension SpaceViewModel {
 
-    func loadAction() {
-        spaceManager.observe(for: sessionManager.userId)
-    }
+  func loadAction() {
+    spaceManager.observe(for: sessionManager.userId)
+  }
 
-    func createAction() {
-        appState.change(route: .create)
-    }
+  func createAction() {
+    appState.change(route: .create)
+  }
 }
 
 public extension SpaceViewModel {
 
-    struct ListItem: Identifiable {
-        public let id = UUID()
-        public let index: Int
-        public let title: String
-        public let emoji: String
-        public let badges: [Badge]
-        public let action: () -> Void
+  struct ListItem: Identifiable {
+    public let id = UUID()
+    public let index: Int
+    public let title: String
+    public let emoji: String
+    public let badges: [Badge]
+    public let action: () -> Void
+  }
+
+  struct Badge {
+    public enum BadgeType {
+      case members
+      case dateCreated
+      case documents
     }
 
-    struct Badge {
-        public enum BadgeType {
-            case members
-            case dateCreated
-            case documents
-        }
-
-        public let title: String
-        public let type: BadgeType
-    }
+    public let title: String
+    public let type: BadgeType
+  }
 }
 
 // MARK: - Private interface
 
 private extension SpaceViewModel {
 
-    func setupBindings() {
-        spaceManager
-            .workspaces
-            .dropFirst()
-            .handleEvents(receiveOutput: { _ in
-                Task {
-                    await MainActor.run {
-                        self.isLoading = true
-                    }
-                }
-            })
-            .map { workspaces in
-                workspaces.enumerated().map { item in
-                    ListItem(
-                        index: item.offset,
-                        title: item.element.title,
-                        emoji: item.element.emoji,
-                        badges: [
-                            Badge(title: "\(item.element.membersCount) members", type: .members),
-                            Badge(title: "\(item.element.documentsCount) documents", type: .documents)
-                        ],
-                        action: { self.selectItem(with: item.element.meta.id) }
-                    )
-                }
-            }
-            .handleEvents(receiveOutput: { _ in
-                Task {
-                    try await Task.sleep(nanoseconds: 40000000)
-                    await MainActor.run {
-                        self.isLoading = false
-                    }
-                }
-            })
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$items)
+  func setupBindings() {
+    spaceManager
+      .workspaces
+      .dropFirst()
+      .handleEvents(receiveOutput: { _ in
+        Task {
+          await MainActor.run {
+            self.isLoading = true
+          }
+        }
+      })
+      .map { workspaces in
+        workspaces.enumerated().map { item in
+          ListItem(
+            index: item.offset,
+            title: item.element.title,
+            emoji: item.element.emoji,
+            badges: [
+              Badge(title: "\(item.element.membersCount) members", type: .members),
+              Badge(title: "\(item.element.documentsCount) documents", type: .documents)
+            ],
+            action: { self.selectItem(with: item.element.meta.id) }
+          )
+        }
+      }
+      .handleEvents(receiveOutput: { _ in
+        Task {
+          try await Task.sleep(nanoseconds: 40000000)
+          await MainActor.run {
+            self.isLoading = false
+          }
+        }
+      })
+      .receive(on: DispatchQueue.main)
+      .assign(to: &$items)
 
-        $items
-            .map(\.isEmpty)
-            .removeDuplicates()
-            .assign(to: &$isSpaceEmpty)
-    }
+    $items
+      .map(\.isEmpty)
+      .removeDuplicates()
+      .assign(to: &$isSpaceEmpty)
+  }
 
-    func selectItem(with id: String) {
-        appState.change(route: .read(.workspace(SUWorkspaceMeta(id: id))))
-    }
+  func selectItem(with id: String) {
+    appState.change(route: .read(.workspace(SUWorkspaceMeta(id: id))))
+  }
 }

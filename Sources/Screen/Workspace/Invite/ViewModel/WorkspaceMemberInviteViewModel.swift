@@ -19,17 +19,17 @@ public final class WorkspaceMemberInviteViewModel: ObservableObject {
     private let inviteManager: SUManagerInvite
     private let workspaceMeta: SUWorkspaceMeta
 
-    public init(
-        appState: SUAppStateProvider,
-        inviteManager: SUManagerInvite,
-        workspaceMeta: SUWorkspaceMeta
-    ) {
-        self.appState = appState
-        self.inviteManager = inviteManager
-        self.workspaceMeta = workspaceMeta
-
-        setupBindings()
-    }
+  public init(
+    appState: SUAppStateProvider,
+    inviteManager: SUManagerInvite,
+    workspaceMeta: SUWorkspaceMeta
+  ) {
+    self.appState = appState
+    self.inviteManager = inviteManager
+    self.workspaceMeta = workspaceMeta
+    
+    setupBindings()
+  }
 }
 
 // MARK: - Public actions
