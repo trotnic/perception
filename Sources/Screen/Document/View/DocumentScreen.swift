@@ -38,72 +38,8 @@ extension DocumentScreen: View {
       SUColorStandartPalette.background
         .edgesIgnoringSafeArea(.all)
       VStack(spacing: 8.0) {
-        ZStack {
-          VStack {
-            SUButtonCircular(
-              icon: "chevron.left",
-              action: documentViewModel.backAction
-            )
-          }
-          .padding(.leading, 16)
-          .frame(
-            maxWidth: .infinity,
-            alignment: .leading
-          )
-          VStack(spacing: 2.0) {
-            if tileFrame.origin.y + 8.0 < navbarFrame.origin.y {
-              Text(documentViewModel.title)
-                .font(.custom("Comfortaa", size: 18.0).weight(.bold))
-                .foregroundColor(SUColorStandartPalette.text)
-            }
-          }
-          .animation(
-            .easeInOut(duration: 0.12),
-            value: tileFrame.origin.y + 8.0 < navbarFrame.origin.y
-          )
-        }
-        .padding(.top, 16)
-        .onTapGesture {
-          textCanvasFocus = false
-        }
-        GeometryReader { scrollProxy in
-          ScrollView {
-            TopTile()
-            VStack(spacing: 6.0) {
-              DocumentBlocks(size: scrollProxy.size)
-            }
-            .frame(maxHeight: .infinity)
-            Color.clear
-              .padding(.bottom, toolbarFrame.height)
-          }
-          .foregroundColor(SUColorStandartPalette.text)
-          .overlay {
-            VStack {
-              if tileFrame.origin.y + 8.0 < navbarFrame.origin.y {
-                VStack {
-                  Rectangle()
-                    .fill(SUColorStandartPalette.secondary3)
-                    .frame(height: 1.0)
-                    .frame(maxWidth: .infinity)
-                  Spacer()
-                }
-              }
-            }
-          }
-          .overlay {
-            Color.clear
-              .preference(
-                key: SUFrameKey.self,
-                value: scrollProxy.frame(in: .global)
-              )
-              .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
-          }
-          .onTapGesture {
-            withAnimation {
-              isToolbarExpanded = false
-            }
-          }
-        }
+        NavigationBar()
+        ContentView()
       }
       .blur(radius: isToolbarExpanded ? 2.0 : 0.0)
       .overlay {
@@ -193,6 +129,77 @@ extension DocumentScreen: View {
 
 private extension DocumentScreen {
 
+  func NavigationBar() -> some View {
+    ZStack {
+      VStack {
+        SUButtonCircular(
+          icon: "chevron.left",
+          action: documentViewModel.backAction
+        )
+      }
+      .padding(.leading, 16)
+      .frame(
+        maxWidth: .infinity,
+        alignment: .leading
+      )
+      VStack(spacing: 2.0) {
+        if tileFrame.origin.y + 8.0 < navbarFrame.origin.y {
+          Text(documentViewModel.title)
+            .font(.custom("Comfortaa", size: 18.0).weight(.bold))
+            .foregroundColor(SUColorStandartPalette.text)
+        }
+      }
+      .animation(
+        .easeInOut(duration: 0.12),
+        value: tileFrame.origin.y + 8.0 < navbarFrame.origin.y
+      )
+    }
+    .padding(.top, 16)
+    .onTapGesture {
+      textCanvasFocus = false
+    }
+  }
+
+  func ContentView() -> some View {
+    GeometryReader { scrollProxy in
+      ScrollView {
+        TopTile()
+        VStack(spacing: 6.0) {
+          DocumentBlocks(size: scrollProxy.size)
+        }
+        .frame(maxHeight: .infinity)
+        Color.clear
+          .padding(.bottom, toolbarFrame.height + 40.0)
+      }
+      .frame(maxHeight: .infinity)
+      .foregroundColor(SUColorStandartPalette.text)
+      .overlay {
+        if tileFrame.origin.y + 8.0 < navbarFrame.origin.y {
+          VStack {
+            Rectangle()
+              .fill(SUColorStandartPalette.secondary3)
+              .frame(height: 1.0)
+              .frame(maxWidth: .infinity)
+            Spacer()
+          }
+        }
+      }
+      .overlay {
+        Color.clear
+          .preference(
+            key: SUFrameKey.self,
+            value: scrollProxy.frame(in: .global)
+          )
+          .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
+      }
+      .onTapGesture {
+        withAnimation {
+          isToolbarExpanded = false
+        }
+      }
+    }
+  }
+
   func TopTile() -> some View {
     VStack {
       HStack {
@@ -227,24 +234,18 @@ private extension DocumentScreen {
   }
 
   func DocumentBlocks(size: CGSize) -> some View {
-    ForEach(documentViewModel.items) { item in
+    ForEach(documentViewModel.items, id: \.id) { item in
       switch item.type {
         case .text:
           SUTextCanvas(
             text: Binding<String>(
               get: { item.content },
-              set: item.action
-            )
+              set: { item.content = $0 }
+            ),
+            width: size.width
           )
-//            .padding(.vertical, 16.0)
-            .frame(width: size.width - 40.0)
-            .focused($textCanvasFocus)
-            .onTapGesture {
-              textCanvasFocus = true
-            }
-//            .background {
-//              Color.red.opacity(0.15)
-//            }
+          .frame(width: size.width - 40.0)
+          .border(Color.red)
         case .image:
           AsyncImage(
             url: URL(string: item.content)
@@ -256,8 +257,7 @@ private extension DocumentScreen {
             Color.purple.opacity(0.1)
           }
           .frame(
-            width: size.width - 40.0,
-            height: size.width - 64.0
+            width: size.width
           )
           .clipped()
           .cornerRadius(10.0)
@@ -266,12 +266,13 @@ private extension DocumentScreen {
               Button(role: .destructive) {
                 item.deleteAction()
               } label: {
-                  Label("Delete", systemImage: "trash")
+                Label("Delete", systemImage: "trash")
               }
             }
           }
       }
     }
+    .animation(Animation.easeInOut(duration: 0.12))
   }
 
   func Toolbar() -> some View {

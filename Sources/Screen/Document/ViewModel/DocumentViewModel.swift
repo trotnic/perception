@@ -24,7 +24,7 @@ public final class DocumentViewModel: ObservableObject {
   private let temporaryFileManager: SUManagerTemporaryFile
   private let documentMeta: SUDocumentMeta
 
-  @Published public private(set) var items: [DocumentBlock] = []
+  @Published public private(set) var items: [DocumentBlockRef] = []
 
   private var disposeBag = Set<AnyCancellable>()
   private var debouncerText = PassthroughSubject<(String, String), Never>()
@@ -45,6 +45,32 @@ public final class DocumentViewModel: ObservableObject {
 }
 
 public extension DocumentViewModel {
+
+  final class DocumentBlockRef: Identifiable {
+    public enum BlockType {
+      case text
+      case image
+    }
+
+    @Published var content: String
+
+    public let id: UUID = UUID()
+    public let type: BlockType
+    public let deleteAction: () -> Void
+    private let commitAction: (String) -> Void
+
+    public init(
+      content: String,
+      type: BlockType,
+      onDelete: @escaping () -> Void,
+      onCommit: @escaping (String) -> Void
+    ) {
+      self.content = content
+      self.type = type
+      deleteAction = onDelete
+      commitAction = onCommit
+    }
+  }
 
   struct DocumentBlock: Identifiable {
     public enum BlockType {
@@ -106,11 +132,6 @@ public extension DocumentViewModel {
       }
     }
   }
-
-//  // TODO: Move to a separate service
-  func insertTextFromImageAction(cgImage: CGImage) {
-
-  }
 }
 
 // MARK: - Private interface
@@ -127,35 +148,45 @@ private extension DocumentViewModel {
         items = document.items.map { block in
           switch block.type {
             case .image:
-              return DocumentBlock(
+              return DocumentBlockRef(
                 content: block.content,
                 type: .image,
-                action: { _ in },
-                deleteAction: { [self] in
-                  Task {
-                    try await documentManager.deleteBlock(
-                      documentId: documentMeta.id,
-                      blockId: block.id
-                    )
-                  }
-                }
+                onDelete: {
+//                  Task {
+//                    try await documentManager.deleteBlock(
+//                      documentId: documentMeta.id,
+//                      blockId: block.id
+//                    )
+//                  }
+                },
+                onCommit: { _ in }
               )
             case .text:
-              return DocumentBlock(
+              return DocumentBlockRef(
                 content: block.content,
                 type: .text,
-                action: { [self] text in
-                  debouncerText.send((block.id, text))
+                onDelete: {
+                  
                 },
-                deleteAction: { [self] in
-                  Task {
-                    try await documentManager.deleteBlock(
-                      documentId: documentMeta.id,
-                      blockId: block.id
-                    )
-                  }
+                onCommit: { text in
+                  print(text)
                 }
               )
+//              return DocumentBlock(
+//                content: block.content,
+//                type: .text,
+//                action: { [self] text in
+//                  debouncerText.send((block.id, text))
+//                },
+//                deleteAction: { [self] in
+//                  Task {
+//                    try await documentManager.deleteBlock(
+//                      documentId: documentMeta.id,
+//                      blockId: block.id
+//                    )
+//                  }
+//                }
+//              )
           }
         }
       }

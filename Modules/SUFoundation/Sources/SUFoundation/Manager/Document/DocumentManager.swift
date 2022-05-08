@@ -30,8 +30,8 @@ public final class DocumentManager {
 extension DocumentManager: SUManagerDocument {
 
   public func observe(documentId: String) {
-    repository.startListenDocument(documentId: documentId) { document in
-      self.document.value = document
+    repository.startListenDocument(documentId: documentId) { [weak self] document in
+      self?.document.value = document
     }
   }
 

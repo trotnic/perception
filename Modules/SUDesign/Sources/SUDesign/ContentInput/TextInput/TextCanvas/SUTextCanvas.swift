@@ -10,14 +10,31 @@ import Foundation
 import SwiftUI
 
 #if os(iOS)
+import UIKit
+
+public extension String {
+  func height(withConstrainedWidth width: CGFloat, font: UIFont) -> CGFloat {
+      let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
+    let boundingBox = self.boundingRect(
+        with: constraintRect,
+        options: [.usesLineFragmentOrigin, .usesDeviceMetrics],
+        attributes: [.font: font],
+        context: nil
+      )
+
+      return ceil(boundingBox.height)
+  }
+}
+
 //https://stackoverflow.com/a/58639072
 //https://stackoverflow.com/a/20269793
 private struct UITextViewWrapper: UIViewRepresentable {
   @Binding var text: String
   @Binding var calculatedHeight: CGFloat
+  var width: CGFloat
 
   func makeCoordinator() -> Coordinator {
-    Coordinator(text: $text, height: $calculatedHeight)
+    Coordinator(text: $text, height: $calculatedHeight, width: width)
   }
 
   func makeUIView(context: UIViewRepresentableContext<UITextViewWrapper>) -> UITextView {
@@ -37,47 +54,75 @@ private struct UITextViewWrapper: UIViewRepresentable {
     textField.textContainerInset = UIEdgeInsets(top: 4.0, left: 4.0, bottom: 4.0, right: 4.0)
     textField.keyboardType = .twitter
     textField.text = text
+    textField.translatesAutoresizingMaskIntoConstraints = false
 
     textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     textField.setContentHuggingPriority(.required, for: .horizontal)
+
+    NSLayoutConstraint.activate([
+      textField.widthAnchor.constraint(equalToConstant: width)
+    ])
     return textField
   }
 
   func updateUIView(_ view: UITextView, context: UIViewRepresentableContext<UITextViewWrapper>) {
-    UITextViewWrapper.recalculateHeight(view: view, result: $calculatedHeight)
+    UITextViewWrapper.recalculateHeight(
+      view: view,
+      width: width,
+      result: $calculatedHeight
+    )
   }
 
-  private static func recalculateHeight(view: UIView, result: Binding<CGFloat>) {
-    guard let window = view.window else { return }
-    let newSize = view.sizeThatFits(
-      CGSize(
-        width: window.bounds.width,
-        height: CGFloat.greatestFiniteMagnitude
-      )
-    )
-    if result.wrappedValue != newSize.height {
+  private static func recalculateHeight(
+    view: UITextView,
+    width: CGFloat,
+    result: Binding<CGFloat>
+  ) {
+//    let newSize = view.sizeThatFits(
+//      CGSize(
+//        width: width,
+//        height: CGFloat.greatestFiniteMagnitude
+//      )
+//    )
+    let newHeight = view.text.height(withConstrainedWidth: width, font: view.font!)
+//    if result.wrappedValue != newHeight {
       DispatchQueue.main.async {
-        result.wrappedValue = newSize.height // !! must be called asynchronously
-        view.bounds.size = newSize
+        result.wrappedValue = newHeight + 14.0 // !! must be called asynchronously
+        view.bounds.size = CGSize(
+          width: width,
+          height: newHeight + 14.0
+        )
+//        view.frame.size = CGSize(
+//          width: width,
+//          height: newHeight
+//        )
       }
-    }
+//    }
   }
 
   final class Coordinator: NSObject, UITextViewDelegate {
     @Binding private var text: String
     @Binding private var calculatedHeight: CGFloat
 
+    private let width: CGFloat
+
     init(
       text: Binding<String>,
-      height: Binding<CGFloat>
+      height: Binding<CGFloat>,
+      width: CGFloat
     ) {
       _text = text
       _calculatedHeight = height
+      self.width = width
     }
 
     func textViewDidChange(_ uiView: UITextView) {
       self.text = uiView.text
-      UITextViewWrapper.recalculateHeight(view: uiView, result: $calculatedHeight)
+      UITextViewWrapper.recalculateHeight(
+        view: uiView,
+        width: width,
+        result: $calculatedHeight
+      )
     }
   }
 }
@@ -86,12 +131,17 @@ private struct UITextViewWrapper: UIViewRepresentable {
 
 public struct SUTextCanvas {
   @Binding private var text: String
-  @State private var dynamicHeight: CGFloat = 44.0
+  @State private var dynamicHeight: CGFloat
+
+  private let width: CGFloat
 
   public init(
-    text: Binding<String>
+    text: Binding<String>,
+    width: CGFloat
   ) {
     _text = text
+    self.width = width
+    dynamicHeight = text.wrappedValue.height(withConstrainedWidth: width, font: .preferredFont(forTextStyle: .body))
   }
 }
 
@@ -99,8 +149,12 @@ extension SUTextCanvas: View {
 
   public var body: some View {
 #if os(iOS)
-    UITextViewWrapper(text: $text, calculatedHeight: $dynamicHeight)
-      .frame(minHeight: dynamicHeight)
+    UITextViewWrapper(
+      text: $text,
+      calculatedHeight: $dynamicHeight,
+      width: width
+    )
+      .frame(height: dynamicHeight)
 #elseif os(macOS)
     NSTextViewWrapper(text: $text, calculatedHeight: $dynamicHeight)
       .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
@@ -113,7 +167,10 @@ struct SUTextCanvasPreviews: PreviewProvider {
     ZStack {
       SUColorStandartPalette.background
         .ignoresSafeArea()
-      SUTextCanvas(text: .constant("Some text to check"))
+      SUTextCanvas(
+        text: .constant("Some text to check"),
+        width: 300.0
+      )
         .background(.red)
         .frame(width: .infinity, height: 40)
     }

@@ -538,7 +538,9 @@ extension FireRepository: Repository {
           "dateCreated" : Timestamp(date: Date.now),
           "dateEdited" : Timestamp(date: Date.now),
           "items": [
-            "id": "default"
+            "id": [
+              "id": "default"
+            ]
           ]
         ]),
         workspaceRef
