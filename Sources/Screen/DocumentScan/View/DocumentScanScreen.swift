@@ -6,6 +6,8 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+#if os(iOS)
+
 import VisionKit
 import SwiftUI
 
@@ -18,3 +20,5 @@ extension DocumentScanScreen: View {
     Text("Hello, World!")
   }
 }
+
+#endif

@@ -54,21 +54,34 @@ public extension DocumentViewModel {
 
     @Published var content: String
 
-    public let id: UUID = UUID()
+    public let id: String
     public let type: BlockType
     public let deleteAction: () -> Void
     private let commitAction: (String) -> Void
 
+    private var disposeBag = Set<AnyCancellable>()
+
     public init(
+      id: String,
       content: String,
       type: BlockType,
       onDelete: @escaping () -> Void,
       onCommit: @escaping (String) -> Void
     ) {
+      self.id = id
       self.content = content
       self.type = type
       deleteAction = onDelete
       commitAction = onCommit
+
+      $content
+        .throttle(for: 1.5, scheduler: DispatchQueue.main, latest: true)
+//        .last()
+//        .receive(on: DispatchQueue.global())
+        .sink { value in
+          onCommit(value)
+        }
+        .store(in: &disposeBag)
     }
   }
 
@@ -78,7 +91,7 @@ public extension DocumentViewModel {
       case image
     }
 
-    public let id: UUID = UUID()
+    public let id: String
     public let content: String
     public let type: BlockType
     public let action: (String) -> Void
@@ -132,6 +145,15 @@ public extension DocumentViewModel {
       }
     }
   }
+
+  func pasteTextIfNeeded() {
+    Task {
+      try await documentManager.insertText(
+        documentId: documentMeta.id,
+        text: "a"
+      )
+    }
+  }
 }
 
 // MARK: - Private interface
@@ -145,50 +167,74 @@ private extension DocumentViewModel {
       .sink { [self] document in
         title = document.title
         emoji = document.emoji
-        items = document.items.map { block in
-          switch block.type {
-            case .image:
-              return DocumentBlockRef(
-                content: block.content,
-                type: .image,
-                onDelete: {
-//                  Task {
-//                    try await documentManager.deleteBlock(
-//                      documentId: documentMeta.id,
-//                      blockId: block.id
-//                    )
-//                  }
-                },
-                onCommit: { _ in }
+        if items.isEmpty {
+          items = document.items.map { block in
+            switch block.type {
+              case .image:
+                return DocumentBlockRef(
+                  id: block.id,
+                  content: block.content,
+                  type: .image,
+                  onDelete: { [self] in
+                    Task {
+                      try await documentManager.deleteBlock(
+                        documentId: documentMeta.id,
+                        blockId: block.id
+                      )
+                    }
+                  },
+                  onCommit: { _ in }
+                )
+              case .text:
+                return DocumentBlockRef(
+                  id: block.id,
+                  content: block.content,
+                  type: .text,
+                  onDelete: { [self] in
+                    Task {
+                      try await documentManager.deleteBlock(
+                        documentId: documentMeta.id,
+                        blockId: block.id
+                      )
+                    }
+                  },
+                  onCommit: { [self] text in
+                    debouncerText.send((block.id, text))
+                  }
+                )
+            }
+          }
+        } else {
+          document.items.forEach { block in
+            if
+              let item = items.first(where: { $0.id == block.id })
+            {
+              if item.content != block.content {
+                item.content = block.content
+              }
+            } else {
+              items.append(
+                DocumentBlockRef(
+                  id: block.id,
+                  content: block.content,
+                  type: block.type == .image ? .image : .text,
+                  onDelete: { [self] in
+                    Task {
+                      try await documentManager.deleteBlock(
+                        documentId: documentMeta.id,
+                        blockId: block.id
+                      )
+                    }
+                  },
+                  onCommit: { [self] _ in
+                    debouncerText.send((block.id, text))
+                  }
+                )
               )
-            case .text:
-              return DocumentBlockRef(
-                content: block.content,
-                type: .text,
-                onDelete: {
-                  
-                },
-                onCommit: { text in
-                  print(text)
-                }
-              )
-//              return DocumentBlock(
-//                content: block.content,
-//                type: .text,
-//                action: { [self] text in
-//                  debouncerText.send((block.id, text))
-//                },
-//                deleteAction: { [self] in
-//                  Task {
-//                    try await documentManager.deleteBlock(
-//                      documentId: documentMeta.id,
-//                      blockId: block.id
-//                    )
-//                  }
-//                }
-//              )
+            }
           }
         }
+        
       }
       .store(in: &disposeBag)
 
@@ -223,7 +269,7 @@ private extension DocumentViewModel {
       .store(in: &disposeBag)
 
     debouncerText
-      .debounce(for: 2.0, scheduler: DispatchQueue.main)
+//      .debounce(for: 2.0, scheduler: DispatchQueue.main)
       .receive(on: DispatchQueue.global(qos: .userInitiated))
       .sink { value in
         Task {

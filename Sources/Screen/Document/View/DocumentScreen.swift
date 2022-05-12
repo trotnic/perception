@@ -9,6 +9,7 @@
 import SwiftUI
 import SUDesign
 import SUFoundation
+import UniformTypeIdentifiers
 
 #if os(macOS)
 import AppKit
@@ -29,6 +30,8 @@ struct DocumentScreen {
   @State private var isImagePickerPresented: Bool = false
   @State private var isTextFromImagePickerPresented: Bool = false
   @State private var isDocumentScanPresented: Bool = false
+
+  @State private var isToolbarShown = true
 }
 
 extension DocumentScreen: View {
@@ -43,27 +46,29 @@ extension DocumentScreen: View {
       }
       .blur(radius: isToolbarExpanded ? 2.0 : 0.0)
       .overlay {
-        HStack(alignment: .bottom) {
-          Toolbar()
-            .background {
-              GeometryReader { proxy in
-                SUColorStandartPalette.background
-                  .frame(height: proxy.size.height * 2.0)
-                  .offset(y: -12.0)
-                  .blur(radius: 6.0)
-                  .preference(
-                    key: SUFrameKey.self,
-                    value: proxy.frame(in: .global)
-                  )
-                  .onPreferenceChange(SUFrameKey.self) { toolbarFrame = $0 }
+        if isToolbarShown {
+          HStack(alignment: .bottom) {
+            Toolbar()
+              .background {
+                GeometryReader { proxy in
+                  SUColorStandartPalette.background
+                    .frame(height: proxy.size.height * 2.0)
+                    .offset(y: -12.0)
+                    .blur(radius: 6.0)
+                    .preference(
+                      key: SUFrameKey.self,
+                      value: proxy.frame(in: .global)
+                    )
+                    .onPreferenceChange(SUFrameKey.self) { toolbarFrame = $0 }
+                }
               }
-            }
+          }
+          .frame(
+            maxHeight: .infinity,
+            alignment: .bottom
+          )
+          .padding(.bottom, 10.0)
         }
-        .frame(
-          maxHeight: .infinity,
-          alignment: .bottom
-        )
-        .padding(.bottom, 10.0)
       }
       .frame(
         maxWidth: .infinity,
@@ -124,6 +129,13 @@ extension DocumentScreen: View {
       }
     )
 #endif
+//    .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { _ in
+//
+//    }.onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)) { _ in
+//      withAnimation {
+//        isToolbarShown = true
+//      }
+//    }
   }
 }
 
@@ -192,11 +204,9 @@ private extension DocumentScreen {
           )
           .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
       }
-      .onTapGesture {
-        withAnimation {
-          isToolbarExpanded = false
-        }
-      }
+//      .onTapGesture {
+//        documentViewModel.pasteTextIfNeeded()
+//      }
     }
   }
 
@@ -234,7 +244,7 @@ private extension DocumentScreen {
   }
 
   func DocumentBlocks(size: CGSize) -> some View {
-    ForEach(documentViewModel.items, id: \.id) { item in
+    ForEach(documentViewModel.items) { item in
       switch item.type {
         case .text:
           SUTextCanvas(
@@ -242,22 +252,33 @@ private extension DocumentScreen {
               get: { item.content },
               set: { item.content = $0 }
             ),
-            width: size.width
+            width: size.width - 40.0,
+            onStart: {
+              withAnimation(.easeInOut(duration: 0.52)) {
+                isToolbarShown = false
+              }
+            },
+            onFinish: {
+              withAnimation(.easeInOut(duration: 0.13)) {
+                isToolbarShown = true
+              }
+            }
           )
           .frame(width: size.width - 40.0)
-          .border(Color.red)
+//          .border(.red)
         case .image:
           AsyncImage(
             url: URL(string: item.content)
           ) {
             $0
               .resizable()
-              .scaledToFit()
+              .scaledToFill()
           } placeholder: {
             Color.purple.opacity(0.1)
           }
           .frame(
-            width: size.width
+            width: size.width - 40.0,
+            height: size.width - 40.0
           )
           .clipped()
           .cornerRadius(10.0)

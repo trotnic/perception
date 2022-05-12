@@ -36,7 +36,7 @@ struct SUDrawCanvasInternal: UIViewRepresentable {
     canvasView.delegate = context.coordinator
     toolPicker.setVisible(true, forFirstResponder: canvasView)
     toolPicker.addObserver(canvasView)
-    
+
     canvasView.becomeFirstResponder()
 
     return canvasView
