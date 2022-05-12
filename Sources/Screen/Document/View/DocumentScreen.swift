@@ -16,6 +16,10 @@ import AppKit
 #endif
 
 struct DocumentScreen {
+  struct ImageIdentifiable: Identifiable {
+    let id = UUID()
+    let image: Image
+  }
 
   @StateObject var documentViewModel: DocumentViewModel
   @StateObject var settingsViewModel: ToolbarSettingsViewModel
@@ -32,6 +36,8 @@ struct DocumentScreen {
   @State private var isDocumentScanPresented: Bool = false
 
   @State private var isToolbarShown = true
+
+  @State private var detailImage: ImageIdentifiable?
 }
 
 extension DocumentScreen: View {
@@ -128,14 +134,12 @@ extension DocumentScreen: View {
         }
       }
     )
+    .fullScreenCover(item: $detailImage, onDismiss: {
+      detailImage = nil
+    }, content: {
+      SUImageContainer(image: $0.image)
+    })
 #endif
-//    .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { _ in
-//
-//    }.onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)) { _ in
-//      withAnimation {
-//        isToolbarShown = true
-//      }
-//    }
   }
 }
 
@@ -271,14 +275,16 @@ private extension DocumentScreen {
             }
           )
           .frame(width: size.width - 40.0)
-//          .border(.red)
         case .image:
           AsyncImage(
             url: URL(string: item.content)
-          ) {
-            $0
+          ) { image in
+            image
               .resizable()
               .scaledToFill()
+              .onTapGesture {
+                detailImage = ImageIdentifiable(image: image)
+              }
           } placeholder: {
             Color.purple.opacity(0.1)
           }

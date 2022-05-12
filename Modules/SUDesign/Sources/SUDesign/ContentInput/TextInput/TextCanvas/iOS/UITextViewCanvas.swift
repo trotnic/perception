@@ -127,10 +127,6 @@ struct UITextViewCanvas: UIViewRepresentable {
         result: $calculatedHeight
       )
     }
-
-    func textViewDidEndEditing(_ textView: UITextView) {
-      print("END")
-    }
   }
 }
 #endif
