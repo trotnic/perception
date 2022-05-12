@@ -17,6 +17,7 @@ public struct SUTextCanvas {
 
   private let onStart: () -> Void
   private let onFinish: () -> Void
+  private let onCommit: () -> Void
 
   private let width: CGFloat
 
@@ -24,12 +25,14 @@ public struct SUTextCanvas {
     text: Binding<String>,
     width: CGFloat,
     onStart: @escaping () -> Void,
-    onFinish: @escaping () -> Void
+    onFinish: @escaping () -> Void,
+    onCommit: @escaping () -> Void
   ) {
     _text = text
     self.width = width
     self.onStart = onStart
     self.onFinish = onFinish
+    self.onCommit = onCommit
     dynamicHeight = text.wrappedValue.height(width: width, font: .preferredFont(forTextStyle: .body))
   }
 }
@@ -46,7 +49,8 @@ extension SUTextCanvas: View {
         onFinish: {
           isFocused = false
           onFinish()
-        }
+        },
+        onCommit: onCommit
       )
       .frame(height: dynamicHeight)
 #elseif os(macOS)
@@ -80,7 +84,8 @@ struct SUTextCanvasPreviews: PreviewProvider {
         text: .constant("Some text to check"),
         width: 300.0,
         onStart: {},
-        onFinish: {}
+        onFinish: {},
+        onCommit: {}
       )
       .background(.red)
       .frame(width: .infinity, height: 40)

@@ -233,8 +233,13 @@ private extension DocumentViewModel {
               )
             }
           }
+          let initial = Set(document.items.map(\.id))
+          let result = Set(items.map(\.id))
+          result.subtracting(initial)
+            .forEach { id in
+              items.removeAll(where: { $0.id == id })
+            }
         }
-        
       }
       .store(in: &disposeBag)
 

@@ -259,9 +259,15 @@ private extension DocumentScreen {
               }
             },
             onFinish: {
-              withAnimation(.easeInOut(duration: 0.13)) {
+              withAnimation(.easeInOut(duration: 0.26)) {
                 isToolbarShown = true
               }
+            },
+            onCommit: {
+              withAnimation(.easeInOut(duration: 0.26)) {
+                isToolbarShown = true
+              }
+              item.deleteAction()
             }
           )
           .frame(width: size.width - 40.0)
