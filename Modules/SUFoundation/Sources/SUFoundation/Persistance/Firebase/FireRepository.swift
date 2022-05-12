@@ -675,7 +675,10 @@ extension FireRepository: Repository {
       ])
   }
 
-  public func updateDocument(with id: String, title: String) async throws {
+  public func updateDocument(
+    with id: String,
+    title: String
+  ) async throws {
     try await documentRef(id: id)
       .updateData([
         "title" : title,
@@ -683,7 +686,10 @@ extension FireRepository: Repository {
       ])
   }
 
-  public func updateDocument(with id: String, emoji: String) async throws {
+  public func updateDocument(
+    with id: String,
+    emoji: String
+  ) async throws {
     try await documentRef(id: id)
       .updateData([
         "emoji" : emoji,

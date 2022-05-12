@@ -22,7 +22,7 @@ final class SULastCharTextView: UITextView {
   }
 
   override func deleteBackward() {
-    if text.isEmpty || text == " " {
+    if text.isEmpty {
       onComplete()
     }
     super.deleteBackward()

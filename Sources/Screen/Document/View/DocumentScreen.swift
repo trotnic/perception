@@ -134,11 +134,15 @@ extension DocumentScreen: View {
         }
       }
     )
-    .fullScreenCover(item: $detailImage, onDismiss: {
-      detailImage = nil
-    }, content: {
-      SUImageContainer(image: $0.image)
-    })
+    .fullScreenCover(
+      item: $detailImage,
+      onDismiss: {
+        detailImage = nil
+      },
+      content: {
+        SUImageContainer(image: $0.image)
+      }
+    )
 #endif
   }
 }
@@ -182,6 +186,11 @@ private extension DocumentScreen {
         TopTile()
         VStack(spacing: 6.0) {
           DocumentBlocks(size: scrollProxy.size)
+          AddTextBlockTile(
+            size: scrollProxy.size,
+            action: documentViewModel.pasteTextBlock
+          )
+//          .border(.red)
         }
         .frame(maxHeight: .infinity)
         Color.clear
@@ -275,6 +284,7 @@ private extension DocumentScreen {
             }
           )
           .frame(width: size.width - 40.0)
+//          .border(.orange)
         case .image:
           AsyncImage(
             url: URL(string: item.content)

@@ -91,14 +91,18 @@ struct UITextViewCanvas: UIViewRepresentable {
     width: CGFloat,
     result: Binding<CGFloat>
   ) {
-    let newHeight = view.text.height(width: width - 18.0, font: view.font!)
+    let newHeight = view.text.height(
+      width: width /*- 18.0*/,
+      font: view.font!
+    )
     if result.wrappedValue != newHeight {
       DispatchQueue.main.async {
-        result.wrappedValue = newHeight + 14.0 // !! must be called asynchronously
         view.bounds.size = CGSize(
           width: width,
-          height: newHeight + 14.0
+          height: newHeight
         )
+        view.sizeToFit()
+        result.wrappedValue = view.bounds.size.height
       }
     }
   }

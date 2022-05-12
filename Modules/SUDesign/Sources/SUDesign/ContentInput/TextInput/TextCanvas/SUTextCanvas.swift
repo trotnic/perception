@@ -33,7 +33,10 @@ public struct SUTextCanvas {
     self.onStart = onStart
     self.onFinish = onFinish
     self.onCommit = onCommit
-    dynamicHeight = text.wrappedValue.height(width: width, font: .preferredFont(forTextStyle: .body))
+    dynamicHeight = text.wrappedValue.height(
+      width: width,
+      font: .preferredFont(forTextStyle: .body)
+    )
   }
 }
 

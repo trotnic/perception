@@ -146,7 +146,7 @@ public extension DocumentViewModel {
     }
   }
 
-  func pasteTextIfNeeded() {
+  func pasteTextBlock() {
     Task {
       try await documentManager.insertText(
         documentId: documentMeta.id,
@@ -226,7 +226,7 @@ private extension DocumentViewModel {
                       )
                     }
                   },
-                  onCommit: { [self] _ in
+                  onCommit: { [self] text in
                     debouncerText.send((block.id, text))
                   }
                 )
