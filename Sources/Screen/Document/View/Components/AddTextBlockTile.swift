@@ -1,6 +1,6 @@
 //
 //  AddTextBlockTile.swift
-//  Perception-iOS
+//  Perception
 //
 //  Created by Uladzislau Volchyk on 13.05.22.
 //  Copyright © 2022 Star Unicorn. All rights reserved.

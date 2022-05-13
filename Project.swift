@@ -1,7 +1,10 @@
 import ProjectDescription
 
 let infoPlist: [String: InfoPlist.Value] = [
-    "UILaunchScreen": [:]
+    "UILaunchStoryboardName" : "Perception",
+    "UISupportedInterfaceOrientations" : [
+      "UIInterfaceOrientationPortrait"
+    ]
 ]
 
 let project = Project(
@@ -31,9 +34,7 @@ let project = Project(
       bundleId: "com.staruco.perception",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       infoPlist: .extendingDefault(
-        with: [
-          "UILaunchScreen": [:]
-        ]
+        with: infoPlist
       ),
       sources: [
         "Sources/**",
@@ -58,7 +59,9 @@ let project = Project(
       product: .app,
       bundleId: "com.staruco.perception",
       deploymentTarget: .macOS(targetVersion: "12.0"),
-      infoPlist: .extendingDefault(with: infoPlist),
+      infoPlist: .extendingDefault(
+        with: infoPlist
+      ),
       sources: [
         "Sources/**",
       ],

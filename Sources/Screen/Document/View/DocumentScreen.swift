@@ -27,7 +27,6 @@ struct DocumentScreen {
   @State private var isToolbarExpanded: Bool = false
   @FocusState private var textCanvasFocus
 
-  @State private var navbarFrame: CGRect = .zero
   @State private var tileFrame: CGRect = .zero
   @State private var toolbarFrame: CGRect = .zero
 
@@ -38,6 +37,7 @@ struct DocumentScreen {
   @State private var isToolbarShown = true
 
   @State private var detailImage: ImageIdentifiable?
+  @State private var isTileHidden = true
 }
 
 extension DocumentScreen: View {
@@ -65,7 +65,11 @@ extension DocumentScreen: View {
                       key: SUFrameKey.self,
                       value: proxy.frame(in: .global)
                     )
-                    .onPreferenceChange(SUFrameKey.self) { toolbarFrame = $0 }
+                    .onPreferenceChange(SUFrameKey.self) { frame in
+                      DispatchQueue.main.async {
+                        toolbarFrame = frame
+                      }
+                    }
                 }
               }
           }
@@ -162,17 +166,25 @@ private extension DocumentScreen {
         maxWidth: .infinity,
         alignment: .leading
       )
-      VStack(spacing: 2.0) {
-        if tileFrame.origin.y + 8.0 < navbarFrame.origin.y {
-          Text(documentViewModel.title)
-            .font(.custom("Comfortaa", size: 18.0).weight(.bold))
-            .foregroundColor(SUColorStandartPalette.text)
+    }
+    .overlay {
+      GeometryReader { proxy in
+        VStack(spacing: 2.0) {
+          if isTileHidden {
+            Text(documentViewModel.title)
+              .font(.custom("Comfortaa", size: 18.0).weight(.bold))
+              .foregroundColor(SUColorStandartPalette.text)
+          }
+        }
+        .animation(
+          .easeInOut(duration: 0.12),
+          value: isTileHidden
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .onChange(of: tileFrame) { tileFrame in
+          isTileHidden = tileFrame.origin.y + 8.0 < proxy.frame(in: .global).maxY
         }
       }
-      .animation(
-        .easeInOut(duration: 0.12),
-        value: tileFrame.origin.y + 8.0 < navbarFrame.origin.y
-      )
     }
     .padding(.top, 16)
     .onTapGesture {
@@ -199,7 +211,7 @@ private extension DocumentScreen {
       .frame(maxHeight: .infinity)
       .foregroundColor(SUColorStandartPalette.text)
       .overlay {
-        if tileFrame.origin.y + 8.0 < navbarFrame.origin.y {
+        if isTileHidden {
           VStack {
             Rectangle()
               .fill(SUColorStandartPalette.secondary3)
@@ -209,17 +221,6 @@ private extension DocumentScreen {
           }
         }
       }
-      .overlay {
-        Color.clear
-          .preference(
-            key: SUFrameKey.self,
-            value: scrollProxy.frame(in: .global)
-          )
-          .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
-      }
-//      .onTapGesture {
-//        documentViewModel.pasteTextIfNeeded()
-//      }
     }
   }
 
@@ -251,7 +252,16 @@ private extension DocumentScreen {
             key: SUFrameKey.self,
             value: proxy.frame(in: .global)
           )
-          .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
+          .onPreferenceChange(SUFrameKey.self) { frame in
+            if
+              (tileFrame.minY < frame.minY && isTileHidden) ||
+                (tileFrame.minY > frame.minY && !isTileHidden)
+            {
+              DispatchQueue.main.async {
+                tileFrame = frame
+              }
+            }
+          }
       }
     }
   }
