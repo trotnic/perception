@@ -9,33 +9,36 @@
 import Foundation
 import SwiftUIRouter
 import SUFoundation
+import Combine
 
-/**
- 
-            +----------back------------+
-            |                          |
-            |                          |
-           \ /                         |
-          space ----> create ----> workspace
+public final class SUAppState {
 
-            +----------back------------+
-            |                          |
-            |                          |
-           \ /                         |
-        workspace ----> create ----> document
- 
- */
+  private var currentScreen: SUAppScreen = .none
+  private var screenStack: [SUAppScreen] = []
 
-public final class SUAppState: SUAppStateProvider {
+  private let navigator: Navigator
+  private let richiManager: SUManagerRichi
 
-    private var currentScreen: SUAppScreen = .none
-    private var screenStack: [SUAppScreen] = []
+  private var disposeBag = Set<AnyCancellable>()
 
-    private let navigator: Navigator
+  public init(
+    navigator: Navigator,
+    richiManager: SUManagerRichi
+  ) {
+    self.navigator = navigator
+    self.richiManager = richiManager
+  }
+}
 
-    public init(navigator: Navigator) {
-        self.navigator = navigator
-    }
+extension SUAppState: SUAppStateProvider {
+
+  public var isNetworkAvailable: AnyPublisher<Bool, Never> {
+    richiManager.isNetworkAvailable
+  }
+
+  public var isNetworkAvailableNow: Bool {
+    richiManager.isNetworkAvailableNow
+  }
 
   public func change(route: SUAppScreen) {
     switch route {
@@ -121,5 +124,19 @@ public final class SUAppState: SUAppStateProvider {
         screenStack.append(.invites(meta))
     }
     SULogger.navigation.log("Changed route")
+  }
+
+  public func placeholderScreenAction() {
+    switch currentScreen {
+      case
+          .authentication,
+          .space:
+        break
+      default:
+        navigator.navigate("/space")
+        screenStack.removeAll()
+        screenStack.append(.space)
+        currentScreen = .space
+    }
   }
 }

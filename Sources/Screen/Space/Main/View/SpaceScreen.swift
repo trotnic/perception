@@ -42,7 +42,6 @@ extension SpaceScreen: View {
             if spaceViewModel.isLoading {
               ProgressView()
                 .progressViewStyle(CircularProgressViewStyle())
-                .scaleEffect(2.0)
                 .tint(SUColorStandartPalette.secondary2)
             } else {
               Content(proxy: proxy)
@@ -73,6 +72,7 @@ extension SpaceScreen: View {
             }
             .frame(maxHeight: .infinity, alignment: .bottom)
             .padding(.bottom, 10.0)
+            .opacity(spaceViewModel.isLoading ? 0.0 : 1.0)
           }
         }
       }
@@ -128,7 +128,7 @@ private extension SpaceScreen {
 
   @ViewBuilder
   func Content(proxy: GeometryProxy) -> some View {
-    if spaceViewModel.isSpaceEmpty {
+    if spaceViewModel.shouldShowPlaceholder {
       VStack(alignment: .center, spacing: 32.0) {
         Text("You didn’t create any workspace yet 😿")
           .font(.custom("Cofmortaa", size: 22.0).bold())
@@ -171,7 +171,7 @@ private extension SpaceScreen {
             .onPreferenceChange(SUFrameKey.self) { navbarFrame = $0 }
         }
       }
-      .animation(Animation.easeInOut, value: spaceViewModel.isSpaceEmpty)
+      .animation(Animation.easeInOut, value: spaceViewModel.shouldShowPlaceholder)
     }
   }
 

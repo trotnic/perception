@@ -59,6 +59,7 @@ extension SearchScreen: View {
           }
           .frame(height: 32.0)
         }
+        .padding(.top, 16.0)
         ScrollView {
           VStack(spacing: 20.0) {
             ForEach(viewModel.items) { item in

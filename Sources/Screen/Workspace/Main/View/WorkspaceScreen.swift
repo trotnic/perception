@@ -69,7 +69,23 @@ extension WorkspaceScreen: View {
                       .onPreferenceChange(SUFrameKey.self) { tileFrame = $0 }
                   }
                 }
-              ListItems()
+              if workspaceViewModel.viewItems.isEmpty {
+                VStack(alignment: .center, spacing: 32.0) {
+                  Text("There is no any document yet 😿")
+                    .font(.custom("Cofmortaa", size: 22.0).bold())
+                    .frame(maxWidth: proxy.size.width - 60.0)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(SUColorStandartPalette.secondary1)
+                  SUButtonCapsule(
+                    isActive: .constant(true),
+                    title: "Create new document",
+                    size: CGSize(width: proxy.size.width - 32.0, height: 56.0),
+                    action: workspaceViewModel.createAction
+                  )
+                }
+              } else {
+                ListItems()
+              }
             }
             .padding(16)
             Color.clear

@@ -144,6 +144,7 @@ private extension AccountScreen {
       SaveButton(size: size)
     }
     .frame(maxWidth: .infinity)
+    .padding(.bottom, 16.0)
     .onTapGesture {
       withAnimation {
         nameIsFocused = false
@@ -158,6 +159,7 @@ private extension AccountScreen {
       LogOutButton(size: size)
     }
     .padding(.horizontal, 16.0)
+    .padding(.bottom, 16.0)
   }
 
   func InfoBlock() -> some View {

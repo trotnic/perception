@@ -18,7 +18,10 @@ public final class SUEnvironment: ObservableObject {
   private let factory = SUDepFactory()
 
   public let navigator: Navigator = Navigator()
-  public private(set) lazy var appState: SUAppStateProvider = SUAppState(navigator: navigator)
+  public private(set) lazy var appState: SUAppStateProvider = SUAppState(
+    navigator: navigator,
+    richiManager: factory.richiManager
+  )
 
   public var repository: Repository { factory.repository }
   public var userManager: UserManager { factory.userManager }
@@ -31,4 +34,5 @@ public final class SUEnvironment: ObservableObject {
   public var accountManager: AccountManager { factory.accountManager }
   public var temporaryFileManager: TemporaryFileManager { factory.temporaryFileManager }
   public var textRecognitionManager: TextRecognitionManager { factory.textRecognitionManager }
+  public var richiManager: RichiManager { factory.richiManager }
 }

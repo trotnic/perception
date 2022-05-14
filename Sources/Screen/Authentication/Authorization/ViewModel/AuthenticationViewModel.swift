@@ -15,7 +15,11 @@ public final class AuthenticationViewModel: ObservableObject {
   @Published public var email: String = .empty
   @Published public var password: String = .empty
   @Published public var errorText: String = .empty
+
+  @Published public var isEmailFieldActive: Bool = true
+  @Published public var isPasswordFieldActive: Bool = true
   @Published public var isSignButtonActive: Bool = false
+  @Published public var isSwapButtonActive: Bool = true
 
   @Published public var state: AuthState = .signIn
 
@@ -68,11 +72,23 @@ private extension AuthenticationViewModel {
       .map { [self] _ in
         !(email.isEmpty || password.isEmpty)
       }
+      .combineLatest(appState.isNetworkAvailable)
+      .map { $1 ? $0 : false}
       .assign(to: &$isSignButtonActive)
     $password
       .merge(with: $email)
       .drop { _ in self.errorText.isEmpty }
       .sink { _ in self.errorText = .empty }
+      .store(in: &disposeBag)
+    appState
+      .isNetworkAvailable
+      .removeDuplicates()
+      .sink {
+        self.isEmailFieldActive = $0
+        self.isPasswordFieldActive = $0
+        self.isSwapButtonActive = $0
+        self.errorText = $0 ? .empty : "No internet connection"
+      }
       .store(in: &disposeBag)
   }
 

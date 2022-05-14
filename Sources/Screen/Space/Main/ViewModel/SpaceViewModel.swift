@@ -12,10 +12,19 @@ import SUFoundation
 
 public final class SpaceViewModel: ObservableObject {
 
+  private enum LoadingState {
+    case inProgress
+    case finished
+  }
+
   @Published public private(set) var isContentLoaded: Bool = false
   @Published public private(set) var items: [ListItem] = []
   @Published public private(set) var isSpaceEmpty: Bool = false
+
+  @Published public private(set) var shouldShowPlaceholder: Bool = false
   @Published public private(set) var isLoading: Bool = true
+
+  private let loadingState = CurrentValueSubject<LoadingState, Never>(.inProgress)
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -31,7 +40,7 @@ public final class SpaceViewModel: ObservableObject {
     self.appState = appState
     self.spaceManager = spaceManager
     self.sessionManager = sessionManager
-    
+
     setupBindings()
   }
 }
@@ -77,16 +86,15 @@ public extension SpaceViewModel {
 private extension SpaceViewModel {
 
   func setupBindings() {
-    spaceManager
-      .workspaces
+
+    Publishers
+      .CombineLatest(
+        spaceManager.workspaces,
+        appState.isNetworkAvailable
+      )
       .dropFirst()
-      .handleEvents(receiveOutput: { _ in
-        Task {
-          await MainActor.run {
-            self.isLoading = true
-          }
-        }
-      })
+      .drop(while: { !$1 })
+      .map(\.0)
       .map { workspaces in
         workspaces.enumerated().map { item in
           ListItem(
@@ -97,17 +105,12 @@ private extension SpaceViewModel {
               Badge(title: "\(item.element.membersCount) members", type: .members),
               Badge(title: "\(item.element.documentsCount) documents", type: .documents)
             ],
-            action: { self.selectItem(with: item.element.meta.id) }
+            action: { self.selectItem(id: item.element.meta.id) }
           )
         }
       }
       .handleEvents(receiveOutput: { _ in
-        Task {
-          try await Task.sleep(nanoseconds: 40000000)
-          await MainActor.run {
-            self.isLoading = false
-          }
-        }
+        self.loadingState.value = .finished
       })
       .receive(on: DispatchQueue.main)
       .assign(to: &$items)
@@ -115,10 +118,22 @@ private extension SpaceViewModel {
     $items
       .map(\.isEmpty)
       .removeDuplicates()
-      .assign(to: &$isSpaceEmpty)
+      .combineLatest($isLoading)
+      .map { $0 && !$1 }
+      .assign(to: &$shouldShowPlaceholder)
+
+    loadingState
+      .replaceError(with: .inProgress)
+      .combineLatest(appState.isNetworkAvailable)
+      .map { $1 ? $0 : .inProgress }
+      .receive(on: DispatchQueue.main)
+      .sink {
+        self.isLoading = $0 == .inProgress
+      }
+      .store(in: &disposeBag)
   }
 
-  func selectItem(with id: String) {
+  func selectItem(id: String) {
     appState.change(route: .read(.workspace(SUWorkspaceMeta(id: id))))
   }
 }

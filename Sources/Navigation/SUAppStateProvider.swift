@@ -6,11 +6,12 @@
 //  Copyright © 2022 Star Unicorn. All rights reserved.
 //
 
+import Combine
 import SUFoundation
 
-
-public protocol SUAppStateProvider {
+public protocol SUAppStateProvider: SUManagerRichi {
   func change(route: SUAppScreen)
+  func placeholderScreenAction()
 }
 
 public enum SUAppScreen {
@@ -40,5 +41,8 @@ public enum SUAppScreenContent {
 }
 
 public struct SUAppStateProviderMock: SUAppStateProvider {
+  public var isNetworkAvailable: AnyPublisher<Bool, Never> { Just(true).eraseToAnyPublisher() }
+  public var isNetworkAvailableNow: Bool { true }
   public func change(route: SUAppScreen) {}
+  public func placeholderScreenAction() {}
 }

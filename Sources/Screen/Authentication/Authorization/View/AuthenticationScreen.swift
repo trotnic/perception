@@ -51,6 +51,7 @@ extension AuthenticationScreen: View {
                   text: $viewModel.email,
                   placeholder: "Enter your email"
                 )
+                .disabled(!viewModel.isEmailFieldActive)
                 .focused($focus, equals: .email)
                 .frame(maxWidth: proxy.size.width - 44.0)
                 .onTapGesture {
@@ -60,6 +61,7 @@ extension AuthenticationScreen: View {
                   text: $viewModel.password,
                   placeholder: "Enter your password"
                 )
+                .disabled(!viewModel.isPasswordFieldActive)
                 .focused($focus, equals: .password)
                 .frame(maxWidth: proxy.size.width - 44.0)
                 .onTapGesture {
@@ -98,6 +100,7 @@ extension AuthenticationScreen: View {
           Button(action: viewModel.toggleStateAction) {
             Text(viewModel.state.signButtonTitle)
           }
+          .disabled(!viewModel.isSwapButtonActive)
         }
         .frame(maxWidth: proxy.size.width - 44.0)
       }

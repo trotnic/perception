@@ -53,4 +53,6 @@ public extension SUDepFactory {
   var temporaryFileManager: TemporaryFileManager { TemporaryFileManager(userDefaults: .standard, fileManager: .default) }
 
   var textRecognitionManager: TextRecognitionManager { TextRecognitionManager() }
+
+  var richiManager: RichiManager { RichiManager() }
 }

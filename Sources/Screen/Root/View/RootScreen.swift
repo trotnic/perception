@@ -129,8 +129,19 @@ extension RootScreen: View {
           )
         )
       }
+      .navigationTransition()
     }
-    .onAppear(perform: viewModel.handleUserAuthenticationState)
+    .onAppear(perform: viewModel.startAction)
+    .alert(
+      "Network unavailable",
+      isPresented: $viewModel.showNetworkAlert,
+      actions: {
+        Button("OK", action: viewModel.alertAction)
+      },
+      message: {
+        Text("Check you internet connection")
+      }
+    )
   }
 
   @ViewBuilder func Document() -> some View {
