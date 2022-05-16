@@ -67,27 +67,35 @@ public extension AuthenticationViewModel {
 private extension AuthenticationViewModel {
 
   func setupBindings() {
-    $password
-      .merge(with: $email)
-      .map { [self] _ in
-        !(email.isEmpty || password.isEmpty)
-      }
+    Publishers
+      .CombineLatest(
+        $email,
+        $password
+      )
+      .receive(on: DispatchQueue.global(qos: .userInitiated))
+      .map { $0.0.isValidEmail && !$0.1.isEmpty }
       .combineLatest(appState.isNetworkAvailable)
       .map { $1 ? $0 : false}
+      .receive(on: DispatchQueue.main)
       .assign(to: &$isSignButtonActive)
-    $password
-      .merge(with: $email)
+
+    Publishers
+      .Merge(
+        $password,
+        $email
+      )
       .drop { _ in self.errorText.isEmpty }
       .sink { _ in self.errorText = .empty }
       .store(in: &disposeBag)
+
     appState
       .isNetworkAvailable
       .removeDuplicates()
-      .sink {
-        self.isEmailFieldActive = $0
-        self.isPasswordFieldActive = $0
-        self.isSwapButtonActive = $0
-        self.errorText = $0 ? .empty : "No internet connection"
+      .sink { [self] in
+        isEmailFieldActive = $0
+        isPasswordFieldActive = $0
+        isSwapButtonActive = $0
+        errorText = $0 ? .empty : "No internet connection"
       }
       .store(in: &disposeBag)
   }

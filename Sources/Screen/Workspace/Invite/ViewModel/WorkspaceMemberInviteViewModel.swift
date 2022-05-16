@@ -12,12 +12,12 @@ import SUFoundation
 
 public final class WorkspaceMemberInviteViewModel: ObservableObject {
 
-    @Published public var email: String = .empty
-    @Published public var isInviteButtonActive: Bool = false
+  @Published public var email: String = .empty
+  @Published public var isInviteButtonActive: Bool = false
 
-    private let appState: SUAppStateProvider
-    private let inviteManager: SUManagerInvite
-    private let workspaceMeta: SUWorkspaceMeta
+  private let appState: SUAppStateProvider
+  private let inviteManager: SUManagerInvite
+  private let workspaceMeta: SUWorkspaceMeta
 
   public init(
     appState: SUAppStateProvider,
@@ -27,7 +27,7 @@ public final class WorkspaceMemberInviteViewModel: ObservableObject {
     self.appState = appState
     self.inviteManager = inviteManager
     self.workspaceMeta = workspaceMeta
-    
+
     setupBindings()
   }
 }
@@ -36,34 +36,35 @@ public final class WorkspaceMemberInviteViewModel: ObservableObject {
 
 public extension WorkspaceMemberInviteViewModel {
 
-    func inviteAction() {
-        Task {
-            do {
-                try await inviteManager.inviteUser(
-                  with: email,
-                  in: workspaceMeta.id
-                )
-            } catch {
-                // TODO: Error handling
-            }
-        }
+  func inviteAction() {
+    Task {
+      do {
+        try await inviteManager.inviteUser(
+          with: email,
+          in: workspaceMeta.id
+        )
+      } catch {
+        // TODO: Error handling
+      }
     }
+  }
 
-    func backAction() {
-        appState.change(route: .back)
-    }
+  func backAction() {
+    appState.change(route: .back)
+  }
 }
 
 // MARK: - Private interface
 
 private extension WorkspaceMemberInviteViewModel {
 
-    // TODO: 25 characters check
-    func setupBindings() {
-        $email
-            .map(\.isEmpty)
-            .removeDuplicates()
-            .map(!)
-            .assign(to: &$isInviteButtonActive)
-    }
+  // TODO: 25 characters check
+  func setupBindings() {
+    $email
+      .receive(on: DispatchQueue.global(qos: .userInitiated))
+      .map { $0.isValidEmail }
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .assign(to: &$isInviteButtonActive)
+  }
 }

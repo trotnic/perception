@@ -59,9 +59,7 @@ let project = Project(
       product: .app,
       bundleId: "com.staruco.perception",
       deploymentTarget: .macOS(targetVersion: "12.0"),
-      infoPlist: .extendingDefault(
-        with: infoPlist
-      ),
+      infoPlist: .default,
       sources: [
         "Sources/**",
       ],
