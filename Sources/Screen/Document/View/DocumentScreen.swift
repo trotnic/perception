@@ -16,16 +16,23 @@ import AppKit
 #endif
 
 struct DocumentScreen {
+
   struct ImageIdentifiable: Identifiable {
     let id = UUID()
     let image: Image
+  }
+
+  enum InputItem {
+    case emoji
+    case title
   }
 
   @StateObject var documentViewModel: DocumentViewModel
   @StateObject var settingsViewModel: ToolbarSettingsViewModel
 
   @State private var isToolbarExpanded: Bool = false
-  @FocusState private var textCanvasFocus
+
+  @FocusState private var focusNode: InputItem?
 
   @State private var tileFrame: CGRect = .zero
   @State private var toolbarFrame: CGRect = .zero
@@ -43,111 +50,115 @@ struct DocumentScreen {
 extension DocumentScreen: View {
 
   var body: some View {
-    GeometryReader { proxy in
-      SUColorStandartPalette.background
-        .edgesIgnoringSafeArea(.all)
-      VStack(spacing: 8.0) {
-        NavigationBar()
-        ContentView()
-      }
-      .blur(radius: isToolbarExpanded ? 2.0 : 0.0)
-      .overlay {
-        if isToolbarShown {
-          HStack(alignment: .bottom) {
-            Toolbar()
-              .background {
-                GeometryReader { proxy in
-                  SUColorStandartPalette.background
-                    .frame(height: proxy.size.height * 2.0)
-                    .offset(y: -12.0)
-                    .blur(radius: 6.0)
-                    .preference(
-                      key: SUFrameKey.self,
-                      value: proxy.frame(in: .global)
-                    )
-                    .onPreferenceChange(SUFrameKey.self) { frame in
-                      DispatchQueue.main.async {
-                        toolbarFrame = frame
+    NavigationView {
+      GeometryReader { proxy in
+        SUColorStandartPalette.background
+          .edgesIgnoringSafeArea(.all)
+        VStack(spacing: 8.0) {
+          NavigationBar()
+          ContentView()
+        }
+        .blur(radius: isToolbarExpanded ? 2.0 : 0.0)
+        .overlay {
+          if isToolbarShown {
+            HStack(alignment: .bottom) {
+              Toolbar()
+                .background {
+                  GeometryReader { proxy in
+                    SUColorStandartPalette.background
+                      .frame(height: proxy.size.height * 2.0)
+                      .offset(y: -12.0)
+                      .blur(radius: 6.0)
+                      .preference(
+                        key: SUFrameKey.self,
+                        value: proxy.frame(in: .global)
+                      )
+                      .onPreferenceChange(SUFrameKey.self) { frame in
+                        DispatchQueue.main.async {
+                          toolbarFrame = frame
+                        }
                       }
-                    }
+                  }
                 }
-              }
+                .opacity(focusNode == nil ? 1.0 : 0.0)
+            }
+            .frame(
+              maxHeight: .infinity,
+              alignment: .bottom
+            )
+            .padding(.bottom, 10.0)
           }
-          .frame(
-            maxHeight: .infinity,
-            alignment: .bottom
-          )
-          .padding(.bottom, 10.0)
         }
+        .frame(
+          maxWidth: .infinity,
+          maxHeight: .infinity
+        )
       }
-      .frame(
-        maxWidth: .infinity,
-        maxHeight: .infinity
-      )
-    }
-    .onAppear(perform: documentViewModel.start)
-#if os(iOS)
-    .sheet(
-      isPresented: $isImagePickerPresented,
-      onDismiss: {},
-      content: {
-        SUImagePicker(
-          image: .init(
-            get: {
-              nil
-            },
-            set: { image in
-              Task {
-                let data = image?.pngData()
-                await MainActor.run {
-                  documentViewModel.insertImageAction(data: data)
+      .onAppear(perform: documentViewModel.start)
+  #if os(iOS)
+      .sheet(
+        isPresented: $isImagePickerPresented,
+        onDismiss: {},
+        content: {
+          SUImagePicker(
+            image: .init(
+              get: {
+                nil
+              },
+              set: { image in
+                Task {
+                  let data = image?.pngData()
+                  await MainActor.run {
+                    documentViewModel.insertImageAction(data: data)
+                  }
                 }
               }
-            }
+            )
           )
-        )
-      }
-    )
-    .sheet(
-      isPresented: $isTextFromImagePickerPresented,
-      onDismiss: {},
-      content: {
-        SUImagePicker(
-          image: .init(
-            get: {
-              nil
-            },
-            set: { image in
-              Task {
-                guard let data = image?.pngData() else { return }
-                documentViewModel.startTextFromImageRecognition(data: data)
-              }
-            }
-          )
-        )
-      }
-    )
-    .fullScreenCover(
-      isPresented: $isDocumentScanPresented,
-      onDismiss: {},
-      content: {
-        SUDocumentScan { scans in
-          scans
-            .compactMap { $0.pngData() }
-            .forEach(documentViewModel.insertImageAction(data:))
         }
-      }
-    )
-    .fullScreenCover(
-      item: $detailImage,
-      onDismiss: {
-        detailImage = nil
-      },
-      content: {
-        SUImageContainer(image: $0.image)
-      }
-    )
-#endif
+      )
+      .sheet(
+        isPresented: $isTextFromImagePickerPresented,
+        onDismiss: {},
+        content: {
+          SUImagePicker(
+            image: .init(
+              get: {
+                nil
+              },
+              set: { image in
+                Task {
+                  guard let data = image?.pngData() else { return }
+                  documentViewModel.startTextFromImageRecognition(data: data)
+                }
+              }
+            )
+          )
+        }
+      )
+      .fullScreenCover(
+        isPresented: $isDocumentScanPresented,
+        onDismiss: {},
+        content: {
+          SUDocumentScan { scans in
+            scans
+              .compactMap { $0.pngData() }
+              .forEach(documentViewModel.insertImageAction(data:))
+          }
+        }
+      )
+      .fullScreenCover(
+        item: $detailImage,
+        onDismiss: {
+          detailImage = nil
+        },
+        content: {
+          SUImageContainer(image: $0.image)
+        }
+      )
+  #endif
+      .navigationBarHidden(true)
+    }
   }
 }
 
@@ -187,9 +198,6 @@ private extension DocumentScreen {
       }
     }
     .padding(.top, 16)
-    .onTapGesture {
-      textCanvasFocus = false
-    }
   }
 
   func ContentView() -> some View {
@@ -229,18 +237,36 @@ private extension DocumentScreen {
       HStack {
         SUButtonEmoji(
           text: $documentViewModel.emoji,
-          commit: {}
+          commit: {},
+          onStart: {}
         )
           .frame(width: 28.0, height: 28.0)
+          .focused($focusNode, equals: .emoji)
         Spacer()
       }
-      TextField(String.empty, text: $documentViewModel.title)
+      TextField(
+        String.empty,
+        text: $documentViewModel.title
+      )
         .textFieldStyle(PlainTextFieldStyle())
         .font(.custom("Comfortaa", size: 36.0).bold())
         .frame(maxWidth: .infinity, alignment: .leading)
+        .focused($focusNode, equals: .title)
+        .toolbar {
+          ToolbarItemGroup(placement: .keyboard) {
+            HStack {
+              Spacer()
+              Button {
+                focusNode = nil
+              } label: {
+                Image(systemName: "keyboard.chevron.compact.down")
+              }
+            }
+          }
+        }
     }
     .padding(.vertical, 16.0)
-    .padding(.horizontal, 24.0)
+    .padding(.horizontal, 16.0)
     .background(SUColorStandartPalette.tile)
     .cornerRadius(20.0)
     .padding(.horizontal, 16.0)

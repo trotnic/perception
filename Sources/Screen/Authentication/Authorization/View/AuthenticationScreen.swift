@@ -12,99 +12,122 @@ import SUDesign
 
 struct AuthenticationScreen {
 
-  enum FieldSelection {
+  enum InputItem {
     case email
     case password
   }
 
   @StateObject var viewModel: AuthenticationViewModel
-  @FocusState var focus: FieldSelection?
+  @FocusState var focusNode: InputItem?
 }
 
 extension AuthenticationScreen: View {
 
   var body: some View {
-    GeometryReader { proxy in
-      SUColorStandartPalette.background
-        .ignoresSafeArea()
-      VStack(
-        spacing: proxy.size.height * 0.274
-      ) {
+    NavigationView {
+      GeometryReader { proxy in
+        SUColorStandartPalette.background
+          .ignoresSafeArea()
         VStack(
-          alignment: .center,
-          spacing: 64.0
+          spacing: proxy.size.height * 0.274
         ) {
-          Text(viewModel.state.signButtonTitle)
-            .font(.custom("Cofmortaa", size: 36.0).weight(.medium))
-            .foregroundColor(SUColorStandartPalette.text)
           VStack(
-            spacing: 24.0
+            alignment: .center,
+            spacing: 64.0
           ) {
+            Text(viewModel.state.signButtonTitle)
+              .font(.custom("Cofmortaa", size: 36.0).weight(.medium))
+              .foregroundColor(SUColorStandartPalette.text)
             VStack(
-              alignment: .leading,
-              spacing: 8.0
+              spacing: 24.0
             ) {
               VStack(
-                spacing: 24.0
+                alignment: .leading,
+                spacing: 8.0
               ) {
-                SUTextFieldCapsule(
-                  text: $viewModel.email,
-                  placeholder: "Enter your email"
-                )
-                .disabled(!viewModel.isEmailFieldActive)
-                .focused($focus, equals: .email)
-                .frame(maxWidth: proxy.size.width - 44.0)
-                .onTapGesture {
-                  focus = .email
-                }
-                SUSecureTextFieldCapsule(
-                  text: $viewModel.password,
-                  placeholder: "Enter your password"
-                )
-                .disabled(!viewModel.isPasswordFieldActive)
-                .focused($focus, equals: .password)
-                .frame(maxWidth: proxy.size.width - 44.0)
-                .onTapGesture {
-                  focus = .password
-                }
+                Fields()
+                Text(viewModel.errorText)
+                  .font(.custom("Cofmortaa", size: 14.0).bold())
+                  .foregroundColor(SUColorStandartPalette.destructive)
+                  .padding(.leading, 8.0)
+                  .opacity(viewModel.errorText.isEmpty ? 0.0 : 1.0)
+                  .frame(height: 16.0)
               }
-#if os(iOS)
-              .textInputAutocapitalization(.never)
-#endif
-              Text(viewModel.errorText)
-                .font(.custom("Cofmortaa", size: 14.0).bold())
-                .foregroundColor(SUColorStandartPalette.destructive)
-                .padding(.leading, 8.0)
-                .opacity(viewModel.errorText.isEmpty ? 0.0 : 1.0)
-                .frame(height: 16.0)
+              SUButtonCapsule(
+                isActive: $viewModel.isSignButtonActive,
+                title: viewModel.state.signButtonTitle,
+                size: CGSize(
+                  width: proxy.size.width - 40.0,
+                  height: 56.0
+                ),
+                action: viewModel.signButtonAction
+              )
             }
-            SUButtonCapsule(
-              isActive: $viewModel.isSignButtonActive,
-              title: viewModel.state.signButtonTitle,
-              size: CGSize(
-                width: proxy.size.width - 40.0,
-                height: 56.0
-              ),
-              action: viewModel.signButtonAction
-            )
           }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, proxy.size.height * 0.16)
-        
-        HStack(
-          spacing: 16.0
-        ) {
-          Text(viewModel.state.changeStateButtonDescription)
-            .foregroundColor(SUColorStandartPalette.secondary1)
-          Button(action: viewModel.toggleStateAction) {
-            Text(viewModel.state.signButtonTitle)
+          .frame(maxWidth: .infinity)
+          .padding(.top, proxy.size.height * 0.16)
+          
+          HStack(
+            spacing: 16.0
+          ) {
+            Text(viewModel.state.changeStateButtonDescription)
+              .foregroundColor(SUColorStandartPalette.secondary1)
+            Button(action: viewModel.toggleStateAction) {
+              Text(viewModel.state.signButtonTitle)
+            }
+            .disabled(!viewModel.isSwapButtonActive)
           }
-          .disabled(!viewModel.isSwapButtonActive)
+          .frame(maxWidth: .infinity)
+          .padding(.horizontal, 22.0)
         }
-        .frame(maxWidth: proxy.size.width - 44.0)
+      }
+      .navigationBarHidden(true)
+    }
+  }
+}
+
+private extension AuthenticationScreen {
+
+  func Fields() -> some View {
+    VStack(spacing: 24.0) {
+      SUTextFieldCapsule(
+        text: $viewModel.email,
+        placeholder: "Enter your email"
+      )
+      .disabled(!viewModel.isEmailFieldActive)
+      .focused($focusNode, equals: .email)
+      .frame(maxWidth: .infinity)
+      .padding(.horizontal, 22.0)
+      .onTapGesture {
+        focusNode = .email
+      }
+      SUSecureTextFieldCapsule(
+        text: $viewModel.password,
+        placeholder: "Enter your password"
+      )
+      .disabled(!viewModel.isPasswordFieldActive)
+      .focused($focusNode, equals: .password)
+      .frame(maxWidth: .infinity)
+      .padding(.horizontal, 22.0)
+      .onTapGesture {
+        focusNode = .password
       }
     }
+#if os(iOS)
+    .textInputAutocapitalization(.never)
+    .toolbar {
+      ToolbarItemGroup(placement: .keyboard) {
+        HStack {
+          Spacer()
+          Button {
+            focusNode = nil
+          } label: {
+            Image(systemName: "keyboard.chevron.compact.down")
+          }
+        }
+      }
+    }
+#endif
   }
 }
 
@@ -137,6 +160,8 @@ extension AuthenticationViewModel.AuthState {
     }
   }
 }
+
+// MARK: - Preview
 
 struct AuthorizationScreen_Previews: PreviewProvider {
   static let viewModel = AuthenticationViewModel(

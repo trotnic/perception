@@ -10,7 +10,7 @@
 import UIKit
 import SwiftUI
 
-public class EmojiTextField: UITextField {
+public final class EmojiTextField: UITextField {
 
   // required for iOS 13
   override public var textInputContextIdentifier: String? { "" }
@@ -38,10 +38,10 @@ public class EmojiTextField: UITextField {
         object: nil
       )
   }
-  
+
   @objc func inputModeDidChange(_ notification: Notification) {
     guard isFirstResponder else { return }
-    
+
     DispatchQueue.main.async { [weak self] in
       self?.reloadInputViews()
     }
@@ -49,40 +49,55 @@ public class EmojiTextField: UITextField {
 }
 
 public struct SUEmojiTextField: UIViewRepresentable {
-  
+
   @Binding private var text: String
   private let commitCallback: () -> Void
-  
+  private let onFinish: () -> Void
+
   public init(
     text: Binding<String>,
-    commit: @escaping () -> Void
+    commit: @escaping () -> Void,
+    onFinish: @escaping() -> Void
   ) {
     _text = text
     commitCallback = commit
+    self.onFinish = onFinish
   }
-  
+
   public func makeCoordinator() -> Coordinator {
     Coordinator(text: $text, commit: commitCallback)
   }
-  
+
   public func makeUIView(context: Context) -> UITextField {
-    let view = EmojiTextField()
-    
-    view.translatesAutoresizingMaskIntoConstraints = false
-    view.delegate = context.coordinator
-    view.text = text
-    view.textAlignment = .center
-    
-    return view
+    let textField = EmojiTextField()
+
+    textField.translatesAutoresizingMaskIntoConstraints = false
+    textField.delegate = context.coordinator
+    textField.text = text
+    textField.textAlignment = .center
+
+    let toolbar = UIToolbar()
+    let closeButton = UIBarButtonItem(
+      image: UIImage(systemName: "keyboard.chevron.compact.down"),
+      callback: onFinish
+    )
+    toolbar.items = [
+      UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+      closeButton
+    ]
+    toolbar.sizeToFit()
+    textField.inputAccessoryView = toolbar
+
+    return textField
   }
-  
+
   public func updateUIView(_ uiView: UITextField, context: Context) {}
-  
+
   public final class Coordinator: NSObject, UITextFieldDelegate {
-    
+
     @Binding private var text: String
     private let commitCallback: () -> Void
-    
+
     init(
       text: Binding<String>,
       commit: @escaping () -> Void
@@ -90,11 +105,11 @@ public struct SUEmojiTextField: UIViewRepresentable {
       _text = text
       commitCallback = commit
     }
-    
+
     public func textFieldShouldClear(_ textField: UITextField) -> Bool {
       true
     }
-    
+
     public func textFieldDidChangeSelection(_ textField: UITextField) {
       textField.text.flatMap { text in
         if text.count > 1,
@@ -106,7 +121,7 @@ public struct SUEmojiTextField: UIViewRepresentable {
         }
       }
     }
-    
+
     public func textFieldDidEndEditing(_ textField: UITextField) {
       commitCallback()
     }
@@ -118,7 +133,11 @@ struct SUEmojiTextField_Previews: PreviewProvider {
     ZStack {
       SUColorStandartPalette.background
         .ignoresSafeArea()
-      SUEmojiTextField(text: .constant("❤️"), commit: {})
+      SUEmojiTextField(
+        text: .constant("❤️"),
+        commit: {},
+        onFinish: {}
+      )
         .background(.blue.opacity(0.2))
         .frame(width: 24.0, height: 24.0)
         .padding(.zero)
