@@ -26,7 +26,7 @@ public final class WorkspaceMemberViewModel: ObservableObject {
     self.appState = appState
     self.memberManager = memberManager
     self.workspaceMeta = workspaceMeta
-    
+
     setupBindings()
   }
 }
@@ -49,22 +49,22 @@ public extension WorkspaceMemberViewModel {
 }
 
 public extension WorkspaceMemberViewModel {
-  
+
   struct ListItem: Identifiable {
     public let id = UUID()
     public let index: Int
     public let title: String
     public let imagePath: String?
     public let badges: [Badge]
+    public let removeAction: () -> Void
   }
 
   struct Badge: Identifiable {
-    
     public enum BadgeType {
       case role
       case permission
     }
-    
+
     public let id = UUID()
     public let title: String
     public let type: BadgeType
@@ -78,7 +78,7 @@ private extension WorkspaceMemberViewModel {
       .members
       .receive(on: DispatchQueue.main)
       .map { items in
-        items.enumerated().map { item in
+        items.enumerated().map { [self] item in
           ListItem(
             index: item.offset,
             title: item.element.user.username,
@@ -92,7 +92,14 @@ private extension WorkspaceMemberViewModel {
                 title: item.element.permission.title,
                 type: .permission
               )
-            ]
+            ],
+            removeAction: {
+              self.memberManager
+                .removeMember(
+                  userId: item.element.user.meta.id,
+                  workspaceId: self.workspaceMeta.id
+                )
+            }
           )
         }
       }

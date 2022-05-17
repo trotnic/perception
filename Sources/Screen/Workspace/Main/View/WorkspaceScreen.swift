@@ -287,7 +287,7 @@ extension WorkspaceViewModel.ActionItem {
     }
   }
 
-  var rowType: SUToolbar.Row  {
+  var rowType: SUToolbar.Row {
     switch self.type {
       case .create:
         return .actionNext
@@ -327,30 +327,27 @@ struct WorkspaceScreen_Previews: PreviewProvider {
 
   static let workspaceViewModel = WorkspaceViewModel(
     appState: SUAppStateProviderMock(),
-    workspaceManager: SUManagerWorkspaceMock(meta: {
-      .empty
-    }, title: {
-      "Title"
-    }, documents: {
-      [
-        SUShallowDocument(
-          meta: SUDocumentMeta(
-            id: "#1",
-            workspaceId: "w1"
-          ),
-          title: "Document #1",
-          emoji: "❤️",
-          dateCreated: Date.now
-        ),
-      ]
-    }, members: {
-      [
-        SUShallowWorkspaceMember(
-          id: .empty,
-          permission: 0
-        )
-      ]
-    }),
+    workspaceManager: SUManagerWorkspaceMock(
+      meta: {
+        .empty
+      }, title: {
+        "Title"
+      }, documents: {
+        [
+          SUShallowDocument(
+            meta: SUDocumentMeta(
+              id: "#1",
+              workspaceId: "w1"
+            ),
+            title: "Document #1",
+            emoji: "❤️",
+            dateCreated: Date.now
+          )
+        ]
+      }, membersCount: {
+        1
+      }
+    ),
     sessionManager: SUManagerUserPrimeMock(),
     workspaceMeta: .empty
   )

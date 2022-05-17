@@ -38,6 +38,7 @@ public protocol Repository {
 
   func members(workspaceId: String, callback: @escaping ([SUWorkspaceMember]) -> Void)
   func sendInvite(email: String, workspaceId: String) async throws
+  func removeMember(userId: String, workspaceId: String) async throws
 
   func startListenInvites(userId: String, callback: @escaping ([SUShallowWorkspace]) -> Void) async throws
   func confirmInvite(userId: String, workspaceId: String)

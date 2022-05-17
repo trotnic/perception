@@ -11,27 +11,30 @@ import Foundation
 
 public protocol SUManagerMember {
 
-    var members: CurrentValueSubject<[SUWorkspaceMember], Never> { get }
+  var members: CurrentValueSubject<[SUWorkspaceMember], Never> { get }
 
-    func members(id workspaceId: String)
+  func members(id workspaceId: String)
+  func removeMember(userId: String, workspaceId: String)
 }
 
 public struct SUManagerMemberMock {
 
-    public private(set) var members = CurrentValueSubject<[SUWorkspaceMember], Never>([])
+  public private(set) var members = CurrentValueSubject<[SUWorkspaceMember], Never>([])
 
-    private let membersCallback: () -> [SUWorkspaceMember]
+  private let membersCallback: () -> [SUWorkspaceMember]
 
-    public init(
-        members: @escaping () -> [SUWorkspaceMember] = { [] }
-    ) {
-        membersCallback = members
-    }
+  public init(
+    members: @escaping () -> [SUWorkspaceMember] = { [] }
+  ) {
+    membersCallback = members
+  }
 }
 
 extension SUManagerMemberMock: SUManagerMember {
 
-    public func members(id workspaceId: String) {
-        self.members.value = membersCallback()
-    }
+  public func members(id workspaceId: String) {
+    members.value = membersCallback()
+  }
+
+  public func removeMember(userId: String, workspaceId: String) {}
 }

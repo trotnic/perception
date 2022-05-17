@@ -28,7 +28,7 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
     private let ownerIdCallback: () -> String
     private let titleCallback: () -> String
     private let documentsCallback: () -> [SUShallowDocument]
-    private let membersCallback: () -> [SUShallowWorkspaceMember]
+    private let membersCountCallback: () -> Int
     private let emojiCallback: () -> String
 
     public var workspace = CurrentValueSubject<SUWorkspace, Never>(.empty)
@@ -38,14 +38,14 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
         ownerId: @escaping () -> String = { .empty },
         title: @escaping () -> String = { .empty },
         documents: @escaping () -> [SUShallowDocument] = { [] },
-        members: @escaping () -> [SUShallowWorkspaceMember] = { [] },
+        membersCount: @escaping () -> Int = { .zero },
         emoji: @escaping () -> String = { "" }
     ) {
         self.metaCallback = meta
         self.ownerIdCallback = ownerId
         self.titleCallback = title
         self.documentsCallback = documents
-        self.membersCallback = members
+        self.membersCountCallback = membersCount
         self.emojiCallback = emoji
     }
 
@@ -55,7 +55,7 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
             ownerId: ownerIdCallback(),
             title: titleCallback(),
             documents: documentsCallback(),
-            members: membersCallback(),
+            membersCount: membersCountCallback(),
             emoji: emojiCallback(),
             dateCreated: .now
         )
@@ -67,7 +67,7 @@ public final class SUManagerWorkspaceMock: SUManagerWorkspace {
             ownerId: ownerIdCallback(),
             title: titleCallback(),
             documents: documentsCallback(),
-            members: membersCallback(),
+            membersCount: membersCountCallback(),
             emoji: emojiCallback(),
             dateCreated: .now
         )

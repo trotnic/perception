@@ -21,7 +21,7 @@ struct WorkspaceMemberScreen {
 extension WorkspaceMemberScreen: View {
 
   var body: some View {
-    GeometryReader { proxy in
+    GeometryReader { _ in
       SUColorStandartPalette.background
         .edgesIgnoringSafeArea(.all)
       VStack {
@@ -96,7 +96,7 @@ private extension WorkspaceMemberScreen {
         .contextMenu {
           Group {
             Button(role: .destructive) {
-              
+              item.removeAction()
             } label: {
               Label("Kick member", systemImage: "person.badge.minus")
             }
@@ -156,7 +156,7 @@ extension WorkspaceMemberViewModel.Badge.BadgeType {
 }
 
 struct WorkspaceMemberScreen_Previews: PreviewProvider {
-  
+
   static let viewModel = WorkspaceMemberViewModel(
     appState: SUAppStateProviderMock(),
     memberManager: SUManagerMemberMock(
@@ -177,7 +177,7 @@ struct WorkspaceMemberScreen_Previews: PreviewProvider {
     ),
     workspaceMeta: .empty
   )
-  
+
   static var previews: some View {
     WorkspaceMemberScreen(
       viewModel: viewModel

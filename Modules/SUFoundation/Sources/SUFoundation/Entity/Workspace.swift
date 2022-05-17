@@ -50,7 +50,7 @@ public struct SUWorkspace {
   public let ownerId: String
   public let title: String
   public let documents: [SUShallowDocument]
-  public let members: [SUShallowWorkspaceMember]
+  public let membersCount: Int
   public let emoji: String
   public let dateCreated: Date
 
@@ -59,7 +59,7 @@ public struct SUWorkspace {
     ownerId: String,
     title: String,
     documents: [SUShallowDocument],
-    members: [SUShallowWorkspaceMember],
+    membersCount: Int,
     emoji: String,
     dateCreated: Date
   ) {
@@ -67,7 +67,7 @@ public struct SUWorkspace {
     self.ownerId = ownerId
     self.title = title
     self.documents = documents
-    self.members = members
+    self.membersCount = membersCount
     self.emoji = emoji
     self.dateCreated = dateCreated
   }
@@ -80,7 +80,7 @@ public extension SUWorkspace {
     ownerId: .empty,
     title: .empty,
     documents: [],
-    members: [],
+    membersCount: .zero,
     emoji: .empty,
     dateCreated: .now
   )
@@ -116,7 +116,7 @@ public enum SUWorkspacePermission: Int {
   case admin
   case editor
   case reader
-  
+
   public var title: String {
     switch self {
       case .admin:

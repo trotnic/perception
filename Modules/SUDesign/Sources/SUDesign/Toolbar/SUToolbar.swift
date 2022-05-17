@@ -139,6 +139,7 @@ private extension SUToolbar {
                   .font(.system(size: 24.0).weight(.regular))
               }
             }
+            .contentShape(Rectangle())
             .foregroundColor(SUColorStandartPalette.text)
             .padding(.horizontal, 8.0)
             .padding(.vertical, 16.0)

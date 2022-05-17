@@ -12,7 +12,6 @@ import FirebaseStorage
 import FirebaseCore
 import FirebaseFirestore
 
-
 /*
 Workspace:
     - id: String
@@ -40,82 +39,118 @@ Document:
 
 public final class FireRepository {
 
-    enum FetchError: Error {
-        case cantLoadList
-        case cantLoadEntity
-        case cantCreate
-    }
+  enum FetchError: Error {
+    case cantLoadList
+    case cantLoadEntity
+    case cantCreate
+  }
 
-    private let firestore: Firestore
-    private let storage: Storage
-    private var listeners: [String : ListenerRegistration] = [:]
+  private let firestore: Firestore
+  private let storage: Storage
+  private var listeners: [String: ListenerRegistration] = [:]
 
-    public init(
-        firestore: Firestore,
-        storage: Storage
-    ) {
-        self.firestore = firestore
-        self.storage = storage
-    }
+  public init(
+    firestore: Firestore,
+    storage: Storage
+  ) {
+    self.firestore = firestore
+    self.storage = storage
+  }
 
-    deinit {
-        listeners.forEach { $0.value.remove() }
-    }
+  deinit {
+    listeners.forEach { $0.value.remove() }
+  }
 }
 
 // MARK: - Private interface
 
 private extension FireRepository {
 
-    func users() -> CollectionReference {
-        firestore
-            .collection("users")
-    }
+  func users() -> CollectionReference {
+    firestore
+      .collection("users")
+  }
 
-    func workspaces() -> CollectionReference {
-        firestore
-            .collection("workspaces")
-    }
+  func workspaces() -> CollectionReference {
+    firestore
+      .collection("workspaces")
+  }
 
-    func documents() -> CollectionReference {
-        firestore
-            .collection("documents")
-    }
+  func documents() -> CollectionReference {
+    firestore
+      .collection("documents")
+  }
 
-    func userRef(id: String) -> DocumentReference {
-        users()
-            .document(id)
-    }
+  func userRef(id: String) -> DocumentReference {
+    users()
+      .document(id)
+  }
 
-    func userRef(email: String) async throws -> DocumentReference? {
-        try await users()
-            .whereField("email", isEqualTo: email)
-            .getDocuments()
-            .documents
-            .first?
-            .reference
-    }
+  func userRef(email: String) async throws -> DocumentReference? {
+    try await users()
+      .whereField("email", isEqualTo: email)
+      .getDocuments()
+      .documents
+      .first?
+      .reference
+  }
 
-    func workspaceRef(id: String) -> DocumentReference {
-        workspaces()
-            .document(id)
-    }
+  func workspaceRef(id: String) -> DocumentReference {
+    workspaces()
+      .document(id)
+  }
 
-    func documentRef(id: String) -> DocumentReference {
-        documents()
-            .document(id)
-    }
+  func documentRef(id: String) -> DocumentReference {
+    documents()
+      .document(id)
+  }
 }
 
 extension FireRepository: Repository {
 
     // MARK: - Space
 
-    public func workspaces(for userId: String) async throws -> [SUShallowWorkspace] {
-        guard let workspaces = try await userRef(id: userId).getDocument().get("workspaces") as? Array<String> else { throw FetchError.cantLoadList }
+  public func workspaces(
+    for userId: String
+  ) async throws -> [SUShallowWorkspace] {
+    guard let workspaces = try await userRef(id: userId).getDocument().get("workspaces") as? [String] else { throw FetchError.cantLoadList }
 
-        let result: [SUShallowWorkspace] = try await workspaces.asyncCompactMap { workspaceId in
-            let workspace = try await workspaceRef(id: workspaceId).getDocument()
+    let result: [SUShallowWorkspace] = try await workspaces.asyncCompactMap { workspaceId in
+      let workspace = try await workspaceRef(id: workspaceId).getDocument()
+
+      guard let title = workspace.get("title") as? String else { return nil }
+      guard let emoji = workspace.get("emoji") as? String else { return nil }
+      guard let documentsCount = workspace.get("documentsCount") as? Int else { return nil }
+      guard let membersCount = workspace.get("membersCount") as? Int else { return nil }
+
+      return SUShallowWorkspace(
+        meta: SUWorkspaceMeta(
+          id: workspaceId
+        ),
+        title: title,
+        emoji: emoji,
+        documentsCount: documentsCount,
+        membersCount: membersCount
+      )
+    }
+    return result
+  }
+
+  public func startListenSpace(
+    userId: String,
+    callback: @escaping ([SUShallowWorkspace]) -> Void
+  ) async throws {
+    guard
+      let userWorkspaces = try await userRef(id: userId).getDocument().get("workspaces") as? [String],
+      !userWorkspaces.isEmpty
+    else { throw FetchError.cantLoadList }
+
+    let listener = workspaces()
+      .whereField("id", in: userWorkspaces)
+      .addSnapshotListener { snapshot, _ in
+        guard let workspaces = snapshot?.documents else { return }
+        Task {
+          let result: [SUShallowWorkspace] = await workspaces.asyncCompactMap { workspace in
 
             guard let title = workspace.get("title") as? String else { return nil }
             guard let emoji = workspace.get("emoji") as? String else { return nil }
@@ -123,245 +158,223 @@ extension FireRepository: Repository {
             guard let membersCount = workspace.get("membersCount") as? Int else { return nil }
 
             return SUShallowWorkspace(
-                meta: SUWorkspaceMeta(
-                    id: workspaceId
-                ),
-                title: title,
-                emoji: emoji,
-                documentsCount: documentsCount,
-                membersCount: membersCount
+              meta: SUWorkspaceMeta(
+                id: workspace.documentID
+              ),
+              title: title,
+              emoji: emoji,
+              documentsCount: documentsCount,
+              membersCount: membersCount
             )
+          }
+          callback(result)
         }
-        return result
-    }
+      }
+    listeners[userId] = listener
+  }
 
-    public func startListenSpace(
-        userId: String,
-        callback: @escaping ([SUShallowWorkspace]) -> Void
-    ) async throws {
-        guard let userWorkspaces = try await userRef(id: userId).getDocument().get("workspaces") as? Array<String> else { throw FetchError.cantLoadList }
+  // MARK: - Workspace
 
-        let listener = workspaces()
-            .whereField("id", in: userWorkspaces)
-            .addSnapshotListener { snapshot, error in
-                guard let workspaces = snapshot?.documents else { return }
-                Task {
-                    let result: [SUShallowWorkspace] = await workspaces.asyncCompactMap { workspace in
+  public func createWorkspace(
+    with title: String,
+    userId: String
+  ) async throws -> String {
+    let workspaceRef = workspaces()
+      .document()
+    let userRef = userRef(id: userId)
+    try await _ = [
+      workspaceRef
+        .setData([
+          "id": workspaceRef.documentID,
+          "ownerId": userId,
+          "documents": [],
+          "members": [
+            userId: [
+              "id": userId,
+              "permission": 0
+            ]
+          ],
+          "title": title,
+          "emoji": "",
+          "dateCreated": Timestamp(date: Date.now),
+          "documentsCount": 0,
+          "membersCount": 1
+        ]),
+      userRef
+        .updateData([
+          "workspaces": FieldValue.arrayUnion([workspaceRef.documentID])
+        ])
+    ]
+    return workspaceRef.documentID
+  }
 
-                        guard let title = workspace.get("title") as? String else { return nil }
-                        guard let emoji = workspace.get("emoji") as? String else { return nil }
-                        guard let documentsCount = workspace.get("documentsCount") as? Int else { return nil }
-                        guard let membersCount = workspace.get("membersCount") as? Int else { return nil }
+  public func startListenWorkspace(
+    workspaceId: String,
+    callback: @escaping (SUWorkspace) -> Void
+  ) {
+    let listener = workspaceRef(id: workspaceId)
+      .addSnapshotListener { [self] workspaceSnapshot, _ in
+        guard let workspaceSnapshot = workspaceSnapshot else { return }
+        Task {
+          do {
+            guard let ownerId = workspaceSnapshot.get("ownerId") as? String else { throw FetchError.cantLoadEntity }
+            guard let documents = workspaceSnapshot.get("documents") as? [String] else { throw FetchError.cantLoadEntity }
+            guard let membersCount = workspaceSnapshot.get("membersCount") as? Int else { throw FetchError.cantLoadEntity }
+//            guard let members = workspaceSnapshot.get("members") as? [String: [String: Any]] else { throw FetchError.cantLoadEntity }
+            guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantLoadEntity }
+            guard let emoji = workspaceSnapshot.get("emoji") as? String else { throw FetchError.cantLoadEntity }
+            guard let dateCreated = workspaceSnapshot.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
 
-                        return SUShallowWorkspace(
-                            meta: SUWorkspaceMeta(
-                                id: workspace.documentID
-                            ),
-                            title: title,
-                            emoji: emoji,
-                            documentsCount: documentsCount,
-                            membersCount: membersCount
-                        )
-                    }
-                    callback(result)
-                }
-            }
-        listeners[userId] = listener
-    }
+            let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
+              let document = try await documentRef(id: documentId).getDocument()
 
-    // MARK: - Workspace
+              guard let title = document.get("title") as? String else { return nil }
+              guard let emoji = document.get("emoji") as? String else { return nil }
+              guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
 
-    public func createWorkspace(with title: String, userId: String) async throws -> String {
-        let workspaceRef = workspaces()
-            .document()
-        let userRef = userRef(id: userId)
-        try await _ = [
-            workspaceRef
-                .setData([
-                    "id" : workspaceRef.documentID,
-                    "ownerId" : userId,
-                    "documents" : [],
-                    "members" : [
-                        [
-                            "id" : userId,
-                            "permission" : 0
-                        ]
-                    ],
-                    "title" : title,
-                    "emoji" : "",
-                    "dateCreated" : Timestamp(date: Date.now),
-                    "documentsCount" : 0,
-                    "membersCount" : 1
-                ]),
-            userRef
-                .updateData([
-                    "workspaces" : FieldValue.arrayUnion([workspaceRef.documentID])
-                ])
-        ]
-        return workspaceRef.documentID
-    }
-
-    public func startListenWorkspace(
-        workspaceId: String,
-        callback: @escaping (SUWorkspace) -> Void
-    ) {
-        let listener = workspaceRef(id: workspaceId)
-            .addSnapshotListener { [self] workspaceSnapshot, error in
-                guard let workspaceSnapshot = workspaceSnapshot else { return }
-                Task {
-                    do {
-                        guard let ownerId = workspaceSnapshot.get("ownerId") as? String else { throw FetchError.cantLoadEntity }
-                        guard let documents = workspaceSnapshot.get("documents") as? Array<String> else { throw FetchError.cantLoadEntity }
-                        guard let members = workspaceSnapshot.get("members") as? Array<[String: Any]> else { throw FetchError.cantLoadEntity }
-                        guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantLoadEntity }
-                        guard let emoji = workspaceSnapshot.get("emoji") as? String else { throw FetchError.cantLoadEntity }
-                        guard let dateCreated = workspaceSnapshot.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
-                        
-                        let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
-                            let document = try await documentRef(id: documentId).getDocument()
-                            
-                            guard let title = document.get("title") as? String else { return nil }
-                            guard let emoji = document.get("emoji") as? String else { return nil }
-                            guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
-                            
-                            return SUShallowDocument(
-                                meta: SUDocumentMeta(
-                                    id: documentId,
-                                    workspaceId: workspaceId
-                                ),
-                                title: title,
-                                emoji: emoji,
-                                dateCreated: dateCreated.dateValue()
-                            )
-                        }
-                        let workspaceMembers: [SUShallowWorkspaceMember] = members.compactMap { memberDict in
-                            
-                            guard let id = memberDict["id"] as? String else { return nil }
-                            guard let permission = memberDict["permission"] as? Int else { return nil }
-                            
-                            return SUShallowWorkspaceMember(
-                                id: id,
-                                permission: permission
-                            )
-                        }
-                        let workspace = SUWorkspace(
-                            meta: SUWorkspaceMeta(
-                                id: workspaceId
-                            ),
-                            ownerId: ownerId,
-                            title: title,
-                            documents: shallowDocuments,
-                            members: workspaceMembers,
-                            emoji: emoji,
-                            dateCreated: dateCreated.dateValue()
-                        )
-                        callback(workspace)
-                    } catch {
-                        
-                    }
-                }
-            }
-        listeners[workspaceId] = listener
-    }
-
-    public func workspace(with id: String) async throws -> SUWorkspace {
-        let workspaceSnapshot = try await workspaceRef(id: id).getDocument()
-
-        guard let ownerId = workspaceSnapshot.get("ownerId") as? String else { throw FetchError.cantLoadEntity }
-        guard let documents = workspaceSnapshot.get("documents") as? Array<String> else { throw FetchError.cantLoadEntity }
-        guard let members = workspaceSnapshot.get("members") as? Array<[String: Any]> else { throw FetchError.cantLoadEntity }
-        guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantLoadEntity }
-        guard let emoji = workspaceSnapshot.get("emoji") as? String else { throw FetchError.cantLoadEntity }
-        guard let dateCreated = workspaceSnapshot.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
-
-        let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
-            let document = try await documentRef(id: documentId).getDocument()
-
-            guard let title = document.get("title") as? String else { return nil }
-            guard let emoji = document.get("emoji") as? String else { return nil }
-            guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
-
-            return SUShallowDocument(
+              return SUShallowDocument(
                 meta: SUDocumentMeta(
-                    id: documentId,
-                    workspaceId: id
+                  id: documentId,
+                  workspaceId: workspaceId
                 ),
                 title: title,
                 emoji: emoji,
                 dateCreated: dateCreated.dateValue()
+              )
+            }
+//            let workspaceMembers: [SUShallowWorkspaceMember] = members.compactMap { memberDict in
+//
+//              guard let id = memberDict["id"] as? String else { return nil }
+//              guard let permission = memberDict["permission"] as? Int else { return nil }
+//
+//              return SUShallowWorkspaceMember(
+//                id: id,
+//                permission: permission
+//              )
+//            }
+            let workspace = SUWorkspace(
+              meta: SUWorkspaceMeta(
+                id: workspaceId
+              ),
+              ownerId: ownerId,
+              title: title,
+              documents: shallowDocuments,
+              membersCount: membersCount,
+              emoji: emoji,
+              dateCreated: dateCreated.dateValue()
             )
+            callback(workspace)
+          } catch {
+
+          }
         }
-        let workspaceMembers: [SUShallowWorkspaceMember] = members.compactMap { memberDict in
+      }
+    listeners[workspaceId] = listener
+  }
 
-            guard let id = memberDict["id"] as? String else { return nil }
-            guard let permission = memberDict["permission"] as? Int else { return nil }
+  public func workspace(with id: String) async throws -> SUWorkspace {
+    let workspaceSnapshot = try await workspaceRef(id: id).getDocument()
 
-            return SUShallowWorkspaceMember(
-                id: id,
-                permission: permission
-            )
-        }
-        return SUWorkspace(
-            meta: SUWorkspaceMeta(
-                id: id
-            ),
-            ownerId: ownerId,
-            title: title,
-            documents: shallowDocuments,
-            members: workspaceMembers,
-            emoji: emoji,
-            dateCreated: dateCreated.dateValue()
-        )
+    guard let ownerId = workspaceSnapshot.get("ownerId") as? String else { throw FetchError.cantLoadEntity }
+    guard let documents = workspaceSnapshot.get("documents") as? [String] else { throw FetchError.cantLoadEntity }
+    guard let membersCount = workspaceSnapshot.get("membersCount") as? Int else { throw FetchError.cantLoadEntity }
+//    guard let members = workspaceSnapshot.get("members") as? Array<[String: Any]> else { throw FetchError.cantLoadEntity }
+    guard let title = workspaceSnapshot.get("title") as? String else { throw FetchError.cantLoadEntity }
+    guard let emoji = workspaceSnapshot.get("emoji") as? String else { throw FetchError.cantLoadEntity }
+    guard let dateCreated = workspaceSnapshot.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
+
+    let shallowDocuments: [SUShallowDocument] = try await documents.asyncCompactMap { documentId in
+      let document = try await documentRef(id: documentId).getDocument()
+
+      guard let title = document.get("title") as? String else { return nil }
+      guard let emoji = document.get("emoji") as? String else { return nil }
+      guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
+
+      return SUShallowDocument(
+        meta: SUDocumentMeta(
+          id: documentId,
+          workspaceId: id
+        ),
+        title: title,
+        emoji: emoji,
+        dateCreated: dateCreated.dateValue()
+      )
+    }
+//    let workspaceMembers: [SUShallowWorkspaceMember] = members.compactMap { memberDict in
+//      
+//      guard let id = memberDict["id"] as? String else { return nil }
+//      guard let permission = memberDict["permission"] as? Int else { return nil }
+//      
+//      return SUShallowWorkspaceMember(
+//        id: id,
+//        permission: permission
+//      )
+//    }
+    return SUWorkspace(
+      meta: SUWorkspaceMeta(
+        id: id
+      ),
+      ownerId: ownerId,
+      title: title,
+      documents: shallowDocuments,
+      membersCount: membersCount,
+      emoji: emoji,
+      dateCreated: dateCreated.dateValue()
+    )
+  }
+
+  public func updateWorkspace(id: String, title: String) async throws {
+    let workspaceRef = workspaceRef(id: id)
+
+      try await workspaceRef
+        .updateData([
+          "title": title
+        ])
     }
 
-    public func updateWorkspace(id: String, title: String) async throws {
-        let workspaceRef = workspaceRef(id: id)
+  public func updateWorkspace(id: String, emoji: String) async throws {
+    let workspaceRef = workspaceRef(id: id)
 
-        try await workspaceRef
-            .updateData([
-                "title" : title
-            ])
-    }
+    try await workspaceRef
+      .updateData([
+        "emoji": emoji
+      ])
+  }
 
-    public func updateWorkspace(id: String, emoji: String) async throws {
-        let workspaceRef = workspaceRef(id: id)
+  public func deleteWorkspace(id: String, userId: String) async throws {
+    let userRef = userRef(id: userId)
+    let workspaceRef = workspaceRef(id: id)
 
-        try await workspaceRef
-            .updateData([
-                "emoji" : emoji
-            ])
-    }
+    try await _ = [
+      userRef
+        .updateData([
+          "workspaces": FieldValue.arrayRemove([id])
+        ]),
+      documents()
+        .whereField("workspaceId", isEqualTo: id)
+        .getDocuments()
+        .documents
+        .forEach { $0.reference.delete() },
+      workspaceRef.delete()
+    ]
+  }
 
-    public func deleteWorkspace(id: String, userId: String) async throws {
-        let userRef = userRef(id: userId)
-        let workspaceRef = workspaceRef(id: id)
+  // MARK: - Members
 
-        try await _ = [
-            userRef
-                .updateData([
-                    "workspaces" : FieldValue.arrayRemove([id])
-                ]),
-            documents()
-                .whereField("workspaceId", isEqualTo: id)
-                .getDocuments()
-                .documents
-                .forEach { $0.reference.delete() },
-            workspaceRef.delete()
-        ]
-    }
-
-  public func members(workspaceId: String, callback: @escaping ([SUWorkspaceMember]) -> Void) {
+  public func members(
+    workspaceId: String,
+    callback: @escaping ([SUWorkspaceMember]) -> Void
+  ) {
     let listener = workspaceRef(id: workspaceId)
-      .addSnapshotListener { snapshot, error in
+      .addSnapshotListener { snapshot, _ in
         Task {
           do {
             guard let snapshot = snapshot else { return }
-            guard let members = snapshot.get("members") as? Array<[String: Any]> else { return }
+            guard let members = snapshot.get("members") as? [String: [String: Any]] else { return }
 
-            let workspaceMembers: [SUWorkspaceMember] = try await members.asyncCompactMap { memberDict in
-
-              guard let id = memberDict["id"] as? String else { return nil }
-              guard let permission = memberDict["permission"] as? Int else { return nil }
+            let workspaceMembers: [SUWorkspaceMember] = try await members.asyncCompactMap { raw in
+              guard let id = raw.value["id"] as? String else { return nil }
+              guard let permission = raw.value["permission"] as? Int else { return nil }
 
               let userRef = try await self.userRef(id: id).getDocument()
 
@@ -382,26 +395,58 @@ extension FireRepository: Repository {
                 permission: SUWorkspacePermission(rawValue: permission)!
               )
             }
+//            let workspaceMembers: [SUWorkspaceMember] = try await members.asyncCompactMap { memberDict in
+//
+//              guard let id = memberDict["id"] as? String else { return nil }
+//              guard let permission = memberDict["permission"] as? Int else { return nil }
+//
+//              let userRef = try await self.userRef(id: id).getDocument()
+//
+//              guard let username = userRef.get("username") as? String else { return nil }
+//              guard let email = userRef.get("email") as? String else { return nil }
+//              let avatarPath = userRef.get("avatarPath") as? String
+//
+//              return SUWorkspaceMember(
+//                user: SUUser(
+//                  meta: SUUserMeta(
+//                    id: id
+//                  ),
+//                  username: username,
+//                  email: email,
+//                  invites: [],
+//                  avatarPath: avatarPath
+//                ),
+//                permission: SUWorkspacePermission(rawValue: permission)!
+//              )
+//            }
 
             callback(workspaceMembers)
           } catch {
-            
+
           }
         }
       }
     listeners[workspaceId] = listener
   }
 
-  // MARK: - Invites
-
-  public func sendInvite(email: String, workspaceId: String) async throws {
-    guard let userRef = try await userRef(email: email) else { throw FetchError.cantLoadEntity }
-
-    try await userRef
-      .updateData([
-        "invites" : FieldValue.arrayUnion([workspaceId])
-      ])
+  public func removeMember(
+    userId: String,
+    workspaceId: String
+  ) async throws {
+    _ = try await [
+      workspaceRef(id: workspaceId)
+        .updateData([
+          "members.\(userId)": FieldValue.delete(),
+          "membersCount": FieldValue.increment(Int64(-1))
+        ]),
+      userRef(id: userId)
+        .updateData([
+          "workspaces": FieldValue.arrayRemove([workspaceId])
+        ])
+    ]
   }
+
+  // MARK: - Invites
 
   public func startListenInvites(
     userId: String,
@@ -416,16 +461,16 @@ extension FireRepository: Repository {
 
     let listener = workspaces()
       .whereField("id", in: invites)
-      .addSnapshotListener { snapshot, error in
+      .addSnapshotListener { snapshot, _ in
         guard let workspaces = snapshot?.documents else { return }
         Task {
           let result: [SUShallowWorkspace] = await workspaces.asyncCompactMap { workspace in
-            
+
             guard let title = workspace.get("title") as? String else { return nil }
             guard let emoji = workspace.get("emoji") as? String else { return nil }
             guard let documentsCount = workspace.get("documentsCount") as? Int else { return nil }
             guard let membersCount = workspace.get("membersCount") as? Int else { return nil }
-            
+
             return SUShallowWorkspace(
               meta: SUWorkspaceMeta(
                 id: workspace.documentID
@@ -442,6 +487,18 @@ extension FireRepository: Repository {
     listeners[userId] = listener
   }
 
+  public func sendInvite(
+    email: String,
+    workspaceId: String
+  ) async throws {
+    guard let userRef = try await userRef(email: email) else { throw FetchError.cantLoadEntity }
+
+    try await userRef
+      .updateData([
+        "invites": FieldValue.arrayUnion([workspaceId])
+      ])
+  }
+
   public func confirmInvite(
     userId: String,
     workspaceId: String
@@ -449,16 +506,14 @@ extension FireRepository: Repository {
     let userRef = userRef(id: userId)
     let workspaceRef = workspaceRef(id: workspaceId)
     userRef.updateData([
-      "invites" : FieldValue.arrayRemove([workspaceId]),
-      "workspaces" : FieldValue.arrayUnion([workspaceId])
+      "invites": FieldValue.arrayRemove([workspaceId]),
+      "workspaces": FieldValue.arrayUnion([workspaceId])
     ])
     workspaceRef.updateData([
-      "members" : FieldValue.arrayUnion([
-        [
-          "id" : userId,
-          "permission" : 1
-        ]
-      ]),
+      "members.\(userId)": [
+        "id": userId,
+        "permission": 1
+      ],
       "membersCount": FieldValue.increment(Int64(1))
     ])
   }
@@ -469,7 +524,7 @@ extension FireRepository: Repository {
   ) {
     let userRef = userRef(id: userId)
     userRef.updateData([
-      "invites" : FieldValue.arrayRemove([workspaceId])
+      "invites": FieldValue.arrayRemove([workspaceId])
     ])
   }
 
@@ -480,7 +535,7 @@ extension FireRepository: Repository {
     callback: @escaping (SUDocument) -> Void
   ) {
     let listener = documentRef(id: documentId)
-      .addSnapshotListener { document, error in
+      .addSnapshotListener { document, _ in
         guard let document = document else { return }
 
         Task {
@@ -530,13 +585,13 @@ extension FireRepository: Repository {
 
       try await _ = [
         documentRef.setData([
-          "id" : documentRef.documentID,
-          "workspaceId" : workspaceId,
-          "ownerId" : userId,
-          "title" : title,
-          "emoji" : "",
-          "dateCreated" : Timestamp(date: Date.now),
-          "dateEdited" : Timestamp(date: Date.now),
+          "id": documentRef.documentID,
+          "workspaceId": workspaceId,
+          "ownerId": userId,
+          "title": title,
+          "emoji": "",
+          "dateCreated": Timestamp(date: Date.now),
+          "dateEdited": Timestamp(date: Date.now),
           "items": [
             "id": [
               "id": "default"
@@ -545,8 +600,8 @@ extension FireRepository: Repository {
         ]),
         workspaceRef
           .updateData([
-            "documents" : FieldValue.arrayUnion([documentRef.documentID]),
-            "documentsCount" : FieldValue.increment(Int64(1))
+            "documents": FieldValue.arrayUnion([documentRef.documentID]),
+            "documentsCount": FieldValue.increment(Int64(1))
           ])
       ]
 
@@ -562,14 +617,14 @@ extension FireRepository: Repository {
     guard let emoji = document.get("emoji") as? String else { throw FetchError.cantLoadEntity }
     guard let dateCreated = document.get("dateCreated") as? Timestamp else { throw FetchError.cantLoadEntity }
     guard let dateEdited = document.get("dateEdited") as? Timestamp else { throw FetchError.cantLoadEntity }
-    guard let items = document.get("items") as? Array<[String: [String: Any]]> else { throw FetchError.cantLoadEntity }
+    guard let items = document.get("items") as? [[String: [String: Any]]] else { throw FetchError.cantLoadEntity }
 
     let blocks: [SUDocumentBlock] = items.flatMap(\.values).compactMap { raw in
       guard let id = raw["id"] as? String else { return nil }
       guard let type = raw["type"] as? Int else { return nil }
       guard let content = raw["content"] as? String else { return nil }
       guard let dateCreated = raw["dateCreated"] as? Timestamp else { return nil }
-      
+
       return SUDocumentBlock(
         id: id,
         type: .init(type: type),
@@ -630,14 +685,14 @@ extension FireRepository: Repository {
       // Metadata contains file metadata such as size, content-type.
       let size = metadata.size
       // You can also access to download URL after upload.
-      fileRef.downloadURL { (url, error) in
+      fileRef.downloadURL { (url, _) in
         guard let downloadURL = url else {
           // Uh-oh, an error occurred!
           return
         }
         self.documentRef(id: id)
           .updateData([
-            "items.\(imageId)":[
+            "items.\(imageId)": [
               "id": imageId,
               "type": 1,
               "content": downloadURL.absoluteString,
@@ -656,7 +711,7 @@ extension FireRepository: Repository {
     let textId = Date.now.description
     try await documentRef(id: id)
       .updateData([
-        "items.\(textId)":[
+        "items.\(textId)": [
           "id": textId,
           "type": 0,
           "content": text,
@@ -681,8 +736,8 @@ extension FireRepository: Repository {
   ) async throws {
     try await documentRef(id: id)
       .updateData([
-        "title" : title,
-        "dateEdited" : Timestamp(date: Date.now)
+        "title": title,
+        "dateEdited": Timestamp(date: Date.now)
       ])
   }
 
@@ -692,8 +747,8 @@ extension FireRepository: Repository {
   ) async throws {
     try await documentRef(id: id)
       .updateData([
-        "emoji" : emoji,
-        "dateEdited" : Timestamp(date: Date.now)
+        "emoji": emoji,
+        "dateEdited": Timestamp(date: Date.now)
       ])
   }
 
@@ -710,7 +765,7 @@ extension FireRepository: Repository {
 //    guard let items = document.get("items") as? Array<[String: Any]> else { throw FetchError.cantLoadEntity }
 //      .getDocument()
 //      .get("items")
-    
+
 //      .updateData([
 //        "items"
 //      ])
@@ -719,20 +774,20 @@ extension FireRepository: Repository {
   public func updateDocument(with id: String, text: String) async throws {
     try await documentRef(id: id)
       .updateData([
-        "text" : text,
-        "dateEdited" : Timestamp(date: Date.now)
+        "text": text,
+        "dateEdited": Timestamp(date: Date.now)
       ])
   }
 
   public func deleteDocument(with id: String, in workspaceId: String) async throws {
     let workspaceRef = workspaceRef(id: workspaceId)
     let documentRef = documentRef(id: id)
-    
+
     try await _ = [
       workspaceRef
         .updateData([
-          "documents" : FieldValue.arrayRemove([id]),
-          "documentsCount" : FieldValue.increment(Int64(-1))
+          "documents": FieldValue.arrayRemove([id]),
+          "documentsCount": FieldValue.increment(Int64(-1))
         ]),
       documentRef.delete()
     ]
@@ -758,26 +813,29 @@ extension FireRepository: Repository {
       )
     }
 
-  public func updateUser(with id: String, name: String) async throws {
+  public func updateUser(
+    with id: String,
+    name: String
+  ) async throws {
     try await userRef(id: id)
       .updateData([
         "username": name
       ])
   }
 
-    public func startListenUser(
-        with id: String,
-        callback: @escaping (SUUser) -> Void
-    ) {
-        let listener = userRef(id: id)
-            .addSnapshotListener { snapshot, error in
-                guard let username = snapshot?.get("username") as? String else { return }
-                guard let email = snapshot?.get("email") as? String else { return }
-                let avatarPath = snapshot?.get("avatarPath") as? String
-                callback(SUUser(meta: SUUserMeta(id: id), username: username, email: email, invites: [], avatarPath: avatarPath))
-            }
-        listeners[id] = listener
-    }
+  public func startListenUser(
+    with id: String,
+    callback: @escaping (SUUser) -> Void
+  ) {
+    let listener = userRef(id: id)
+      .addSnapshotListener { snapshot, _ in
+        guard let username = snapshot?.get("username") as? String else { return }
+        guard let email = snapshot?.get("email") as? String else { return }
+        let avatarPath = snapshot?.get("avatarPath") as? String
+        callback(SUUser(meta: SUUserMeta(id: id), username: username, email: email, invites: [], avatarPath: avatarPath))
+      }
+    listeners[id] = listener
+  }
 
   public func uploadImage(
     data: Data,
@@ -793,7 +851,7 @@ extension FireRepository: Repository {
       // Metadata contains file metadata such as size, content-type.
       let size = metadata.size
       // You can also access to download URL after upload.
-      fileRef.downloadURL { (url, error) in
+      fileRef.downloadURL { (url, _) in
         guard let downloadURL = url else {
           // Uh-oh, an error occurred!
           return
@@ -816,55 +874,55 @@ extension FireRepository: Repository {
 
 public extension FireRepository {
 
-    func searchWorkspaces(for userId: String, with name: String) async throws -> [SUShallowWorkspace] {
-        return try await workspaces()
-            .whereField("ownerId", isEqualTo: userId)
-            .whereField("title", isGreaterThanOrEqualTo: name)
-            .whereField("title", isLessThan: name.appending("\u{f8ff}"))
-            .getDocuments()
-            .documents
-            .asyncCompactMap { document in
-                guard let workspaceId = document.get("id") as? String else { return nil }
-                guard let title = document.get("title") as? String else { return nil }
-                guard let emoji = document.get("emoji") as? String else { return nil }
-                guard let documentsCount = document.get("documentsCount") as? Int else { return nil }
-                guard let membersCount = document.get("membersCount") as? Int else { return nil }
+  func searchWorkspaces(for userId: String, with name: String) async throws -> [SUShallowWorkspace] {
+    try await workspaces()
+      .whereField("ownerId", isEqualTo: userId)
+      .whereField("title", isGreaterThanOrEqualTo: name)
+      .whereField("title", isLessThan: name.appending("\u{f8ff}"))
+      .getDocuments()
+      .documents
+      .asyncCompactMap { document in
+        guard let workspaceId = document.get("id") as? String else { return nil }
+        guard let title = document.get("title") as? String else { return nil }
+        guard let emoji = document.get("emoji") as? String else { return nil }
+        guard let documentsCount = document.get("documentsCount") as? Int else { return nil }
+        guard let membersCount = document.get("membersCount") as? Int else { return nil }
 
-                return SUShallowWorkspace(
-                    meta: SUWorkspaceMeta(
-                        id: workspaceId
-                    ),
-                    title: title,
-                    emoji: emoji,
-                    documentsCount: documentsCount,
-                    membersCount: membersCount
-                )
-            }
-    }
+        return SUShallowWorkspace(
+          meta: SUWorkspaceMeta(
+            id: workspaceId
+          ),
+          title: title,
+          emoji: emoji,
+          documentsCount: documentsCount,
+          membersCount: membersCount
+        )
+      }
+  }
 
-    func searchDocuments(for userId: String, with name: String) async throws -> [SUShallowDocument] {
-        return try await documents()
-            .whereField("ownerId", isEqualTo: userId)
-            .whereField("title", isGreaterThanOrEqualTo: name)
-            .whereField("title", isLessThan: name.appending("\u{f8ff}"))
-            .getDocuments()
-            .documents
-            .asyncCompactMap { document in
-                guard let documentId = document.get("id") as? String else { return nil }
-                guard let workspaceId = document.get("workspaceId") as? String else { return nil }
-                guard let title = document.get("title") as? String else { return nil }
-                guard let emoji = document.get("emoji") as? String else { return nil }
-                guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
+  func searchDocuments(for userId: String, with name: String) async throws -> [SUShallowDocument] {
+    try await documents()
+      .whereField("ownerId", isEqualTo: userId)
+      .whereField("title", isGreaterThanOrEqualTo: name)
+      .whereField("title", isLessThan: name.appending("\u{f8ff}"))
+      .getDocuments()
+      .documents
+      .asyncCompactMap { document in
+        guard let documentId = document.get("id") as? String else { return nil }
+        guard let workspaceId = document.get("workspaceId") as? String else { return nil }
+        guard let title = document.get("title") as? String else { return nil }
+        guard let emoji = document.get("emoji") as? String else { return nil }
+        guard let dateCreated = document.get("dateCreated") as? Timestamp else { return nil }
 
-                return SUShallowDocument(
-                    meta: SUDocumentMeta(
-                        id: documentId,
-                        workspaceId: workspaceId
-                    ),
-                    title: title,
-                    emoji: emoji,
-                    dateCreated: dateCreated.dateValue()
-                )
-            }
-    }
+        return SUShallowDocument(
+          meta: SUDocumentMeta(
+            id: documentId,
+            workspaceId: workspaceId
+          ),
+          title: title,
+          emoji: emoji,
+          dateCreated: dateCreated.dateValue()
+        )
+      }
+  }
 }

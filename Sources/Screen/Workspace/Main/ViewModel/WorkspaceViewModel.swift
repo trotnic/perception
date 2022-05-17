@@ -116,7 +116,7 @@ private extension WorkspaceViewModel {
       .sink { [self] workspace in
         title = workspace.title
         emoji = workspace.emoji
-        membersCount = workspace.members.count
+        membersCount = workspace.membersCount
         documentsCount = workspace.documents.count
         viewItems = workspace.documents.map { document in
           ListItem(
@@ -146,7 +146,7 @@ private extension WorkspaceViewModel {
               title: value
             )
           } catch {
-            
+
           }
         }
       }

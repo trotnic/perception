@@ -11,30 +11,42 @@ import Foundation
 
 public final class MemberManager: ObservableObject {
 
-    public var members = CurrentValueSubject<[SUWorkspaceMember], Never>([])
+  public var members = CurrentValueSubject<[SUWorkspaceMember], Never>([])
 
-    private let repository: Repository
+  private let repository: Repository
 
-    public init(
-        repository: Repository
-    ) {
-        self.repository = repository
-    }
+  public init(
+    repository: Repository
+  ) {
+    self.repository = repository
+  }
 
-    deinit {
-//        repository.stopListen(with: workspaceMeta.id)
-    }
+  deinit {
+//    repository.stopListen(with: workspaceMeta.id)
+  }
 }
 
 extension MemberManager: SUManagerMember {
 
-    public func members(id workspaceId: String) {
-        repository.members(workspaceId: workspaceId) { members in
-            Task {
-                await MainActor.run {
-                    self.members.value = members
-                }
-            }
+  public func members(id workspaceId: String) {
+    repository.members(workspaceId: workspaceId) { members in
+      Task {
+        await MainActor.run {
+          self.members.value = members
         }
+      }
     }
+  }
+
+  public func removeMember(
+    userId: String,
+    workspaceId: String
+  ) {
+    Task {
+      try await repository.removeMember(
+        userId: userId,
+        workspaceId: workspaceId
+      )
+    }
+  }
 }

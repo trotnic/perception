@@ -47,7 +47,9 @@ public extension WorkspaceCreateViewModel {
         workspaceId: workspaceMeta.id,
         userId: sessionManager.userId
       )
-      appState.change(route: .read(.document(SUDocumentMeta(id: documentId, workspaceId: workspaceMeta.id))))
+      await MainActor.run {
+        appState.change(route: .read(.document(SUDocumentMeta(id: documentId, workspaceId: workspaceMeta.id))))
+      }
     }
   }
 }
