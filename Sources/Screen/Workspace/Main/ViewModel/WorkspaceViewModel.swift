@@ -18,8 +18,9 @@ public final class WorkspaceViewModel: ObservableObject {
   @Published public private(set) var membersCount: Int = .zero
   @Published public private(set) var documentsCount: Int = .zero
 
+  @Published public private(set) var isDeleteActionAvailable: Bool = false
+
   @Published public private(set) var viewItems: [ListItem] = []
-  @Published public private(set) var actions: [ActionItem] = []
 
   private let appState: SUAppStateProvider
   private let workspaceManager: SUManagerWorkspace
@@ -58,6 +59,18 @@ public extension WorkspaceViewModel {
   func createAction() {
     appState.change(route: .create)
   }
+
+  func deleteAction() {
+    Task {
+      try await workspaceManager.deleteWorkspace(
+        id: workspaceMeta.id,
+        userId: sessionManager.userId
+      )
+      await MainActor.run {
+        appState.change(route: .space)
+      }
+    }
+  }
 }
 
 // MARK: - Public types
@@ -92,17 +105,6 @@ public extension WorkspaceViewModel {
     public let title: String
     public let type: BadgeType
   }
-
-  struct ActionItem: Identifiable {
-    public enum ActionType {
-      case create
-      case delete
-    }
-
-    public let id = UUID()
-    public let type: ActionType
-    public let action: () -> Void
-  }
 }
 
 // MARK: - Private interface
@@ -131,7 +133,6 @@ private extension WorkspaceViewModel {
             action: self.selectItem(id: document.meta.id)
           )
         }
-        configureView()
       }
       .store(in: &disposeBag)
 
@@ -168,24 +169,11 @@ private extension WorkspaceViewModel {
         }
       }
       .store(in: &disposeBag)
-  }
 
-  func configureView() {
-    var actions: [ActionItem] = [
-      ActionItem(
-        type: .create,
-        action: createAction
-      )
-    ]
-    if workspaceManager.workspace.value.ownerId == sessionManager.userId {
-      actions.append(
-        ActionItem(
-          type: .delete,
-          action: deleteAction
-        )
-      )
-    }
-    self.actions = actions
+    workspaceManager
+      .workspace
+      .map { [self] workspace in workspace.ownerId == sessionManager.userId }
+      .assign(to: &$isDeleteActionAvailable)
   }
 }
 
@@ -199,17 +187,5 @@ private extension WorkspaceViewModel {
       workspaceId: workspaceMeta.id
     )
     appState.change(route: .read(.document(documentMeta)))
-  }
-
-  func deleteAction() {
-    Task {
-      try await workspaceManager.deleteWorkspace(
-        id: workspaceMeta.id,
-        userId: sessionManager.userId
-      )
-      await MainActor.run {
-        appState.change(route: .space)
-      }
-    }
   }
 }

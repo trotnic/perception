@@ -16,6 +16,16 @@ public struct SUToolbar {
   public enum Row {
     case actionNext
     case action
+    case destructive
+
+    var foregroundColor: Color {
+      switch self {
+        case .actionNext, .action:
+          return SUColorStandartPalette.text
+        case .destructive:
+          return SUColorStandartPalette.destructive
+      }
+    }
   }
 
   // swiftlint:disable nesting
@@ -119,59 +129,62 @@ private extension SUToolbar {
   }
 
   func ExpandedBar() -> some View {
-    ZStack {
-      VStack(spacing: 16.0) {
-        VStack {
-          ForEach(selectedTwins) { twin in
-            HStack {
-              HStack(spacing: 12.0) {
-                Image(systemName: twin.icon)
-                  .font(.system(size: 24.0).weight(.regular))
-                Text(twin.title)
-                  .font(.system(size: 16.0).weight(.bold))
-              }
-              Spacer()
-              switch twin.type {
-              case .action:
+    VStack(spacing: 8.0) {
+      ForEach(selectedTwins) { twin in
+        VStack(spacing: 1.0) {
+          HStack {
+            HStack(spacing: 12.0) {
+              Image(systemName: twin.icon)
+                .font(.system(size: 18.0).weight(.regular))
+              Text(twin.title)
+                .font(.system(size: 14.0).weight(.bold))
+            }
+            Spacer()
+            switch twin.type {
+              case .action, .destructive:
                 EmptyView()
               case .actionNext:
                 Image(systemName: "chevron.right")
-                  .font(.system(size: 24.0).weight(.regular))
-              }
+                  .font(.system(size: 18.0).weight(.regular))
             }
-            .contentShape(Rectangle())
-            .foregroundColor(SUColorStandartPalette.text)
-            .padding(.horizontal, 8.0)
-            .padding(.vertical, 16.0)
-            .onTapGesture(perform: twin.action)
           }
+          .contentShape(Rectangle())
+          .foregroundColor(twin.type.foregroundColor)
+          .padding(.horizontal, 8.0)
+          .padding(.vertical, 12.0)
+          .onTapGesture(perform: twin.action)
+          Rectangle()
+            .fill(SUColorStandartPalette.tile)
+            .frame(height: 1.0)
+            .frame(maxWidth: .infinity)
+            .padding(.leading, 8.0)
         }
       }
-      .padding(16.0)
-      .padding(.top, 8.0)
-      .frame(maxWidth: .infinity)
-      .background {
-        SUColorStandartPalette.background
-          .matchedGeometryEffect(id: "background", in: namespace, isSource: isExpanded)
-      }
-      .mask {
-        RoundedRectangle(cornerRadius: 20.0, style: .continuous)
-          .matchedGeometryEffect(id: "mask", in: namespace, isSource: isExpanded)
-      }
-      .overlay {
-        RoundedRectangle(cornerRadius: 20.0, style: .continuous)
-          .stroke()
-          .fill(.white.opacity(0.04))
-          .matchedGeometryEffect(id: "overlay", in: namespace, isSource: isExpanded)
-      }
-      .shadow(color: .black.opacity(0.18), radius: 6.0, x: 0.0, y: 4.0)
-      .onTapGesture {
-        withAnimation(.easeInOut(duration: Constants.animationDuration)) {
-          isExpanded = false
-        }
-      }
-      .padding(.horizontal, 12.0)
     }
+    .padding(16.0)
+    .padding(.top, 16.0)
+    .frame(maxWidth: .infinity)
+    .background {
+      SUColorStandartPalette.background
+        .matchedGeometryEffect(id: "background", in: namespace, isSource: isExpanded)
+    }
+    .mask {
+      RoundedRectangle(cornerRadius: 20.0, style: .continuous)
+        .matchedGeometryEffect(id: "mask", in: namespace, isSource: isExpanded)
+    }
+    .overlay {
+      RoundedRectangle(cornerRadius: 20.0, style: .continuous)
+        .stroke()
+        .fill(.white.opacity(0.04))
+        .matchedGeometryEffect(id: "overlay", in: namespace, isSource: isExpanded)
+    }
+    .shadow(color: .black.opacity(0.18), radius: 6.0, x: 0.0, y: 4.0)
+    .onTapGesture {
+      withAnimation(.easeInOut(duration: Constants.animationDuration)) {
+        isExpanded = false
+      }
+    }
+    .padding(.horizontal, 12.0)
   }
 
   func UnexpandedBar() -> some View {
@@ -243,8 +256,8 @@ struct SUToolbarContainerPreview: View {
       defaultTwins: {
         [
           SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
-          SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {},
-          SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .actionNext) {}
+          SUToolbar.Item.Twin(icon: "doc", title: "Create document", type: .action) {},
+          SUToolbar.Item.Twin(icon: "trash", title: "Delete document", type: .destructive) {}
         ]
       },
       leftItems: {
@@ -278,7 +291,7 @@ struct SUToolbar_Previews: PreviewProvider {
         .ignoresSafeArea()
       VStack {
         Spacer()
-        SUToolbarContainerPreview()
+        SUToolbarContainerPreview(isExpanded: true)
       }
     }
   }

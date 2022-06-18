@@ -37,6 +37,7 @@ struct DocumentScreen {
   @State private var tileFrame: CGRect = .zero
   @State private var toolbarFrame: CGRect = .zero
 
+  @State private var isDeleteAlertPresented: Bool = false
   @State private var isImagePickerPresented: Bool = false
   @State private var isTextFromImagePickerPresented: Bool = false
   @State private var isDocumentScanPresented: Bool = false
@@ -156,8 +157,14 @@ extension DocumentScreen: View {
           SUImageContainer(image: $0.image)
         }
       )
-  #endif
       .navigationBarHidden(true)
+  #endif
+    }
+    .alert("Are you sure you want to delete this workspace?", isPresented: $isDeleteAlertPresented) {
+      Button("Cancel", role: .cancel) {
+        isDeleteAlertPresented = false
+      }
+      Button("Delete", role: .destructive, action: documentViewModel.deleteAction)
     }
   }
 }
@@ -353,100 +360,124 @@ private extension DocumentScreen {
     }
     .animation(Animation.easeInOut(duration: 0.12))
   }
+}
+
+// MARK: - Toolbar
+
+private extension DocumentScreen {
 
   func Toolbar() -> some View {
     SUToolbar(
       isExpanded: $isToolbarExpanded,
-      defaultTwins: {
-        [
-          SUToolbar.Item.Twin(
-            icon: "trash",
-            title: "Delete document",
-            type: .action,
-            action: documentViewModel.deleteAction
-          )
-        ]
-      },
-      leftItems: {
-        [
-          SUToolbar.Item(
-            icon: "gear",
-            twins: [
-              SUToolbar.Item.Twin(
-                icon: "person",
-                title: "Account",
-                type: .actionNext,
-                action: settingsViewModel.accountAction
-              )
-            ]
-          )
-        ]
-      },
-      rightItems: {
-        [
-          SUToolbar.Item(
-            icon: "link.badge.plus",
-            twins: [
-              SUToolbar.Item.Twin(
-                icon: "photo",
-                title: "Photo",
-                type: .action,
-                action: {
-#if os(iOS)
-                  self.isImagePickerPresented = true
-#endif
-#if os(macOS)
-                  let openPanel = NSOpenPanel()
-                  openPanel.prompt = "Select File"
-                  openPanel.allowsMultipleSelection = false
-                  openPanel.canChooseDirectories = false
-                  openPanel.canCreateDirectories = false
-                  openPanel.canChooseFiles = true
-                  openPanel.allowedContentTypes = [.image]
-                  openPanel.begin { (result) -> Void in
-                    if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
-                      let selectedPath = openPanel.url!.path
-                      print(selectedPath)
-                    }
-                  }
-#endif
-                }
-              ),
-              SUToolbar.Item.Twin(
-                icon: "text.magnifyingglass",
-                title: "Text from a photo",
-                type: .action,
-                action: {
-#if os(iOS)
-                  self.isTextFromImagePickerPresented = true
-#endif
-#if os(macOS)
-                  let openPanel = NSOpenPanel()
-                  openPanel.prompt = "Select File"
-                  openPanel.allowsMultipleSelection = false
-                  openPanel.canChooseDirectories = false
-                  openPanel.canCreateDirectories = false
-                  openPanel.canChooseFiles = true
-                  openPanel.allowedContentTypes = [.image]
-                  openPanel.begin { (result) -> Void in
-                    if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
-                      let selectedPath = openPanel.url!.path
-                      print(selectedPath)
-                    }
-                  }
-#endif
-                }
-              )
-            ] + ToolbarPhoneButtons()
-          )
-        ]
-      }
+      defaultTwins: ToolbarDefaultTwins,
+      leftItems: ToolbarLeftItems,
+      rightItems: ToolbarRightItems
     )
   }
 
-  func ToolbarPhoneButtons() -> [SUToolbar.Item.Twin] {
+  func ToolbarDefaultTwins() -> [SUToolbar.Item.Twin] {
+    [
+      SUToolbar.Item.Twin(
+        icon: "trash",
+        title: "Delete document",
+        type: .destructive,
+        action: {
+          isDeleteAlertPresented = true
+        }
+      )
+    ]
+  }
+
+  func ToolbarLeftItems() -> [SUToolbar.Item] {
+    [
+      SUToolbar.Item(
+        icon: "gear",
+        twins: [
+          SUToolbar.Item.Twin(
+            icon: "person",
+            title: "Account",
+            type: .actionNext,
+            action: settingsViewModel.accountAction
+          )
+        ]
+      ),
+      SUToolbar.Item(
+        icon: "magnifyingglass",
+        twins: [
+          SUToolbar.Item.Twin(
+            icon: "magnifyingglass",
+            title: "Search",
+            type: .actionNext,
+            action: { }
+          )
+        ]
+      )
+    ]
+  }
+
+  func ToolbarRightItems() -> [SUToolbar.Item] {
+    [
+      SUToolbar.Item(
+        icon: "link.badge.plus",
+        twins: [
+          SUToolbar.Item.Twin(
+            icon: "photo",
+            title: "Photo",
+            type: .action,
+            action: {
 #if os(iOS)
-    return [
+              isImagePickerPresented = true
+#endif
+#if os(macOS)
+              let openPanel = NSOpenPanel()
+              openPanel.prompt = "Select File"
+              openPanel.allowsMultipleSelection = false
+              openPanel.canChooseDirectories = false
+              openPanel.canCreateDirectories = false
+              openPanel.canChooseFiles = true
+              openPanel.allowedContentTypes = [.image]
+              openPanel.begin { (result) -> Void in
+                if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
+                  let selectedPath = openPanel.url!.path
+                  print(selectedPath)
+                }
+              }
+#endif
+            }
+          ),
+          SUToolbar.Item.Twin(
+            icon: "text.magnifyingglass",
+            title: "Text from a photo",
+            type: .action,
+            action: {
+#if os(iOS)
+              self.isTextFromImagePickerPresented = true
+#endif
+#if os(macOS)
+              let openPanel = NSOpenPanel()
+              openPanel.prompt = "Select File"
+              openPanel.allowsMultipleSelection = false
+              openPanel.canChooseDirectories = false
+              openPanel.canCreateDirectories = false
+              openPanel.canChooseFiles = true
+              openPanel.allowedContentTypes = [.image]
+              openPanel.begin { (result) -> Void in
+                if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
+                  let selectedPath = openPanel.url!.path
+                  print(selectedPath)
+                }
+              }
+#endif
+            }
+          )
+        ] + ToolbarPhoneSpecificTwins()
+      )
+    ]
+  }
+
+  func ToolbarPhoneSpecificTwins() -> [SUToolbar.Item.Twin] {
+#if os(iOS)
+    [
       SUToolbar.Item.Twin(
         icon: "doc.viewfinder",
         title: "Scan document",
@@ -465,7 +496,7 @@ private extension DocumentScreen {
       )
     ]
 #else
-    return []
+    []
 #endif
   }
 }

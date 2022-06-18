@@ -26,6 +26,8 @@ struct WorkspaceScreen {
 
   @State private var isToolbarExpanded: Bool = false
 
+  @State private var isDeleteAlertPresented: Bool = false
+
   @State private var navbarFrame: CGRect = .zero
   @State private var tileFrame: CGRect = .zero
   @State private var toolbarFrame: CGRect = .zero
@@ -98,7 +100,15 @@ extension WorkspaceScreen: View {
             .opacity(focusNode == nil ? 1.0 : 0.0)
         }
       }
+      #if os(iOS)
       .navigationBarHidden(true)
+      #endif
+    }
+    .alert("Are you sure you want to delete this workspace?", isPresented: $isDeleteAlertPresented) {
+      Button("Cancel", role: .cancel) {
+        isDeleteAlertPresented = false
+      }
+      Button("Delete", role: .destructive, action: workspaceViewModel.deleteAction)
     }
   }
 }
@@ -199,73 +209,6 @@ private extension WorkspaceScreen {
     }
   }
 
-  func Toolbar() -> some View {
-    ZStack {
-      SUColorStandartPalette.background
-        .ignoresSafeArea()
-        .opacity(isToolbarExpanded ? 0.2 : 0.0)
-      HStack {
-        SUToolbar(
-          isExpanded: $isToolbarExpanded,
-          defaultTwins: {
-            workspaceViewModel
-              .actions
-              .map {
-                SUToolbar.Item.Twin(
-                  icon: $0.icon,
-                  title: $0.title,
-                  type: $0.rowType,
-                  action: $0.action
-                )
-              }
-          },
-          leftItems: {
-            [
-              SUToolbar.Item(
-                icon: "gear",
-                twins: [
-                  SUToolbar.Item.Twin(
-                    icon: "person",
-                    title: "Account",
-                    type: .actionNext,
-                    action: settingsViewModel.accountAction
-                  )
-                ]
-              )
-            ]
-          },
-          rightItems: {
-            [
-              SUToolbar.Item(
-                icon: "person.2",
-                twins: [
-                  SUToolbar.Item.Twin(
-                    icon: "person.2",
-                    title: "Members",
-                    type: .actionNext,
-                    action: membersViewModel.membersAction
-                  )
-                ]
-              )
-            ]
-          }
-        )
-          .background {
-            GeometryReader { proxy in
-              SUColorStandartPalette.background
-                .frame(height: proxy.size.height * 2.0)
-                .offset(y: -12.0)
-                .blur(radius: 6.0)
-                .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
-                .onPreferenceChange(SUFrameKey.self) { toolbarFrame = $0 }
-            }
-          }
-      }
-      .frame(maxHeight: .infinity, alignment: .bottom)
-      .padding(.bottom, 10.0)
-    }
-  }
-
   func ListItems() -> some View {
     LazyVGrid(columns: [
       GridItem(.flexible(minimum: .zero, maximum: .infinity))
@@ -290,33 +233,105 @@ private extension WorkspaceScreen {
   }
 }
 
-extension WorkspaceViewModel.ActionItem {
+// MARK: - Toolbar
 
-  var icon: String {
-    switch self.type {
-      case .create:
-        return "doc"
-      case .delete:
-        return "trash"
+private extension WorkspaceScreen {
+
+  func Toolbar() -> some View {
+    ZStack {
+      SUColorStandartPalette.background
+        .ignoresSafeArea()
+        .opacity(isToolbarExpanded ? 0.2 : 0.0)
+      HStack {
+        SUToolbar(
+          isExpanded: $isToolbarExpanded,
+          defaultTwins: ToolbarDefaultTwins,
+          leftItems: ToolbarLeftItems,
+          rightItems: ToolbarRightItems
+        )
+        .background {
+          GeometryReader { proxy in
+            SUColorStandartPalette.background
+              .frame(height: proxy.size.height * 2.0)
+              .offset(y: -12.0)
+              .blur(radius: 6.0)
+              .preference(key: SUFrameKey.self, value: proxy.frame(in: .global))
+              .onPreferenceChange(SUFrameKey.self) { toolbarFrame = $0 }
+          }
+        }
+      }
+      .frame(maxHeight: .infinity, alignment: .bottom)
+      .padding(.bottom, 10.0)
     }
   }
 
-  var title: String {
-    switch self.type {
-      case .create:
-        return "Create document"
-      case .delete:
-        return "Delete workspace"
+  func ToolbarDefaultTwins() -> [SUToolbar.Item.Twin] {
+    var actions: [SUToolbar.Item.Twin] = [
+      .init(
+        icon: "doc",
+        title: "Create document",
+        type: .actionNext,
+        action: workspaceViewModel.createAction
+      )
+    ]
+
+    if workspaceViewModel.isDeleteActionAvailable {
+      actions.append(
+        .init(
+          icon: "trash",
+          title: "Delete workspace",
+          type: .destructive,
+          action: {
+            isDeleteAlertPresented = true
+          }
+        )
+      )
     }
+
+    return actions
   }
 
-  var rowType: SUToolbar.Row {
-    switch self.type {
-      case .create:
-        return .actionNext
-      case .delete:
-        return .action
-    }
+  func ToolbarLeftItems() -> [SUToolbar.Item] {
+    [
+      SUToolbar.Item(
+        icon: "gear",
+        twins: [
+          SUToolbar.Item.Twin(
+            icon: "person",
+            title: "Account",
+            type: .actionNext,
+            action: settingsViewModel.accountAction
+          )
+        ]
+      ),
+      SUToolbar.Item(
+        icon: "magnifyingglass",
+        twins: [
+          SUToolbar.Item.Twin(
+            icon: "magnifyingglass",
+            title: "Search",
+            type: .actionNext,
+            action: { }
+          )
+        ]
+      )
+    ]
+  }
+
+  func ToolbarRightItems() -> [SUToolbar.Item] {
+    [
+      SUToolbar.Item(
+        icon: "person.2",
+        twins: [
+          SUToolbar.Item.Twin(
+            icon: "person.2",
+            title: "Members",
+            type: .actionNext,
+            action: membersViewModel.membersAction
+          )
+        ]
+      )
+    ]
   }
 }
 

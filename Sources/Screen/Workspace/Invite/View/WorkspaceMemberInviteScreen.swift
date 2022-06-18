@@ -14,7 +14,7 @@ public struct WorkspaceMemberInviteScreen {
 
   @StateObject var viewModel: WorkspaceMemberInviteViewModel
 
-  @FocusState private var textFieldFocus
+  @FocusState private var texgtFieldFocus
 }
 
 extension WorkspaceMemberInviteScreen: View {
@@ -94,12 +94,15 @@ private extension WorkspaceMemberInviteScreen {
   func TopTile() -> some View {
     VStack(alignment: .leading, spacing: 16.0) {
       TextField(String.empty, text: $viewModel.email)
+
         .placeholder(when: viewModel.email.isEmpty) {
           Text("Email")
             .foregroundColor(SUColorStandartPalette.secondary1)
         }
-        .textInputAutocapitalization(.never)
         .focused($textFieldFocus)
+      #if os(iOS)
+        .textInputAutocapitalization(.never)
+      #endif
     }
     .foregroundColor(SUColorStandartPalette.text)
     .padding(16.0)
@@ -119,7 +122,7 @@ private extension WorkspaceMemberInviteScreen {
 }
 
 struct WorkspaceMemberInviteScreen_Previews: PreviewProvider {
-  
+
   static let viewModel = WorkspaceMemberInviteViewModel(
     appState: SUAppStateProviderMock(),
     inviteManager: SUmanagerInviteMock(),

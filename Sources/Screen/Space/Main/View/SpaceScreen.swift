@@ -197,7 +197,6 @@ private extension SpaceScreen {
           },
           action: item.action
         )
-        //                    .transition(.scale)
         //                    .transition(AnyTransition.slide)
         //                    .animation(.easeInOut.delay(0.2 * Double(item.index)))
         .background {

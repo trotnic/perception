@@ -28,9 +28,7 @@ extension AuthenticationScreen: View {
       GeometryReader { proxy in
         SUColorStandartPalette.background
           .ignoresSafeArea()
-        VStack(
-          spacing: proxy.size.height * 0.274
-        ) {
+        VStack(spacing: proxy.size.height * 0.274) {
           VStack(
             alignment: .center,
             spacing: 64.0
@@ -38,9 +36,7 @@ extension AuthenticationScreen: View {
             Text(viewModel.state.signButtonTitle)
               .font(.custom("Cofmortaa", size: 36.0).weight(.medium))
               .foregroundColor(SUColorStandartPalette.text)
-            VStack(
-              spacing: 24.0
-            ) {
+            VStack(spacing: 24.0) {
               VStack(
                 alignment: .leading,
                 spacing: 8.0
@@ -66,7 +62,6 @@ extension AuthenticationScreen: View {
           }
           .frame(maxWidth: .infinity)
           .padding(.top, proxy.size.height * 0.16)
-          
           HStack(
             spacing: 16.0
           ) {
@@ -81,7 +76,9 @@ extension AuthenticationScreen: View {
           .padding(.horizontal, 22.0)
         }
       }
+      #if os(iOS)
       .navigationBarHidden(true)
+      #endif
     }
   }
 }
